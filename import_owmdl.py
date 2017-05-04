@@ -4,7 +4,7 @@ from OWMImporter import read_owmdl
 from OWMImporter import import_owmat
 from OWMImporter import owm_types
 from mathutils import *
-import bpy, mathutils, bmesh, random
+import bpy, bpy_extras, mathutils, bmesh, random
 
 root = ''
 settings = None
@@ -31,6 +31,7 @@ def fixLength(bone):
     if bone.length < default_length:
         bone.length = default_length
 
+# rewrite me
 def importArmature(autoIk):
     bones = data.bones
     armature = None
@@ -46,32 +47,31 @@ def importArmature(autoIk):
         bpy.ops.object.mode_set(mode='EDIT')
 
         newBoneName()
+        bone_matrices = {}
         for bone in bones:
             bbone = armature.data.edit_bones.new(bone.name)
             addBoneName(bbone.name)
-
+			# warning: matrix bugged.
             mpos = Matrix.Translation(xzy(bone.pos))
-            mscl = Matrix.Scale(1, 4, xzy(bone.scale))
-            mrot = Matrix.Rotation(bone.rot[3], 4, bone.rot[0:3])
-            m = mpos * mrot * mscl
+            mrot = wxzy(bone.rot).to_matrix().to_4x4()
+            m = mpos * mrot
 
-            bbone.transform(m)
+            bbone.matrix = m
             fixLength(bbone)
 
         for i, bone in enumerate(bones):
-            if (bone.parent >= 0):
+            if bone.parent > -1:
                 bbone = armData.edit_bones[i]
                 bbone.parent = armData.edit_bones[bone.parent]
+			
         armature.select = True
         bpy.ops.object.mode_set(mode='OBJECT')
         armature.data.use_auto_ik = autoIk
     return armature
 
-def xzy(vec):
-    return (vec[0], -vec[2], vec[1])
+def xzy(pos): return Vector(pos)
 
-def wxzy(vec):
-    return (vec[3], vec[0], -vec[2], vec[1])
+def wxzy(rot): return Quaternion(rot[0:3], rot[3])
 
 def segregate(vertex):
     pos = []
@@ -79,12 +79,12 @@ def segregate(vertex):
     uvs = []
     boneData = []
     for vert in vertex:
-        pos += [Vector(xzy(vert.position))]
+        pos += [xzy(vert.position)]
         norm = Vector(vert.normal).normalized()
         norm[0] = -norm[0]
         norm[1] = -norm[1]
         norm[2] = -norm[2]
-        norms += [xzy(norm)]
+        norms += [norm]
         uvs += [vert.uvs]
         boneData += [[vert.boneIndices, vert.boneWeights]]
     return (pos, norms, uvs, boneData)
@@ -219,7 +219,7 @@ def importEmpties(armature = None):
         empty.name = emp.name
         empty.show_x_ray = True
         empty.location = xzy(emp.position)
-        empty.rotation_euler = Quaternion(wxzy(emp.rotation)).to_euler('XYZ')
+        empty.rotation_euler = wxzy(emp.rotation).to_euler('XYZ')
         empty.select = True
         bpy.context.scene.update()
         if len(emp.hardpoint) > 0 and armature is not None:

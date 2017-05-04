@@ -9,13 +9,6 @@ import bpy, bpy_extras, mathutils
 
 sameMeshData = False
 sets = None
-acm = bpy_extras.io_utils.axis_conversion(from_forward='-Z', from_up='Y').to_4x4()
-
-def posMatrix(pos):
-    global acm
-    posMtx = mathutils.Matrix.Translation(pos)
-    mtx = acm * posMtx
-    return mtx.to_translation()
 
 def select_all(obj):
     obj.select = True
@@ -135,9 +128,9 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
 
                 for idx2, rec in enumerate(ent.records):
                     nobj = copy(obj[0], matObj)
-                    nobj.location = posMatrix(rec.position)
-                    nobj.rotation_euler = Quaternion(import_owmdl.wxzy(rec.rotation)).to_euler('XYZ')
-                    nobj.scale = xpzy(rec.scale)
+                    nobj.location = import_owmdl.xzy(rec.position)
+                    nobj.rotation_euler = import_owmdl.wxzy(rec.rotation).to_euler('XYZ')
+                    nobj.scale = xyz(rec.scale)
             remove(obj[0])
 
     globDet = bpy.data.objects.new(name + '_DETAILS', None)
@@ -192,8 +185,8 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
                 objnode = copy(obj[0], globDet, settings.importSkeleton)
             else:
                 objnode = obj[0]
-            objnode.location = posMatrix(ob.position)
-            objnode.rotation_euler = Quaternion(import_owmdl.wxzy(ob.rotation)).to_euler('XYZ')
+            objnode.location = import_owmdl.xzy(ob.position)
+            objnode.rotation_euler = import_owmdl.wxzy(ob.rotation).to_euler('XYZ')
             objnode.scale = xpzy(ob.scale)
         for ob in objCache:
             remove(objCache[ob][0])
@@ -207,8 +200,8 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             lamp_data = bpy.data.lamps.new(name = "%s_LAMP" % (name), type = 'POINT')
             lamp_ob = bpy.data.objects.new(name = "%s_LAMP" % (name), object_data = lamp_data)
             bpy.context.scene.objects.link(lamp_ob)
-            lamp_ob.location = posMatrix(light.position)
-            lamp_ob.rotation_euler = Quaternion(import_owmdl.wxzy(light.rotation)).to_euler('XYZ')
+            lamp_ob.location = import_owmdl.xzy(light.position)
+            lamp_ob.rotation_euler = import_owmdl.wxzy(light.rotation).to_euler('XYZ')
             lamp_data.color = light.color
 
     for man in matCache:
