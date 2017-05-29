@@ -1,8 +1,8 @@
 import os
 
-from OWMImporter import read_owmdl
-from OWMImporter import import_owmat
-from OWMImporter import owm_types
+from . import read_owmdl
+from . import import_owmat
+from . import owm_types
 from mathutils import *
 import bpy, bpy_extras, mathutils, bmesh, random
 
@@ -63,7 +63,7 @@ def importArmature(autoIk):
             if bone.parent > -1:
                 bbone = armData.edit_bones[i]
                 bbone.parent = armData.edit_bones[bone.parent]
-			
+
         armature.select = True
         bpy.ops.object.mode_set(mode='OBJECT')
         armature.data.use_auto_ik = autoIk
@@ -310,7 +310,7 @@ def readmdl(materials = None):
 
     if impMat:
         import_owmat.cleanUnusedMaterials(materials)
-    
+
     bpy.ops.object.select_all(action='DESELECT')
     select_all(rootObject)
 

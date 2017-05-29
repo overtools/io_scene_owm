@@ -17,15 +17,15 @@ if "bpy" in locals():
     import imp
     rld = True
 
-from OWMImporter import bin_ops
-from OWMImporter import import_owmap
-from OWMImporter import import_owmdl
-from OWMImporter import import_owmat
-from OWMImporter import owm_types
-from OWMImporter import read_owmap
-from OWMImporter import read_owmdl
-from OWMImporter import read_owmat
-from OWMImporter import manager
+from . import bin_ops
+from . import import_owmap
+from . import import_owmdl
+from . import import_owmat
+from . import owm_types
+from . import read_owmap
+from . import read_owmdl
+from . import read_owmat
+from . import manager
 
 if rld:
     imp.reload(bin_ops)

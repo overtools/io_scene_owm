@@ -1,7 +1,7 @@
-from OWMImporter import import_owmap
-from OWMImporter import import_owmdl
-from OWMImporter import import_owmat
-from OWMImporter import owm_types
+from . import import_owmap
+from . import import_owmdl
+from . import import_owmat
+from . import owm_types
 import bpy
 from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ImportHelper
@@ -118,7 +118,7 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
         sub = col.row()
         sub.prop(self, "autoIk")
         sub.enabled = self.importSkeleton
-        
+
         col = layout.column(align=True)
         col.enabled = self.importMaterial
         col.label('Material')
@@ -261,13 +261,13 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         description="Set AutoIK",
         default=True,
     )
-    
+
     importTexNormal = BoolProperty(
         name="Import Normal Maps",
         description="Import Normal Textures",
         default=True,
     )
-    
+
     importTexEffect = BoolProperty(
         name="Import Misc Maps",
         description="Import Misc Texutures (Effects, highlights)",
@@ -332,7 +332,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         sub.prop(self, "importPhysics")
         sub.enabled = self.importDetails
         col.prop(self, "importLights")
-        
+
         col = layout.column(align=True)
         col.label('Material')
         col.enabled = self.importMaterial
