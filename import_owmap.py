@@ -19,10 +19,14 @@ def pos_matrix(pos):
     return mtx.to_translation()
 
 def copy(obj, parent):
-    if obj == None: return None
-    new_obj = obj.copy()
+    new_obj = None
+    if obj == None: return new_obj
     if obj.data != None:
+        new_mesh = bpy.data.meshes.new(obj.name)
+        new_obj = bpy.data.objects.new(obj.name, new_mesh)
         new_obj.data == obj.data.copy()
+    else:
+        new_obj = obj.copy()
     new_obj.parent = parent
     bpy.context.scene.objects.link(new_obj)
     for child in obj.children:
