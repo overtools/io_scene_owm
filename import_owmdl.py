@@ -133,7 +133,6 @@ def importMesh(armature, meshData):
     obj = bpy.data.objects.new(mesh.name, mesh)
     obj.parent = rootObject
     bpy.context.scene.objects.link(obj)
-    bpy.context.scene.update()
 
     pos, norms, uvs, boneData = segregate(meshData.vertices)
     faces = detach(meshData.indices)
@@ -187,8 +186,6 @@ def importMesh(armature, meshData):
     else:
         mesh.validate()
 
-    bpy.context.scene.update()
-
     return obj
 
 
@@ -209,7 +206,6 @@ def importEmpties(armature = None):
     att.parent = rootObject
     att.hide = att.hide_render = True
     bpy.context.scene.objects.link(att)
-    bpy.context.scene.update()
 
     e = []
     for emp in data.empties:
@@ -221,19 +217,16 @@ def importEmpties(armature = None):
         empty.location = xzy(emp.position)
         empty.rotation_euler = wxzy(emp.rotation).to_euler('XYZ')
         empty.select = True
-        bpy.context.scene.update()
         if len(emp.hardpoint) > 0 and armature is not None:
             childOf = empty.constraints.new("CHILD_OF")
             childOf.name = "ChildOfHardpoint%s" % (empty.name)
             childOf.target = armature
             childOf.subtarget = emp.hardpoint
-            bpy.context.scene.update()
             context_cpy = bpy.context.copy()
             context_cpy["constraint"] = childOf
             empty.update_tag({"DATA"})
             bpy.ops.constraint.childof_set_inverse(context_cpy, constraint=childOf.name, owner="OBJECT")
             empty.update_tag({"DATA"})
-        bpy.context.scene.update()
         e += [empty]
     return e
 
@@ -281,7 +274,6 @@ def readmdl(materials = None):
     rootObject = bpy.data.objects.new(rootName, None)
     rootObject.hide = rootObject.hide_render = True
     bpy.context.scene.objects.link(rootObject)
-    bpy.context.scene.update()
 
     armature = None
     if settings.importSkeleton and data.header.boneCount > 0:
@@ -314,16 +306,16 @@ def readmdl(materials = None):
     bpy.ops.object.select_all(action='DESELECT')
     select_all(rootObject)
 
-    bpy.context.scene.update()
-
     return (rootObject, armature, meshes, empties, data)
 
-def read(aux, materials = None):
+def read(aux, materials = None, mutated = False):
     global settings
     settings = aux
 
     setup()
     status = readmdl(materials)
+    if not mutated:
+        bpy.context.scene.update()
     finalize()
     return status
 

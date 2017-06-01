@@ -201,17 +201,17 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
-    importEmpties = BoolProperty(
-        name="Import Empties",
-        description="Import Empty Objects",
-        default=False,
-    )
-
-    importMaterial = BoolProperty(
-        name="Import Material",
-        description="Import Referenced OWMATs",
-        default=True,
-    )
+    # importEmpties = BoolProperty(
+    #     name="Import Empties",
+    #     description="Import Empty Objects",
+    #     default=False,
+    # )
+    #
+    # importMaterial = BoolProperty(
+    #     name="Import Material",
+    #     description="Import Referenced OWMATs",
+    #     default=True,
+    # )
 
     importObjects = BoolProperty(
         name="Import Objects",
@@ -243,36 +243,35 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         default=False,
     )
 
+    # reimportProps = BoolProperty(
+    #     name="Re-import Prop Models",
+    #     description="Re-imports prop models rather than duplicate them",
+    #     default=True,
+    # )
 
-    reimportProps = BoolProperty(
-        name="Re-import Prop Models",
-        description="Re-imports prop models rather than duplicate them",
-        default=True,
-    )
+    # importSkeleton = BoolProperty(
+    #     name="Import Skeleton",
+    #     description="Import Bones",
+    #     default=True,
+    # )
+    #
+    # autoIk = BoolProperty(
+    #     name="AutoIK",
+    #     description="Set AutoIK",
+    #     default=True,
+    # )
 
-    importSkeleton = BoolProperty(
-        name="Import Skeleton",
-        description="Import Bones",
-        default=True,
-    )
-
-    autoIk = BoolProperty(
-        name="AutoIK",
-        description="Set AutoIK",
-        default=True,
-    )
-
-    importTexNormal = BoolProperty(
-        name="Import Normal Maps",
-        description="Import Normal Textures",
-        default=True,
-    )
-
-    importTexEffect = BoolProperty(
-        name="Import Misc Maps",
-        description="Import Misc Texutures (Effects, highlights)",
-        default=True,
-    )
+    # importTexNormal = BoolProperty(
+    #     name="Import Normal Maps",
+    #     description="Import Normal Textures",
+    #     default=True,
+    # )
+    #
+    # importTexEffect = BoolProperty(
+    #     name="Import Misc Maps",
+    #     description="Import Misc Texutures (Effects, highlights)",
+    #     default=True,
+    # )
 
     def menu_func(self, context):
         self.layout.operator_context = 'INVOKE_DEFAULT'
@@ -289,15 +288,15 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             self.filepath,
             self.uvDisplX,
             self.uvDisplY,
-            self.autoIk,
+            False,
             self.importNormals,
-            self.importEmpties,
-            self.importMaterial,
-            self.importSkeleton,
-            self.importTexNormal,
-            self.importTexEffect
+            False,
+            False,
+            False,
+            False,
+            False
         )
-        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, self.sameMeshData, self.reimportProps, self.importLights)
+        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, self.sameMeshData, False, self.importLights)
         print('DONE')
         return {'FINISHED'}
 
@@ -307,22 +306,22 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label('Mesh')
         col.prop(self, "importNormals")
-        col.prop(self, "importEmpties")
-        col.prop(self, "importMaterial")
+        # col.prop(self, "importEmpties")
+        # col.prop(self, "importMaterial")
         col.prop(self, "sameMeshData")
-        sub = col.row()
-        sub.prop(self, 'reimportProps')
-        sub.enabled = self.importDetails
+        # sub = col.row()
+        # sub.prop(self, 'reimportProps')
+        # sub.enabled = self.importDetails
         sub = col.row()
         sub.label('UV')
         sub.prop(self, "uvDisplX")
         sub.prop(self, "uvDisplY")
-        col = layout.column(align=True)
-        col.label('Armature')
-        col.prop(self, "importSkeleton")
-        sub = col.row()
-        sub.prop(self, "autoIk")
-        sub.enabled = self.importSkeleton
+        # col = layout.column(align=True)
+        # col.label('Armature')
+        # col.prop(self, "importSkeleton")
+        # sub = col.row()
+        # sub.prop(self, "autoIk")
+        # sub.enabled = self.importSkeleton
 
         col = layout.column(align=True)
         col.label('Map')
@@ -333,11 +332,11 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         sub.enabled = self.importDetails
         col.prop(self, "importLights")
 
-        col = layout.column(align=True)
-        col.label('Material')
-        col.enabled = self.importMaterial
-        col.prop(self, 'importTexNormal')
-        col.prop(self, 'importTexEffect')
+        # col = layout.column(align=True)
+        # col.label('Material')
+        # col.enabled = self.importMaterial
+        # col.prop(self, 'importTexNormal')
+        # col.prop(self, 'importTexEffect')
 
 def mdlimp(self, context):
     self.layout.operator(
