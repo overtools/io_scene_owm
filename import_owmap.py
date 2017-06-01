@@ -46,6 +46,19 @@ def progress_update(total, progress):
     # print("%d/%d (%d%%)" % (progress, total, progress / total * 100))
     bpy.context.window_manager.progress_update(progress)
 
+def import_mdl(mdls):
+    try:
+        obj = import_owmdl.read(mdls, None)
+        obj[0].rotation_euler = (math.radians(90), 0, 0)
+        wrapObj = bpy.data.objects.new(obj[0].name + '_WRAP', None)
+        wrapObj.hide = True
+        obj[0].parent = wrapObj
+        bpy.context.scene.objects.link(wrapObj)
+        return wrapObj
+    except Exception as e:
+        print(e)
+        return None
+
 def read(settings, importObjects = False, importDetails = True, importPhysics = False, importLights = True):
     global sets
     sets = settings
@@ -91,10 +104,8 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             mutated = settings.mutate(obpath)
             mutated.importMaterial = False
 
-            try: obj = import_owmdl.read(mutated, None)
-            except Exception as e:
-                print(e)
-                continue
+            obj = import_mdl(mutated)
+            if obj == None: continue
 
             obnObj = bpy.data.objects.new(obn + '_COLLECTION', None)
             obnObj.hide = True
@@ -114,14 +125,14 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
 
                 for idx2, rec in enumerate(ent.records):
                     prog += 1
-                    nobj = copy(obj[0], matObj)
+                    nobj = copy(obj, matObj)
                     nobj.location = pos_matrix(rec.position)
                     nobj.rotation_euler = Quaternion(wxzy(rec.rotation)).to_euler('XYZ')
                     nobj.scale = xpzy(rec.scale)
                     progress_update(total, prog)
                 progress_update(total, prog)
             bpy.context.scene.update()
-            remove(obj[0])
+            remove(obj)
 
     if importDetails:
         globDet = bpy.data.objects.new(name + '_DETAILS', None)
@@ -147,12 +158,11 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             if len(ob.material) == 0:
                 mutated.importNormals = False
 
-            mdl = None
-            try: mdl = import_owmdl.read(mutated, None)
-            except Exception as e:
-                print(e)
-                continue
-            objCache[obpath] = mdl[0]
+
+            mdl = import_mdl(mutated)
+            if mdl == None: continue
+
+            objCache[obpath] = mdl
             progress_update(total, prog)
 
         for ob in data.details:
