@@ -237,11 +237,11 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         default=False,
     )
 
-    sameMeshData = BoolProperty(
-        name="Re-use Mesh Data",
-        description="Re-uses mesh data for identical objects, will create weird meshes and materials won't apply correctly but saves a lot of space and time",
-        default=False,
-    )
+    # sameMeshData = BoolProperty(
+    #     name="Re-use Mesh Data",
+    #     description="Re-uses mesh data for identical objects, will create weird meshes and materials won't apply correctly but saves a lot of space and time",
+    #     default=False,
+    # )
 
     # reimportProps = BoolProperty(
     #     name="Re-import Prop Models",
@@ -296,7 +296,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             False,
             False
         )
-        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, self.sameMeshData, False, self.importLights)
+        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, self.importLights)
         print('DONE')
         return {'FINISHED'}
 
@@ -308,7 +308,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col.prop(self, "importNormals")
         # col.prop(self, "importEmpties")
         # col.prop(self, "importMaterial")
-        col.prop(self, "sameMeshData")
+        # col.prop(self, "sameMeshData")
         # sub = col.row()
         # sub.prop(self, 'reimportProps')
         # sub.enabled = self.importDetails

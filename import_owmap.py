@@ -8,7 +8,6 @@ from mathutils import *
 import math
 import bpy, bpy_extras, mathutils
 
-sameMeshData = False
 sets = None
 
 def select_all(obj):
@@ -17,7 +16,6 @@ def select_all(obj):
         select_all(child)
 
 def copy(obj, parent):
-    global sameMeshData
     v = obj.hide
     obj.hide = False
     bpy.context.scene.objects.active = obj
@@ -46,11 +44,9 @@ def progress_update(total, progress):
     # print("%d/%d (%d%%)" % (progress, total, progress / total * 100))
     bpy.context.window_manager.progress_update(progress)
 
-def read(settings, importObjects = False, importDetails = True, importPhysics = False, sMD = False, importLights = True):
+def read(settings, importObjects = False, importDetails = True, importPhysics = False, importLights = True):
     global sets
-    global sameMeshData
     sets = settings
-    sameMeshData = sMD
 
     root, file = os.path.split(settings.filename)
 
