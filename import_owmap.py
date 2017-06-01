@@ -131,7 +131,6 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
                     nobj.scale = xpzy(rec.scale)
                     progress_update(total, prog)
                 progress_update(total, prog)
-            bpy.context.scene.update()
             remove(obj)
 
     if importDetails:
@@ -177,8 +176,6 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             objnode.rotation_euler = Quaternion(wxzy(ob.rotation)).to_euler('XYZ')
             objnode.scale = xpzy(ob.scale)
             progress_update(total, prog)
-
-        bpy.context.scene.update()
 
         for ob in objCache:
             prog += 1
