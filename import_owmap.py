@@ -10,35 +10,37 @@ import bpy, bpy_extras, mathutils
 
 sets = None
 
-def select_all(obj):
-    obj.select = True
-    for child in obj.children:
-        select_all(child)
+acm = bpy_extras.io_utils.axis_conversion(from_forward='-Z', from_up='Y').to_4x4()
+
+def pos_matrix(pos):
+    global acm
+    posMtx = mathutils.Matrix.Translation(pos)
+    mtx = acm * posMtx
+    return mtx.to_translation()
 
 def copy(obj, parent):
-    v = obj.hide
-    obj.hide = False
-    bpy.context.scene.objects.active = obj
-    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-    bpy.ops.object.select_all(action='DESELECT')
-    select_all(obj)
-    bpy.ops.object.duplicate()
-    try:
-        bpy.context.active_object.parent = parent
-    except: pass
-    bpy.context.active_object.hide = v
-    obj.hide = v
-    return bpy.context.active_object
+    if obj == None: return None
+    new_obj = obj.copy()
+    if obj.data != None:
+        new_obj.data == obj.data.copy()
+    new_obj.parent = parent
+    bpy.context.scene.objects.link(new_obj)
+    for child in obj.children:
+        copy(child, new_obj)
+    return new_obj
 
 def remove(obj):
     for child in obj.children:
         remove(child)
     try:
         bpy.context.scene.objects.unlink(obj)
-    except: pass
+    except Exception as e: print(e)
 
 def xpzy(vec):
     return (vec[0], vec[2], vec[1])
+
+def wxzy(vec):
+    return (vec[3], vec[0], -vec[2], vec[1])
 
 def progress_update(total, progress):
     # print("%d/%d (%d%%)" % (progress, total, progress / total * 100))
@@ -89,7 +91,10 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             mutated = settings.mutate(obpath)
             mutated.importMaterial = False
 
-            obj = import_owmdl.read(mutated, None, True)
+            try: obj = import_owmdl.read(mutated, None)
+            except Exception as e:
+                print(e)
+                continue
 
             obnObj = bpy.data.objects.new(obn + '_COLLECTION', None)
             obnObj.hide = True
@@ -102,7 +107,7 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
                 if not os.path.isabs(matpath):
                     matpath = os.path.normpath('%s/%s' % (root, matpath))
 
-                matObj = bpy.data.objects.new(obn + '_' + os.path.splitext(os.path.basename(matpath))[0], None)
+                matObj = bpy.data.objects.new(os.path.splitext(os.path.basename(matpath))[0], None)
                 matObj.hide = True
                 matObj.parent = obnObj
                 bpy.context.scene.objects.link(matObj)
@@ -110,12 +115,12 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
                 for idx2, rec in enumerate(ent.records):
                     prog += 1
                     nobj = copy(obj[0], matObj)
-                    nobj.location = import_owmdl.xzy(rec.position)
-                    nobj.rotation_euler = import_owmdl.wxzy(rec.rotation).to_euler('XYZ')
+                    nobj.location = pos_matrix(rec.position)
+                    nobj.rotation_euler = Quaternion(wxzy(rec.rotation)).to_euler('XYZ')
                     nobj.scale = xpzy(rec.scale)
                     progress_update(total, prog)
                 progress_update(total, prog)
-
+            bpy.context.scene.update()
             remove(obj[0])
 
     if importDetails:
@@ -143,7 +148,7 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
                 mutated.importNormals = False
 
             mdl = None
-            try: mdl = import_owmdl.read(mutated, None, True)
+            try: mdl = import_owmdl.read(mutated, None)
             except Exception as e:
                 print(e)
                 continue
@@ -158,10 +163,12 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             if obpath not in objCache or objCache[obpath] == None: continue
 
             objnode = copy(objCache[obpath], globDet)
-            objnode.location = import_owmdl.xzy(ob.position)
-            objnode.rotation_euler = import_owmdl.wxzy(ob.rotation).to_euler('XYZ')
+            objnode.location = pos_matrix(ob.position)
+            objnode.rotation_euler = Quaternion(wxzy(ob.rotation)).to_euler('XYZ')
             objnode.scale = xpzy(ob.scale)
             progress_update(total, prog)
+
+        bpy.context.scene.update()
 
         for ob in objCache:
             prog += 1
@@ -181,13 +188,12 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             lamp_data = bpy.data.lamps.new(name = "%s_LAMP" % (name), type = LIGHT_MAP[light.type])
             lamp_ob = bpy.data.objects.new(name = "%s_LAMP" % (name), object_data = lamp_data)
             bpy.context.scene.objects.link(lamp_ob)
-            lamp_ob.location = import_owmdl.xzy(light.position)
-            lamp_ob.rotation_euler = import_owmdl.wxzy(light.rotation).to_euler('XZY')
+            lamp_ob.location = pos_matrix(light.position)
+            lamp_ob.rotation_euler = Quaternion(wxzy(light.rotation)).to_euler('XYZ')
             lamp_data.color = light.color
             if lamp_data.type == 'SPOT':
                 lamp_data.spot_size = math.radians(light.fov)
             lamp_ob.parent = globLight
             progress_update(total, prog)
-    rootObj.rotation_euler = (math.radians(90), 0, 0)
     wm.progress_end()
     bpy.context.scene.update()
