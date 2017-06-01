@@ -206,4 +206,5 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             lamp_ob.parent = globLight
             progress_update(total, prog)
     wm.progress_end()
+    print("Finished loading map")
     bpy.context.scene.update()
