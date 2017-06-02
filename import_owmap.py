@@ -4,6 +4,7 @@ from . import read_owmap
 from . import import_owmdl
 from . import import_owmat
 from . import owm_types
+from . import bpyhelper
 from mathutils import *
 import math
 import bpy, bpy_extras, mathutils
@@ -24,7 +25,7 @@ def copy(obj, parent):
     if obj.data != None:
         new_obj.data == obj.data.copy()
     new_obj.parent = parent
-    bpy.context.scene.objects.link(new_obj)
+    bpyhelper.scene_link(new_obj)
     for child in obj.children:
         copy(child, new_obj)
     return new_obj
@@ -33,7 +34,7 @@ def remove(obj):
     for child in obj.children:
         remove(child)
     try:
-        bpy.context.scene.objects.unlink(obj)
+        bpyhelper.scene_unlink(obj)
     except Exception as e: print(e)
 
 def xpzy(vec):
@@ -53,7 +54,7 @@ def import_mdl(mdls):
         wrapObj = bpy.data.objects.new(obj[0].name + '_WRAP', None)
         wrapObj.hide = True
         obj[0].parent = wrapObj
-        bpy.context.scene.objects.link(wrapObj)
+        bpyhelper.scene_link(wrapObj)
         return wrapObj
     except Exception as e:
         print(e)
@@ -73,7 +74,7 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
         name = os.path.splitext(file)[0]
     rootObj = bpy.data.objects.new(name, None)
     rootObj.hide = True
-    bpy.context.scene.objects.link(rootObj)
+    bpyhelper.scene_link(rootObj)
 
     wm = bpy.context.window_manager
     prog = 0
@@ -92,7 +93,7 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
         globObj = bpy.data.objects.new(name + '_OBJECTS', None)
         globObj.hide = True
         globObj.parent = rootObj
-        bpy.context.scene.objects.link(globObj)
+        bpyhelper.scene_link(globObj)
         for ob in data.objects:
             obpath = ob.model
             if not os.path.isabs(obpath):
@@ -110,7 +111,7 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             obnObj = bpy.data.objects.new(obn + '_COLLECTION', None)
             obnObj.hide = True
             obnObj.parent = globObj
-            bpy.context.scene.objects.link(obnObj)
+            bpyhelper.scene_link(obnObj)
 
             for idx, ent in enumerate(ob.entities):
                 prog += 1
@@ -121,7 +122,7 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
                 matObj = bpy.data.objects.new(os.path.splitext(os.path.basename(matpath))[0], None)
                 matObj.hide = True
                 matObj.parent = obnObj
-                bpy.context.scene.objects.link(matObj)
+                bpyhelper.scene_link(matObj)
 
                 for idx2, rec in enumerate(ent.records):
                     prog += 1
@@ -137,7 +138,7 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
         globDet = bpy.data.objects.new(name + '_DETAILS', None)
         globDet.hide = True
         globDet.parent = rootObj
-        bpy.context.scene.objects.link(globDet)
+        bpyhelper.scene_link(globDet)
         objCache = {}
         for ob in data.details:
             obpath = ob.model
@@ -188,13 +189,13 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
         globLight = bpy.data.objects.new(name + '_LIGHTS', None)
         globLight.hide = True
         globLight.parent = rootObj
-        bpy.context.scene.objects.link(globLight)
+        bpyhelper.scene_link(globLight)
         for light in data.lights:
             prog += 1
             # print("light, fov: %s, type: %s (%d%%)" % (light.fov, light.type, (total_C/total) * 100))
             lamp_data = bpy.data.lamps.new(name = "%s_LAMP" % (name), type = LIGHT_MAP[light.type])
             lamp_ob = bpy.data.objects.new(name = "%s_LAMP" % (name), object_data = lamp_data)
-            bpy.context.scene.objects.link(lamp_ob)
+            bpyhelper.scene_link(lamp_ob)
             lamp_ob.location = pos_matrix(light.position)
             lamp_ob.rotation_euler = Quaternion(wxzy(light.rotation)).to_euler('XYZ')
             lamp_data.color = light.color

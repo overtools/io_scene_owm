@@ -25,6 +25,7 @@ from . import owm_types
 from . import read_owmap
 from . import read_owmdl
 from . import read_owmat
+from . import bpyhelper
 from . import manager
 
 if rld:
@@ -36,6 +37,7 @@ if rld:
     imp.reload(read_owmap)
     imp.reload(read_owmdl)
     imp.reload(read_owmtl)
+    imp.reload(bpyhelper)
     imp.reload(manager)
 
 import bpy

@@ -4,6 +4,7 @@ from . import read_owmdl
 from . import import_owmat
 from . import owm_types
 from mathutils import *
+from . import bpyhelper
 import bpy, bpy_extras, mathutils, bmesh, random
 
 root = ''
@@ -41,9 +42,9 @@ def importArmature(autoIk):
         armature = bpy.data.objects.new("Armature", armData)
         armature.show_x_ray = True
 
-        bpy.context.scene.objects.link(armature)
+        bpyhelper.scene_link(armature)
 
-        bpy.context.scene.objects.active = armature
+        bpyhelper.scene_active_set(armature)
         bpy.ops.object.mode_set(mode='EDIT')
 
         newBoneName()
@@ -64,7 +65,7 @@ def importArmature(autoIk):
                 bbone = armData.edit_bones[i]
                 bbone.parent = armData.edit_bones[bone.parent]
 
-        armature.select = True
+        bpyhelper.select_obj(armature, True)
         bpy.ops.object.mode_set(mode='OBJECT')
         armature.data.use_auto_ik = autoIk
     return armature
@@ -132,7 +133,7 @@ def importMesh(armature, meshData):
     mesh = bpy.data.meshes.new(meshData.name)
     obj = bpy.data.objects.new(mesh.name, mesh)
     obj.parent = rootObject
-    bpy.context.scene.objects.link(obj)
+    bpyhelper.scene_link(obj)
 
     pos, norms, uvs, boneData = segregate(meshData.vertices)
     faces = detach(meshData.indices)
@@ -176,7 +177,7 @@ def importMesh(armature, meshData):
 
     mesh.update()
 
-    obj.select = True
+    bpyhelper.select_obj(obj, True)
     if settings.importNormals:
         mesh.create_normals_split()
         mesh.validate(clean_customdata = False)
@@ -205,7 +206,7 @@ def importEmpties(armature = None):
     att = bpy.data.objects.new('Empties', None)
     att.parent = rootObject
     att.hide = att.hide_render = True
-    bpy.context.scene.objects.link(att)
+    bpyhelper.scene_link(att)
 
     e = []
     for emp in data.empties:
@@ -216,7 +217,7 @@ def importEmpties(armature = None):
         empty.show_x_ray = True
         empty.location = xzy(emp.position)
         empty.rotation_euler = wxzy(emp.rotation).to_euler('XYZ')
-        empty.select = True
+        bpyhelper.select_obj(empty, True)
         if len(emp.hardpoint) > 0 and armature is not None:
             childOf = empty.constraints.new("CHILD_OF")
             childOf.name = "ChildOfHardpoint%s" % (empty.name)
@@ -231,7 +232,7 @@ def importEmpties(armature = None):
     return e
 
 def boneTailMiddleObject(armature):
-    bpy.context.scene.objects.active = armature
+    bpyhelper.scene_active_set(armature)
     bpy.ops.object.mode_set(mode='EDIT', toggle=False)
     eb = armature.data.edit_bones
     boneTailMiddle(eb)
@@ -255,7 +256,7 @@ def boneTailMiddle(eb):
                 bone.use_connect = True
 
 def select_all(ob):
-    ob.select = True
+    bpyhelper.select_obj(ob, True)
     for obj in ob.children: select_all(obj)
 
 def readmdl(materials = None):
@@ -273,7 +274,7 @@ def readmdl(materials = None):
 
     rootObject = bpy.data.objects.new(rootName, None)
     rootObject.hide = rootObject.hide_render = True
-    bpy.context.scene.objects.link(rootObject)
+    bpyhelper.scene_link(rootObject)
 
     armature = None
     if settings.importSkeleton and data.header.boneCount > 0:
@@ -328,5 +329,5 @@ def finalize():
 
 def mode():
     currentMode = bpy.context.mode
-    if bpy.context.scene.objects.active and currentMode != 'OBJECT':
+    if bpyhelper.scene_active() and currentMode != 'OBJECT':
         bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
