@@ -1,7 +1,7 @@
 import os
 
-from OWMImporter import read_owmat
-from OWMImporter import owm_types
+from . import read_owmat
+from . import owm_types
 import bpy
 
 def cleanUnusedMaterials(materials):

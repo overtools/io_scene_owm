@@ -1,8 +1,8 @@
 import os
 
-from OWMImporter import read_owmdl
-from OWMImporter import import_owmat
-from OWMImporter import owm_types
+from . import read_owmdl
+from . import import_owmat
+from . import owm_types
 from mathutils import *
 import bpy, mathutils, bmesh, random
 

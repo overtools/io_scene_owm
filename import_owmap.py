@@ -1,9 +1,9 @@
 import os
 
-from OWMImporter import read_owmap
-from OWMImporter import import_owmdl
-from OWMImporter import import_owmat
-from OWMImporter import owm_types
+from . import read_owmap
+from . import import_owmdl
+from . import import_owmat
+from . import owm_types
 from mathutils import *
 import bpy, bpy_extras, mathutils
 

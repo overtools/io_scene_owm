@@ -1,7 +1,7 @@
-from OWMImporter import import_owmap
-from OWMImporter import import_owmdl
-from OWMImporter import import_owmat
-from OWMImporter import owm_types
+from . import import_owmap
+from . import import_owmdl
+from . import import_owmat
+from . import owm_types
 import bpy
 from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ImportHelper

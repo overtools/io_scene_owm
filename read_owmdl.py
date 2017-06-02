@@ -1,5 +1,5 @@
-from OWMImporter import bin_ops
-from OWMImporter import owm_types
+from . import bin_ops
+from . import owm_types
 import io
 
 def openStream(filename):
