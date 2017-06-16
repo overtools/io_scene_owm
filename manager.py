@@ -2,6 +2,7 @@ from . import import_owmap
 from . import import_owmdl
 from . import import_owmat
 from . import owm_types
+from . import bpyhelper
 import bpy
 from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ImportHelper
@@ -45,7 +46,7 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
     importEmpties = BoolProperty(
         name="Import Empties",
         description="Import Empty Objects",
-        default=True,
+        default=False,
     )
 
     importMaterial = BoolProperty(
@@ -57,7 +58,7 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
     importSkeleton = BoolProperty(
         name="Import Skeleton",
         description="Import Bones",
-        default=True,
+        default=(not bpyhelper.IS_BLENDER280),
     )
 
     importTexNormal = BoolProperty(

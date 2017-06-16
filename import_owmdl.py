@@ -140,7 +140,7 @@ def importMesh(armature, meshData):
     mesh.from_pydata(pos, [], faces)
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
     for i in range(meshData.uvCount):
-        mesh.uv_textures.new(name="UV" + str(i + 1))
+        bpyhelper.new_uv_layer(mesh, "UVMap%d" % (i + 1))
 
     if armature:
         mod = obj.modifiers.new(type="ARMATURE", name="Armature")

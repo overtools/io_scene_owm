@@ -9,8 +9,10 @@ def scene_unlink(object): bpy.context.scene.objects.unlink(object)
 def scene_active(): return bpy.context.scene.objects.active
 def scene_active_set(object): bpy.context.scene.objects.active = object
 def get_objects(): return bpy.context.scene.objects
+def new_uv_layer(mesh, name): return mesh.uv_textures.new(name)
 
 if IS_BLENDER280:
+    def new_uv_layer(mesh, name): return mesh.uv_layers.new(name)
     def select_obj(object, value):
         if value: object.select_set(action='SELECT')
         else: object.select_set(action='DESELECT')
