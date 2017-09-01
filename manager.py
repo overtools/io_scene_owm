@@ -201,19 +201,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         description="Import Custom Normals",
         default=True,
     )
-
-    # importEmpties = BoolProperty(
-    #     name="Import Empties",
-    #     description="Import Empty Objects",
-    #     default=False,
-    # )
-    #
-    # importMaterial = BoolProperty(
-    #     name="Import Material",
-    #     description="Import Referenced OWMATs",
-    #     default=True,
-    # )
-
+    
     importObjects = BoolProperty(
         name="Import Objects",
         description="Import Map Objects",
@@ -238,41 +226,41 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         default=False,
     )
 
-    # sameMeshData = BoolProperty(
-    #     name="Re-use Mesh Data",
-    #     description="Re-uses mesh data for identical objects, will create weird meshes and materials won't apply correctly but saves a lot of space and time",
-    #     default=False,
-    # )
+    importMaterial = BoolProperty(
+        name="Import Material",
+        description="Import Referenced OWMAT",
+        default=True,
+    )
+    
+    importTexNormal = BoolProperty(
+        name="Import Normal Maps",
+        description="Import Normal Textures",
+        default=True,
+    )
 
-    # reimportProps = BoolProperty(
-    #     name="Re-import Prop Models",
-    #     description="Re-imports prop models rather than duplicate them",
-    #     default=True,
-    # )
+    importTexEffect = BoolProperty(
+        name="Import Misc Maps",
+        description="Import Misc Texutures (Effects, highlights)",
+        default=True,
+    )
 
-    # importSkeleton = BoolProperty(
-    #     name="Import Skeleton",
-    #     description="Import Bones",
-    #     default=True,
-    # )
-    #
-    # autoIk = BoolProperty(
-    #     name="AutoIK",
-    #     description="Set AutoIK",
-    #     default=True,
-    # )
+    importLampSun = BoolProperty(
+        name="Import Sun lamps",
+        description="Import lamps of type Sun",
+        default=True,
+    )
 
-    # importTexNormal = BoolProperty(
-    #     name="Import Normal Maps",
-    #     description="Import Normal Textures",
-    #     default=True,
-    # )
-    #
-    # importTexEffect = BoolProperty(
-    #     name="Import Misc Maps",
-    #     description="Import Misc Texutures (Effects, highlights)",
-    #     default=True,
-    # )
+    importLampSpot = BoolProperty(
+        name="Import Spot lamps",
+        description="Import lamps of type Spot",
+        default=True,
+    )
+
+    importLampPoint = BoolProperty(
+        name="Import Point lamps",
+        description="Import lamps of type Point",
+        default=True,
+    )
 
     def menu_func(self, context):
         self.layout.operator_context = 'INVOKE_DEFAULT'
@@ -292,12 +280,12 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             False,
             self.importNormals,
             False,
+            self.importMaterial,
             False,
-            False,
-            False,
-            False
+            self.importTexNormal,
+            self.importTexEffect
         )
-        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, self.importLights)
+        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, self.importLights, [self.importLampSun, self.importLampSpot, self.importLampPoint])
         print('DONE')
         return {'FINISHED'}
 
@@ -307,37 +295,36 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label('Mesh')
         col.prop(self, "importNormals")
-        # col.prop(self, "importEmpties")
-        # col.prop(self, "importMaterial")
-        # col.prop(self, "sameMeshData")
-        # sub = col.row()
-        # sub.prop(self, 'reimportProps')
-        # sub.enabled = self.importDetails
+        col.prop(self, "importMaterial")
+        
         sub = col.row()
         sub.label('UV')
         sub.prop(self, "uvDisplX")
         sub.prop(self, "uvDisplY")
-        # col = layout.column(align=True)
-        # col.label('Armature')
-        # col.prop(self, "importSkeleton")
-        # sub = col.row()
-        # sub.prop(self, "autoIk")
-        # sub.enabled = self.importSkeleton
-
+        
         col = layout.column(align=True)
         col.label('Map')
         col.prop(self, "importObjects")
         col.prop(self, "importDetails")
+        
         sub = col.row()
         sub.prop(self, "importPhysics")
         sub.enabled = self.importDetails
+        
         col.prop(self, "importLights")
 
-        # col = layout.column(align=True)
-        # col.label('Material')
-        # col.enabled = self.importMaterial
-        # col.prop(self, 'importTexNormal')
-        # col.prop(self, 'importTexEffect')
+        col = layout.column(align=True)
+        col.label('Material')
+        col.enabled = self.importMaterial
+        col.prop(self, 'importTexNormal')
+        col.prop(self, 'importTexEffect')
+
+        col = layout.column(align=True)
+        col.label('Lights')
+        col.enabled = self.importLights
+        col.prop(self, 'importLampSun')
+        col.prop(self, 'importLampSpot')
+        col.prop(self, 'importLampPoint')
 
 def mdlimp(self, context):
     self.layout.operator(

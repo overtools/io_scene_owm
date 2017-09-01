@@ -52,7 +52,7 @@ def importArmature(autoIk):
         for bone in bones:
             bbone = armature.data.edit_bones.new(bone.name)
             addBoneName(bbone.name)
-			# warning: matrix bugged.
+            # warning: matrix bugged.
             mpos = Matrix.Translation(xzy(bone.pos))
             mrot = wxzy(bone.rot).to_matrix().to_4x4()
             m = mpos * mrot
@@ -126,6 +126,18 @@ def bindMaterials(meshes, data, materials):
         if materials != None and meshData.materialKey in materials[1]:
             mesh.materials.clear()
             mesh.materials.append(materials[1][meshData.materialKey])
+
+def bindMaterialsUniq(meshes, data, materials):
+    if materials == None:
+        return
+    for i, obj in enumerate(meshes):
+        mesh = obj.data
+        meshData = data.meshes[i]
+        if materials != None and meshData.materialKey in materials[1]:
+            mesh.materials.clear()
+            mesh.materials.append(None)
+            obj.material_slots[0].link = 'OBJECT'
+            obj.material_slots[0].material = materials[1][meshData.materialKey]
 
 def importMesh(armature, meshData):
     global settings

@@ -55,12 +55,19 @@ def import_mdl(mdls):
         wrapObj.hide = True
         obj[0].parent = wrapObj
         bpyhelper.scene_link(wrapObj)
-        return wrapObj
+        return (wrapObj, obj[2], obj[4])
     except Exception as e:
         print(e)
         return None
 
-def read(settings, importObjects = False, importDetails = True, importPhysics = False, importLights = True):
+def import_mat(path, prefix, norm, efct):
+    try:
+        return import_owmat.read(path, prefix, norm, efct)
+    except Exception as e:
+        print(e)
+        return None
+
+def read(settings, importObjects = False, importDetails = True, importPhysics = False, importLights = True, importLightType = [True, True, True]):
     global sets
     sets = settings
 
@@ -107,7 +114,10 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
 
             obj = import_mdl(mutated)
             if obj == None: continue
-
+            objData = obj[2]
+            objMeshData = obj[1]
+            obj = obj[0]
+            
             obnObj = bpy.data.objects.new(obn + '_COLLECTION', None)
             obnObj.hide = True
             obnObj.parent = globObj
@@ -118,20 +128,28 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
                 matpath = ent.material
                 if not os.path.isabs(matpath):
                     matpath = os.path.normpath('%s/%s' % (root, matpath))
-
+                    
+                mat = None
+                if settings.importMaterial:
+                    mat = import_owmat(matpath, os.path.splitext(os.path.basename(matpath))[0] + '_', settings.importTexNormal, settings.importTexEffect)
+                    
                 matObj = bpy.data.objects.new(os.path.splitext(os.path.basename(matpath))[0], None)
                 matObj.hide = True
                 matObj.parent = obnObj
                 bpyhelper.scene_link(matObj)
-
+                
+                import_owmdl.bindMaterialsUniq(objMeshData, objData, mat)
+                eobj = copy(obj, None)
+                
                 for idx2, rec in enumerate(ent.records):
                     prog += 1
-                    nobj = copy(obj, matObj)
+                    nobj = copy(eobj, matObj)
                     nobj.location = pos_matrix(rec.position)
                     nobj.rotation_euler = Quaternion(wxzy(rec.rotation)).to_euler('XYZ')
                     nobj.scale = xpzy(rec.scale)
                     progress_update(total, prog)
                 progress_update(total, prog)
+                remove(eobj)
             remove(obj)
 
     if importDetails:
@@ -146,6 +164,9 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             if not os.path.isabs(obpath):
                 obpath = os.path.normpath('%s/%s' % (root, obpath))
             if not os.path.isfile(obpath): continue
+            cacheKey = obpath
+            if settings.importMaterial and len(ob.material) > 0:
+                cacheKey = cacheKey + ob.material
             if obpath in objCache: continue
 
             obn = os.path.splitext(os.path.basename(obpath))[0]
@@ -155,14 +176,22 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             mutated = settings.mutate(obpath)
             mutated.importMaterial = False
 
-            if len(ob.material) == 0:
-                mutated.importNormals = False
-
-
             mdl = import_mdl(mutated)
             if mdl == None: continue
+            
+            mat = None
+            
+            if settings.importMaterial and len(ob.material) > 0:
+                matpath = ent.material
+                if not os.path.isabs(matpath):
+                    matpath = os.path.normpath('%s/%s' % (root, matpath))
+                if settings.importMaterial:
+                    mat = import_owmat(matpath, os.path.splitext(os.path.basename(ob.material))[0] + '_', settings.importTexNormal, settings.importTexEffect)
+                    
+            if mat is not None:
+                import_owmdl.bindMaterialsUniq(mdl[1], mdl[2], mat)
 
-            objCache[obpath] = mdl
+            objCache[cacheKey] = mdl[0]
             progress_update(total, prog)
 
         for ob in data.details:
@@ -170,9 +199,12 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
             prog += 1
             if not os.path.isabs(obpath):
                 obpath = os.path.normpath('%s/%s' % (root, obpath))
-            if obpath not in objCache or objCache[obpath] == None: continue
+            cacheKey = obpath
+            if settings.importMaterial and len(ob.material) > 0:
+                cacheKey = cacheKey + ob.material
+            if cacheKey not in objCache or objCache[cacheKey] == None: continue
 
-            objnode = copy(objCache[obpath], globDet)
+            objnode = copy(objCache[cacheKey], globDet)
             objnode.location = pos_matrix(ob.position)
             objnode.rotation_euler = Quaternion(wxzy(ob.rotation)).to_euler('XYZ')
             objnode.scale = xpzy(ob.scale)
@@ -192,9 +224,10 @@ def read(settings, importObjects = False, importDetails = True, importPhysics = 
         bpyhelper.scene_link(globLight)
         for light in data.lights:
             prog += 1
+            if not importLightType[light.type]: continue
             # print("light, fov: %s, type: %s (%d%%)" % (light.fov, light.type, (total_C/total) * 100))
-            lamp_data = bpy.data.lamps.new(name = "%s_LAMP" % (name), type = LIGHT_MAP[light.type])
-            lamp_ob = bpy.data.objects.new(name = "%s_LAMP" % (name), object_data = lamp_data)
+            lamp_data = bpy.data.lamps.new(name = "%s_%s" % (name, LIGHT_MAP[light.type]), type = LIGHT_MAP[light.type])
+            lamp_ob = bpy.data.objects.new(name = "%s_%s" % (name, LIGHT_MAP[light.type]), object_data = lamp_data)
             bpyhelper.scene_link(lamp_ob)
             lamp_ob.location = pos_matrix(light.position)
             lamp_ob.rotation_euler = Quaternion(wxzy(light.rotation)).to_euler('XYZ')
