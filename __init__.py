@@ -32,11 +32,11 @@ if rld:
     imp.reload(bin_ops)
     imp.reload(import_owmap)
     imp.reload(import_owmdl)
-    imp.reload(import_owmtl)
+    imp.reload(import_owmat)
     imp.reload(owm_types)
     imp.reload(read_owmap)
     imp.reload(read_owmdl)
-    imp.reload(read_owmtl)
+    imp.reload(read_owmat)
     imp.reload(bpyhelper)
     imp.reload(manager)
 
