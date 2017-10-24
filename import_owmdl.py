@@ -1,4 +1,5 @@
 import os
+from math import radians
 
 from . import read_owmdl
 from . import import_owmat
@@ -293,6 +294,7 @@ def readmdl(materials = None):
         armature = importArmature(settings.autoIk)
         armature.name = rootName + '_Skeleton'
         armature.parent = rootObject
+        armature.rotation_euler = (radians(90), 0, 0)
 
     meshes = importMeshes(armature)
 
@@ -315,6 +317,31 @@ def readmdl(materials = None):
 
     if impMat:
         import_owmat.cleanUnusedMaterials(materials)
+
+    if len(data.cloths) > 0:
+        for cloth in data.cloths:
+            bpy.ops.object.select_all(action='DESELECT')
+            i = 0
+            for clothSubmesh in cloth.meshes:
+                submesh = meshes[clothSubmesh.id]
+                if i == 0:
+                    bpy.context.scene.objects.active = submesh
+                bpyhelper.select_obj(submesh, True)
+                vgrp = submesh.vertex_groups.new("clothPin")
+                vgrp.add(clothSubmesh.pinnedVerts, 1.0, 'REPLACE')
+                i += 1
+
+            bpy.ops.object.join()
+            bpy.context.object.name = cloth.name
+            bpy.ops.object.select_all(action='DESELECT')
+
+            # do it manually because I don't want to be responsible for broken models:
+            # https://i.imgur.com/6Jxg91T.png?1
+            # bpy.context.scene.objects.active = mainObj
+            # bpy.ops.object.editmode_toggle()
+            # bpy.ops.mesh.select_all(action='SELECT')
+            # bpy.ops.mesh.remove_doubles()
+            # bpy.ops.object.editmode_toggle()
 
     bpy.ops.object.select_all(action='DESELECT')
     select_all(rootObject)

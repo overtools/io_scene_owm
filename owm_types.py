@@ -26,11 +26,12 @@ class OWSettings:
 
 
 class OWMDLFile:
-    def __init__(self, header, bones, meshes, empties):
+    def __init__(self, header, bones, meshes, empties, cloths):
         self.header = header
         self.bones = bones
         self.meshes = meshes
         self.empties = empties
+        self.cloths = cloths
 
 
 class OWMATFile:
@@ -137,6 +138,25 @@ class OWMDLEmpty:
         self.position = position
         self.rotation = rotation
         self.hardpoint = hardpoint
+
+
+class OWMDLCloth:
+    structFormat = [str, '<I']
+    beforeFmt = ['<I']
+
+    def __init__(self, name, meshes):
+        self.name = name
+        self.meshes = meshes
+
+
+class OWMDLClothMesh:
+    structFormat = ['<II', str]
+    pinnedVertFmt = ['<I']
+
+    def __init__(self, name, id, pinnedVerts):
+        self.name = name
+        self.id = id
+        self.pinnedVerts = pinnedVerts
 
 
 class OWMATMaterial:
