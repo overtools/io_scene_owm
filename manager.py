@@ -1,4 +1,5 @@
 from . import import_owmap
+from . import import_owentity
 from . import import_owmdl
 from . import import_owmat
 from . import owm_types
@@ -326,6 +327,59 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col.prop(self, 'importLampSpot')
         col.prop(self, 'importLampPoint')
 
+class import_ent_op(bpy.types.Operator, ImportHelper):
+    bl_idname = "owm_importer.import_entity"
+    bl_label = "Import OWENTITY"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+
+    filename_ext = ".owmap"
+    filter_glob = bpy.props.StringProperty(
+        default="*.owentity",
+        options={'HIDDEN'},
+    )
+
+    importChildren = BoolProperty(
+        name="Import Children",
+        description="Import child entities",
+        default=True,
+    )
+
+    def menu_func(self, context):
+        self.layout.operator_context = 'INVOKE_DEFAULT'
+        self.layout.operator(
+            import_map_op.bl_idname,
+            text="Text Export Operator")
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        settings = owm_types.OWSettings(
+            self.filepath,
+            0,
+            0,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True
+        )
+        import_owentity.read(settings, self.importChildren)
+        # import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, self.importLights, [self.importLampSun, self.importLampSpot, self.importLampPoint])
+        print('DONE')
+        return {'FINISHED'}
+
+    def draw(self, context):
+        layout = self.layout
+
+        col = layout.column(align=True)
+        col.label('Test')
+        col.prop(self, "importChildren")
+
 def mdlimp(self, context):
     self.layout.operator(
         import_mdl_op.bl_idname,
@@ -344,12 +398,20 @@ def mapimp(self, context):
         text="OWMAP"
     )
 
+def entimp(self, context):
+    self.layout.operator(
+        import_ent_op.bl_idname,
+        text="OWENTITY"
+    )
+
 def register():
     bpy.types.INFO_MT_file_import.append(mdlimp)
     bpy.types.INFO_MT_file_import.append(matimp)
     bpy.types.INFO_MT_file_import.append(mapimp)
+    bpy.types.INFO_MT_file_import.append(entimp)
 
 def unregister():
     bpy.types.INFO_MT_file_import.remove(mdlimp)
     bpy.types.INFO_MT_file_import.remove(matimp)
     bpy.types.INFO_MT_file_import.remove(mapimp)
+    bpy.types.INFO_MT_file_import.remove(entimp)
