@@ -4,6 +4,25 @@ OWMATTypes = {
     "SHADER": 0x02
 }
 
+TextureTypes = {
+    "Unknown": 0,
+    "DiffuseAO": 2903569922,  # Alpha channel is AO
+    "DiffuseOpacity": 1239794147,
+    "DiffuseBlack": 3989656707,  # Alpha is black ???
+    "Normal": 378934698,
+    "HairNormal": 562391268, # why?
+    "CorneaNormal": 562391268, # maybe not
+    "Tertiary": 548341454,  # Metal (R) + Highlight (G) + Detail (B)
+    "Opacity": 1482859648,
+    "MaterialMask": 1557393490, # ?
+    "SubsurfaceScattering": 3004687613,
+    "Emission": 3166598269,
+    "HairAnisotropy": 2337956496,
+    "Specular": 1117188170, # maybe hairspec
+    "AO": 3761386704,  # maybe hairao
+    "SomeKindOfGradient": 1140682086
+}
+
 
 class OWSettings:
     def __init__(self, filename, uvDisplaceX, uvDisplaceY, autoIk, importNormals, importEmpties, importMaterial,
@@ -206,6 +225,7 @@ class OWMDLClothMesh:
 class OWMATMaterial:
     structFormat = ['<QI']
     exFormat = [str]
+    typeFormat = ['<I']
 
     def __init__(self, key, textureCount, textures):
         self.key = key

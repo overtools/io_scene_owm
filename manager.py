@@ -408,10 +408,10 @@ def register():
     bpy.types.INFO_MT_file_import.append(mdlimp)
     bpy.types.INFO_MT_file_import.append(matimp)
     bpy.types.INFO_MT_file_import.append(mapimp)
-    bpy.types.INFO_MT_file_import.append(entimp)
+    # bpy.types.INFO_MT_file_import.append(entimp)
 
 def unregister():
     bpy.types.INFO_MT_file_import.remove(mdlimp)
     bpy.types.INFO_MT_file_import.remove(matimp)
     bpy.types.INFO_MT_file_import.remove(mapimp)
-    bpy.types.INFO_MT_file_import.remove(entimp)
+    # bpy.types.INFO_MT_file_import.remove(entimp)
