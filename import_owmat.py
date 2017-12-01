@@ -286,7 +286,7 @@ def process_material_Cycles(material, prefix, root, t):
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Opacity"])
         if typ == owm_types.TextureTypes['Tertiary']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["OWSpecMap"])
-        if typ == owm_types.TextureTypes['Emission']:
+        if typ == owm_types.TextureTypes['Emission'] or typ == owm_types.TextureTypes['Emission2']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Emission Mask"])
         if typ == owm_types.TextureTypes['Normal'] or typ == owm_types.TextureTypes['HairNormal'] or typ == owm_types.TextureTypes['CorneaNormal']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Normal"])

@@ -367,7 +367,7 @@ def readmdl(materials = None, rotate=True):
 ##        new_armature.parent = rootObject
         
         armature = importArmature(settings.autoIk)
-        armature.name = rootName + '_Skeleton_UNREFPOSE'
+        armature.name = rootName + '_Skeleton' # _UNREFPOSE
         armature.parent = rootObject
         if rotate: armature.rotation_euler = (radians(90), 0, 0)
     meshes = importMeshes(armature)
