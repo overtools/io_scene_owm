@@ -6,7 +6,7 @@ from . import import_owmat
 from . import owm_types
 from mathutils import *
 from . import bpyhelper
-import bpy, bpy_extras, mathutils, bmesh, random
+import bpy, bpy_extras, mathutils, bmesh, random, collections
 
 root = ''
 settings = None
@@ -33,6 +33,73 @@ def fixLength(bone):
     if bone.length < default_length:
         bone.length = default_length
 
+def tempCreateArmature(armature_name):
+    if bpy.context.active_object:
+        bpy.ops.object.mode_set(mode='OBJECT',toggle=False)
+    a = bpy.data.objects.new(armature_name,bpy.data.armatures.new(armature_name))
+    a.show_x_ray = True
+    a.data.draw_type = 'STICK'
+    bpy.context.scene.objects.link(a)
+    for i in bpy.context.selected_objects: i.select = False #deselect all objects
+    a.select = True
+    bpy.context.scene.objects.active = a
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    return a
+
+def importRefposeArmature(autoIk):
+    a = tempCreateArmature("skeletonJeff")
+    a.data.vs.implicit_zero_bone = False
+    # todo: ^ needed?
+    boneIDs = {}  # temp
+
+    newBoneName()
+    def addBone(num,name):
+        bone = a.data.edit_bones.new(name)
+        addBoneName(name)
+        bone.tail = 0,5,0 # Blender removes zero-length bones
+        bone.tail = 0,1,0 # Blender removes zero-length bones
+        bone.tail = 0,0.005,0
+        # fixLength(bone)
+        boneIDs[num] = bone.name
+        return bone
+    
+    bpy.ops.object.mode_set(mode='EDIT',toggle=False)
+    index = 0
+    for bone in data.refpose_bones:
+        addBone(index,bone.name)
+        index += 1
+    
+    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+    index = 0
+    for bone in data.refpose_bones:
+        if bone.parent != -1:
+            a.data.edit_bones[index].parent = a.data.edit_bones[bone.parent]
+        index += 1
+
+    bpy.context.scene.objects.active = a
+    bpy.ops.object.mode_set(mode='POSE')
+
+    # sect 2: get frame
+    index = 0
+    for refpose_bone in data.refpose_bones:
+        pos = Vector([refpose_bone.pos[0], refpose_bone.pos[1], refpose_bone.pos[2]])
+        rot = Euler([refpose_bone.rot[0], refpose_bone.rot[1], refpose_bone.rot[2]])
+        # rot = wxzy(refpose_bone.rot).to_matrix().to_4x4()  # maybe use existing def?
+        bone = a.pose.bones[getBoneName(index)]
+        bone.matrix_basis.identity()
+        bone.matrix = Matrix.Translation(pos) * rot.to_matrix().to_4x4()
+        index += 1
+
+    # sect 3: apply
+    bpy.ops.pose.armature_apply()
+    
+    bpy.ops.object.mode_set(mode='OBJECT')
+    a.data.use_auto_ik = autoIk
+    return a
+    
+
 # rewrite me
 def importArmature(autoIk):
     bones = data.bones
@@ -49,7 +116,7 @@ def importArmature(autoIk):
         bpy.ops.object.mode_set(mode='EDIT')
 
         newBoneName()
-        bone_matrices = {}
+        
         for bone in bones:
             bbone = armature.data.edit_bones.new(bone.name)
             addBoneName(bbone.name)
@@ -57,19 +124,22 @@ def importArmature(autoIk):
             mpos = Matrix.Translation(xzy(bone.pos))
             mrot = wxzy(bone.rot).to_matrix().to_4x4()
             m = mpos * mrot
-
+            
             bbone.matrix = m
+                
             fixLength(bbone)
-
+            
         for i, bone in enumerate(bones):
             if bone.parent > -1:
                 bbone = armData.edit_bones[i]
-                bbone.parent = armData.edit_bones[bone.parent]
+                bbone.parent = armature.data.edit_bones[bone.parent]
 
         bpyhelper.select_obj(armature, True)
         bpy.ops.object.mode_set(mode='OBJECT')
         armature.data.use_auto_ik = autoIk
     return armature
+
+def euler(rot): return Euler(rot[0:3])
 
 def xzy(pos): return Vector(pos)
 
@@ -221,7 +291,7 @@ def importEmpties(armature = None):
     att.hide = att.hide_render = True
     bpyhelper.scene_link(att)
 
-    e = []
+    e_dict = {}
     for emp in data.empties:
         bpy.ops.object.empty_add(type='CIRCLE', radius=0.05 )
         empty = bpy.context.active_object
@@ -241,8 +311,9 @@ def importEmpties(armature = None):
             empty.update_tag({"DATA"})
             bpy.ops.constraint.childof_set_inverse(context_cpy, constraint=childOf.name, owner="OBJECT")
             empty.update_tag({"DATA"})
-        e += [empty]
-    return e
+        e_dict[empty.name] = empty
+    return att, e_dict
+
 
 def boneTailMiddleObject(armature):
     bpyhelper.scene_active_set(armature)
@@ -272,7 +343,7 @@ def select_all(ob):
     bpyhelper.select_obj(ob, True)
     for obj in ob.children: select_all(obj)
 
-def readmdl(materials = None):
+def readmdl(materials = None, rotate=True):
     global root
     global data
     global rootObject
@@ -291,11 +362,14 @@ def readmdl(materials = None):
 
     armature = None
     if settings.importSkeleton and data.header.boneCount > 0:
+##        new_armature = importRefposeArmature(settings.autoIk)
+##        new_armature.name = rootName + '_Skeleton'
+##        new_armature.parent = rootObject
+        
         armature = importArmature(settings.autoIk)
-        armature.name = rootName + '_Skeleton'
+        armature.name = rootName + '_Skeleton_UNREFPOSE'
         armature.parent = rootObject
-        armature.rotation_euler = (radians(90), 0, 0)
-
+        if rotate: armature.rotation_euler = (radians(90), 0, 0)
     meshes = importMeshes(armature)
 
     impMat = False
@@ -311,6 +385,7 @@ def readmdl(materials = None):
     empties = []
     if settings.importEmpties and data.header.emptyCount > 0:
         empties = importEmpties(armature)
+        if rotate: empties[0].rotation_euler = (radians(90), 0, 0)
 
     if armature:
         boneTailMiddleObject(armature)
@@ -348,12 +423,12 @@ def readmdl(materials = None):
 
     return (rootObject, armature, meshes, empties, data)
 
-def read(aux, materials = None, mutated = False):
+def read(aux, materials = None, mutated = False, rotate=True):
     global settings
     settings = aux
 
     setup()
-    status = readmdl(materials)
+    status = readmdl(materials, rotate)
     if not mutated:
         bpy.context.scene.update()
     finalize()

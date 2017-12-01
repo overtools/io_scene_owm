@@ -74,4 +74,10 @@ def read(filename):
 
             cloths.append(owm_types.OWMDLCloth(name, clothMeshes))
 
-    return owm_types.OWMDLFile(header, bones, meshes, empties, cloths)
+    refpose_bones = []
+    if boneCount > 0 and minor >= 4 and minor >= 1:
+        for i in range(boneCount):
+            name, parent, pos, scale, rot = bin_ops.readFmt(stream, owm_types.OWMDLRefposeBone.structFormat)
+            refpose_bones += [owm_types.OWMDLRefposeBone(name, parent[0], pos, scale, rot)]
+
+    return owm_types.OWMDLFile(header, bones, refpose_bones, meshes, empties, cloths)

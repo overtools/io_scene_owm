@@ -4,6 +4,25 @@ OWMATTypes = {
     "SHADER": 0x02
 }
 
+TextureTypes = {
+    "Unknown": 0,
+    "DiffuseAO": 2903569922,  # Alpha channel is AO
+    "DiffuseOpacity": 1239794147,
+    "DiffuseBlack": 3989656707,  # Alpha is black ???
+    "Normal": 378934698,
+    "HairNormal": 562391268, # why?
+    "CorneaNormal": 562391268, # maybe not
+    "Tertiary": 548341454,  # Metal (R) + Highlight (G) + Detail (B)
+    "Opacity": 1482859648,
+    "MaterialMask": 1557393490, # ?
+    "SubsurfaceScattering": 3004687613,
+    "Emission": 3166598269,
+    "HairAnisotropy": 2337956496,
+    "Specular": 1117188170, # maybe hairspec
+    "AO": 3761386704,  # maybe hairao
+    "SomeKindOfGradient": 1140682086
+}
+
 
 class OWSettings:
     def __init__(self, filename, uvDisplaceX, uvDisplaceY, autoIk, importNormals, importEmpties, importMaterial,
@@ -26,9 +45,10 @@ class OWSettings:
 
 
 class OWMDLFile:
-    def __init__(self, header, bones, meshes, empties, cloths):
+    def __init__(self, header, bones, refpose_bones, meshes, empties, cloths):
         self.header = header
         self.bones = bones
+        self.refpose_bones = refpose_bones
         self.meshes = meshes
         self.empties = empties
         self.cloths = cloths
@@ -40,12 +60,44 @@ class OWMATFile:
         self.materials = materials
 
 
+class OWEntityFile:
+    def __init__(self, header, file, model, children):
+        self.header = header
+        self.file = file
+        self.model = model
+        self.children = children
+
+
 class OWMAPFile:
     def __init__(self, header, objects, details, lights=list()):
         self.header = header
         self.objects = objects
         self.details = details
         self.lights = lights
+
+
+class OWEntityHeader:
+    structFormat = [str, '<HH', str, str, '<I']
+
+    def __init__(self, magic, major, minor, guid, model_guid, child_count):
+        self.magic = magic
+        self.major = major
+        self.minor = minor
+        self.guid = guid
+        self.model_guid = model_guid
+        self.child_count = child_count
+
+class OWEntityChild:
+    structFormat = [str, '<QQ', str]
+
+    def __init__(self, file, hardpoint, var, attachment):
+        self.file = file
+        self.hardpoint = hardpoint
+        self.var = var
+        self.attachment = attachment
+
+    def __repr__(self):
+        return '<OWEntityChild: {} (attached to:{})>'.format(self.file, self.attachment)
 
 
 class OWMDLHeader:
@@ -81,6 +133,17 @@ class OWMAPHeader:
         self.objectCount = objectCount
         self.detailCount = detailCount
         self.lightCount = lightCount
+
+
+class OWMDLRefposeBone:
+    structFormat = [str, '<h', '<fff', '<fff', '<fff']
+
+    def __init__(self, name, parent, pos, scale, rot):
+        self.name = name
+        self.parent = parent
+        self.pos = pos
+        self.scale = scale
+        self.rot = rot
 
 
 class OWMDLBone:
@@ -162,6 +225,7 @@ class OWMDLClothMesh:
 class OWMATMaterial:
     structFormat = ['<QI']
     exFormat = [str]
+    typeFormat = ['<I']
 
     def __init__(self, key, textureCount, textures):
         self.key = key
