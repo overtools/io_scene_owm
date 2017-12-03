@@ -109,66 +109,66 @@ def create_overwatch_shader(tile=300):
     nodeMixTransp.location = (-tile, 0)
 
     nodeMixEmission = ng.nodes.new("ShaderNodeMixShader")
-    nodeMixEmission.location = (-tile*2, 0)
+    nodeMixEmission.location = (-tile * 2, 0)
 
     nodePrincipled = ng.nodes.new("ShaderNodeBsdfPrincipled")
-    nodePrincipled.location = (-tile*3, 0)
+    nodePrincipled.location = (-tile * 3, 0)
 
     nodeTransp = ng.nodes.new("ShaderNodeBsdfTransparent")
-    nodeTransp.location = (-tile*3, 200)
+    nodeTransp.location = (-tile * 3, 200)
 
     nodeEmission = ng.nodes.new("ShaderNodeEmission")
-    nodeEmission.location = (-tile*3, -600)
+    nodeEmission.location = (-tile * 3, -600)
 
     nodeTangent = ng.nodes.new("ShaderNodeTangent")
-    nodeTangent.location = (-tile*4, -tile*3)
+    nodeTangent.location = (-tile * 4, -tile * 3)
     nodeTangent.direction_type = 'UV_MAP'
 
     nodeNormal = ng.nodes.new("ShaderNodeNormalMap")
-    nodeNormal.location = (-tile*4, -tile*2)
+    nodeNormal.location = (-tile * 4, -tile * 2)
 
     nodeCombineRGB = ng.nodes.new("ShaderNodeCombineRGB")
-    nodeCombineRGB.location = (-tile*5, -tile*2)
+    nodeCombineRGB.location = (-tile * 5, -tile * 2)
     nodeInvert = ng.nodes.new("ShaderNodeInvert")
-    nodeInvert.location = (-tile*6, -tile*2)
+    nodeInvert.location = (-tile * 6, -tile * 2)
     nodeSeparateRGBNorm = ng.nodes.new("ShaderNodeSeparateRGB")
-    nodeSeparateRGBNorm.location = (-tile*7, -tile*2)
+    nodeSeparateRGBNorm.location = (-tile * 7, -tile * 2)
 
     # SPECULAR SETUP
     nodeMathSpec2 = ng.nodes.new("ShaderNodeMath")
-    nodeMathSpec2.location = (-tile*4, 0)
+    nodeMathSpec2.location = (-tile * 4, 0)
     nodeMathSpec2.operation = 'MULTIPLY'
     nodeMathSpec2.inputs[1].default_value = 0.5
 
     nodeMathSpec = ng.nodes.new("ShaderNodeMath")
-    nodeMathSpec.location = (-tile*5, 0)
+    nodeMathSpec.location = (-tile * 5, 0)
     nodeMathSpec.operation = 'MULTIPLY'
     nodeMathSpec.inputs[1].default_value = 2
     nodeMathSpec.use_clamp = True
 
     nodeMathMetal2 = ng.nodes.new("ShaderNodeMath")
-    nodeMathMetal2.location = (-tile*4, -tile/2)
+    nodeMathMetal2.location = (-tile * 4, -tile / 2)
     nodeMathMetal2.operation = 'MULTIPLY'
     nodeMathMetal2.inputs[1].default_value = 2
 
     nodeMathMetal = ng.nodes.new("ShaderNodeMath")
-    nodeMathMetal.location = (-tile*5, -tile/2)
+    nodeMathMetal.location = (-tile * 5, -tile / 2)
     nodeMathMetal.operation = 'SUBTRACT'
     nodeMathMetal.inputs[1].default_value = 0.5
     nodeMathMetal.use_clamp = True
 
     nodeGamma = ng.nodes.new("ShaderNodeGamma")
-    nodeGamma.location = (-tile*4, -tile)
+    nodeGamma.location = (-tile * 4, -tile)
 
     nodeInvertRoughness = ng.nodes.new("ShaderNodeInvert")
-    nodeInvertRoughness.location = (-tile*5, -tile)
+    nodeInvertRoughness.location = (-tile * 5, -tile)
 
     nodeSeparateRGBSpec = ng.nodes.new("ShaderNodeSeparateRGB")
-    nodeSeparateRGBSpec.location = (-tile*6, -tile/2)
+    nodeSeparateRGBSpec.location = (-tile * 6, -tile / 2)
 
     # Input node
     nodeInput = ng.nodes.new("NodeGroupInput")
-    nodeInput.location = (-tile*8, -tile/2)
+    nodeInput.location = (-tile * 8, -tile / 2)
 
     # CONNECTING NODES
     links = ng.links
@@ -263,7 +263,7 @@ def process_material_Cycles(material, prefix, root, t):
 
     for i, texData in enumerate(material.textures):
         nodeTex = nodes.new("ShaderNodeTexImage")
-        nodeTex.location = (-tile, -tile*(i))
+        nodeTex.location = (-tile, -tile * (i))
         nodeTex.width = 250
         nodeTex.color_space = 'NONE'
 
