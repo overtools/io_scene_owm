@@ -254,12 +254,6 @@ def process_material_Cycles(material, prefix, root, t):
     nodeOverwatch.location = (0, 0)
     nodeOverwatch.width = 250
     links.new(nodeOverwatch.outputs[0], material_output.inputs[0])
-   
-    tex_albedos = []
-    tex_normals = []
-    tex_color = 0
-    tex_spec = 0
-    tex_normal = 0
 
     for i, texData in enumerate(material.textures):
         nodeTex = nodes.new("ShaderNodeTexImage")
