@@ -32,17 +32,25 @@ def mutate_texture_path(file, new_ext):
 
 
 def load_textures(texture, root, t):
+    """ Loads an overwatch texture file.
+
+    Will attempt to load the default path (DDS) first,
+    then fall back to Tiff, and lastly TGA.
+    """
     realpath = texture
     if not os.path.isabs(realpath):
         realpath = os.path.normpath('%s/%s' % (root, realpath))
         fn = os.path.splitext(os.path.basename(realpath))[0]
-    if not os.path.exists(realpath):
-        mutate_texture_path(realpath, ".tga")
     tif_file = mutate_texture_path(realpath, ".tif")
     is_tif = False
     if os.path.exists(tif_file):
         realpath = tif_file
         is_tif = True
+
+    tga_file = mutate_texture_path(realpath, ".tga")
+    if not os.path.exists(tif_file) and os.path.exists(tga_file):
+        realpath = tga_file
+        is_tif = False
 
     try:
         tex = None
@@ -64,8 +72,8 @@ def load_textures(texture, root, t):
                 tex = bpy.data.textures.new(fn, type='IMAGE')
                 tex.image = img
         return tex, is_tif
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
     return None, False
 
 
@@ -328,8 +336,7 @@ def process_material_BI(material, prefix, importNormal, importEffect, root, t):
                 mattex.use = False
             mattex.texture = tex
             mattex.texture_coords = 'UV'
-            t[fn] = tex
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
 
     return mat
