@@ -53,6 +53,11 @@ def progress_update(total, progress):
     # print("%d/%d (%d%%)" % (progress, total, progress / total * 100))
     bpy.context.window_manager.progress_update(progress)
 
+def hide_recursive(obj):
+    obj.hide = obj.hide_render = True
+    for child in obj.children:
+        hide_recursive(child)
+
 
 def import_mdl(mdls):
     try:
@@ -77,7 +82,7 @@ def import_mat(path, prefix, norm, efct):
 
 
 def read(settings, importObjects=False, importDetails=True, importPhysics=False, importLights=True,
-         importLightType=list([True, True, True])):
+         importLightType=list([True, True, True]), removeCollision=True):
     global sets
     sets = settings
 
@@ -141,6 +146,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                     matpath = os.path.normpath('%s/%s' % (root, matpath))
 
                 mat = None
+                hideModel = False
                 if settings.importMaterial and len(ent.material) > 0:
                     if matpath not in matCache:
                         mat = import_owmat.read(matpath, '%s:%X_' % (name, idx), settings.importTexNormal,
@@ -148,6 +154,10 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                         matCache[matpath] = mat
                     else:
                         mat = matCache[matpath]
+                if mat != None and removeCollision:
+                    for tex_name, tex in mat[0].items():
+                        if tex_name == "000000001B8D" or tex_name == "000000001BA4":
+                            hideModel = True
 
                 prog += 1
 
@@ -165,6 +175,8 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                     nobj.location = pos_matrix(rec.position)
                     nobj.rotation_euler = Quaternion(wxzy(rec.rotation)).to_euler('XYZ')
                     nobj.scale = xpzy(rec.scale)
+                    if hideModel:
+                        hide_recursive(nobj)
                     progress_update(total, prog)
                 progress_update(total, prog)
             remove(obj)
@@ -204,6 +216,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 matpath = os.path.normpath('%s/%s' % (root, matpath))
 
             mat = None
+            hideModel = False
             if settings.importMaterial and len(ob.material) > 0:
                 if matpath not in matCache:
                     mat = import_owmat.read(matpath, '%s:%X_' % (name, idx), settings.importTexNormal,
@@ -211,6 +224,12 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                     matCache[matpath] = mat
                 else:
                     mat = matCache[matpath]
+                if removeCollision:
+                    for tex_name, tex in mat[0].items():
+                        if tex_name == "000000001B8D" or tex_name == "000000001BA4":
+                            hideModel = True
+            if hideModel:
+                hide_recursive(mdl)
 
             import_owmdl.bindMaterialsUniq(internal_obj[2], internal_obj[4], mat)
 

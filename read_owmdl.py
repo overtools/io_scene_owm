@@ -58,7 +58,7 @@ def read(filename):
             for i in range(emptyCount): empties[i].hardpoint = bin_ops.readFmt(stream, owm_types.OWMDLEmpty.exFormat)
 
     cloths = []
-    if minor >= 3 and minor >= 1:
+    if minor >= 3 and major >= 1:
         count = bin_ops.readFmt(stream, owm_types.OWMDLCloth.beforeFmt)[0]
         for i in range(count):
             name, meshCount = bin_ops.readFmtFlat(stream, owm_types.OWMDLCloth.structFormat)
@@ -75,9 +75,13 @@ def read(filename):
             cloths.append(owm_types.OWMDLCloth(name, clothMeshes))
 
     refpose_bones = []
-    if boneCount > 0 and minor >= 4 and minor >= 1:
+    if boneCount > 0 and minor >= 4 and major >= 1:
         for i in range(boneCount):
             name, parent, pos, scale, rot = bin_ops.readFmt(stream, owm_types.OWMDLRefposeBone.structFormat)
             refpose_bones += [owm_types.OWMDLRefposeBone(name, parent[0], pos, scale, rot)]
 
-    return owm_types.OWMDLFile(header, bones, refpose_bones, meshes, empties, cloths)
+    guid = 0
+    if minor >= 5 and major >= 1:
+        guid = bin_ops.readFmtFlat(stream, owm_types.OWMDLHeader.guidFormat)
+
+    return owm_types.OWMDLFile(header, bones, refpose_bones, meshes, empties, cloths, guid)

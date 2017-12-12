@@ -1,7 +1,7 @@
 bl_info = {
     "name": "OWM Import",
     "author": "dynaomi",
-    "version": (1, 1, 4),
+    "version": (1, 5),
     "blender": (2, 78, 0),
     "location": "File > Import > OWM",
     "description": "Import Overwatch-Toolchain OWM files",
@@ -22,11 +22,13 @@ from . import import_owmap
 from . import import_owmdl
 from . import import_owmat
 from . import import_owentity
+from . import import_oweffect
 from . import owm_types
 from . import read_owmap
 from . import read_owmdl
 from . import read_owmat
 from . import read_owentity
+from . import read_oweffect
 from . import bpyhelper
 from . import manager
 
@@ -36,11 +38,13 @@ if rld:
     imp.reload(import_owmdl)
     imp.reload(import_owmat)
     imp.reload(import_owentity)
+    imp.reload(import_oweffect)
     imp.reload(owm_types)
     imp.reload(read_owmap)
     imp.reload(read_owmdl)
     imp.reload(read_owmat)
     imp.reload(read_owentity)
+    imp.reload(read_oweffect)
     imp.reload(bpyhelper)
     imp.reload(manager)
 

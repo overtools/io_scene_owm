@@ -33,9 +33,7 @@ def fixLength(bone):
     if bone.length < default_length:
         bone.length = default_length
 
-def tempCreateArmature(armature_name):
-    if bpy.context.active_object:
-        bpy.ops.object.mode_set(mode='OBJECT',toggle=False)
+def create_refpose_armature(armature_name):
     a = bpy.data.objects.new(armature_name,bpy.data.armatures.new(armature_name))
     a.show_x_ray = True
     a.data.draw_type = 'STICK'
@@ -47,8 +45,8 @@ def tempCreateArmature(armature_name):
 
     return a
 
-def importRefposeArmature(autoIk):
-    a = tempCreateArmature("skeletonJeff")
+def import_refpose_armature(autoIk, this_data):
+    a = create_refpose_armature("AnimationArmature")
     a.data.vs.implicit_zero_bone = False
     # todo: ^ needed?
     boneIDs = {}  # temp
@@ -66,14 +64,14 @@ def importRefposeArmature(autoIk):
     
     bpy.ops.object.mode_set(mode='EDIT',toggle=False)
     index = 0
-    for bone in data.refpose_bones:
-        addBone(index,bone.name)
+    for bone in this_data.refpose_bones:
+        addBone(index,str(bone.name))
         index += 1
     
     bpy.ops.object.mode_set(mode='EDIT', toggle=False)
 
     index = 0
-    for bone in data.refpose_bones:
+    for bone in this_data.refpose_bones:
         if bone.parent != -1:
             a.data.edit_bones[index].parent = a.data.edit_bones[bone.parent]
         index += 1
@@ -83,7 +81,7 @@ def importRefposeArmature(autoIk):
 
     # sect 2: get frame
     index = 0
-    for refpose_bone in data.refpose_bones:
+    for refpose_bone in this_data.refpose_bones:
         pos = Vector([refpose_bone.pos[0], refpose_bone.pos[1], refpose_bone.pos[2]])
         rot = Euler([refpose_bone.rot[0], refpose_bone.rot[1], refpose_bone.rot[2]])
         # rot = wxzy(refpose_bone.rot).to_matrix().to_4x4()  # maybe use existing def?
@@ -222,11 +220,12 @@ def importMesh(armature, meshData):
     faces = detach(meshData.indices)
     mesh.from_pydata(pos, [], faces)
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
+    obj['owm.mesh.name'] = mesh.name
     for i in range(meshData.uvCount):
         bpyhelper.new_uv_layer(mesh, "UVMap%d" % (i + 1))
 
     if armature:
-        mod = obj.modifiers.new(type="ARMATURE", name="Armature")
+        mod = obj.modifiers.new(type="ARMATURE", name="OWM Skeleton")
         mod.use_vertex_groups = True
         mod.object = armature
         obj.parent = armature
@@ -289,6 +288,7 @@ def importEmpties(armature = None):
     att = bpy.data.objects.new('Empties', None)
     att.parent = rootObject
     att.hide = att.hide_render = True
+    att['owm.hardpoint_container'] = True
     bpyhelper.scene_link(att)
 
     e_dict = {}
@@ -300,17 +300,20 @@ def importEmpties(armature = None):
         empty.show_x_ray = True
         empty.location = xzy(emp.position)
         empty.rotation_euler = wxzy(emp.rotation).to_euler('XYZ')
+        empty['owm.hardpoint.bone'] = emp.hardpoint
         bpyhelper.select_obj(empty, True)
         if len(emp.hardpoint) > 0 and armature is not None:
-            childOf = empty.constraints.new("CHILD_OF")
-            childOf.name = "ChildOfHardpoint%s" % (empty.name)
-            childOf.target = armature
-            childOf.subtarget = emp.hardpoint
-            context_cpy = bpy.context.copy()
-            context_cpy["constraint"] = childOf
-            empty.update_tag({"DATA"})
-            bpy.ops.constraint.childof_set_inverse(context_cpy, constraint=childOf.name, owner="OBJECT")
-            empty.update_tag({"DATA"})
+            copy_location = empty.constraints.new("COPY_LOCATION")
+            copy_location.name = "Hardpoint Location"
+            copy_location.target = armature
+            copy_location.subtarget = emp.hardpoint
+            # copy_location.use_offset = True
+
+            copy_rotation = empty.constraints.new("COPY_ROTATION")
+            copy_rotation.name = "Hardpoint Rotation"
+            copy_rotation.target = armature
+            copy_rotation.subtarget = emp.hardpoint
+            # copy_rotation.use_offset = True
         e_dict[empty.name] = empty
     return att, e_dict
 
@@ -358,6 +361,7 @@ def readmdl(materials = None, rotate=True):
 
     rootObject = bpy.data.objects.new(rootName, None)
     rootObject.hide = rootObject.hide_render = True
+    rootObject['owm.model.guid'] = data.guid
     bpyhelper.scene_link(rootObject)
 
     armature = None
@@ -369,6 +373,8 @@ def readmdl(materials = None, rotate=True):
         armature = importArmature(settings.autoIk)
         armature.name = rootName + '_Skeleton' # _UNREFPOSE
         armature.parent = rootObject
+        armature['owm.skeleton.name'] = armature.name
+        armature['owm.skeleton.model'] = data.guid
         if rotate: armature.rotation_euler = (radians(90), 0, 0)
     meshes = importMeshes(armature)
 

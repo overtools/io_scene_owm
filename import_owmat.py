@@ -60,6 +60,7 @@ def load_textures(texture, root, t):
             if tex == None:
                 tex = bpy.data.textures.new(fn, type = 'IMAGE')
                 tex.image = img
+            t[fn] = tex
         return tex, is_tif
     except: pass
     return None, False
@@ -95,7 +96,7 @@ def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it 
     inputNormalStrength.default_value = 1
     inputEmission = ng.inputs.new("NodeSocketFloat", "Emission Mask")
     inputEmissionStrength = ng.inputs.new("NodeSocketFloat", "Emission Strength")
-    inputEmissionStrength.default_value = 3
+    inputEmissionStrength.default_value = 1
  
     ### SPAWNING NODES ###
     nodeMixTransp = ng.nodes.new("ShaderNodeMixShader")
@@ -244,12 +245,6 @@ def process_material_Cycles(material, prefix, root, t):
     nodeOverwatch.location = (0, 0)
     nodeOverwatch.width = 250
     links.new(nodeOverwatch.outputs[0], material_output.inputs[0])
-   
-    tex_albedos = []
-    tex_normals = []
-    tex_color = 0
-    tex_spec = 0
-    tex_normal = 0
 
     for i, texData in enumerate(material.textures):
         nodeTex = nodes.new("ShaderNodeTexImage")
@@ -274,24 +269,28 @@ def process_material_Cycles(material, prefix, root, t):
                 nodeTex.label = "Texture: {}".format(name)
                 named = True
         if not named:
-            nodeTex.label = "Texture: Unknown"
-        if typ == owm_types.TextureTypes['DiffuseAO'] or typ == owm_types.TextureTypes['DiffuseOpacity'] or typ == owm_types.TextureTypes['DiffuseBlack']:
+            nodeTex.label = "Texture: Unknown-{}".format(typ)
+        tt = owm_types.TextureTypes
+        if typ == tt['DiffuseAO'] or typ == tt['DiffuseOpacity'] or typ == tt['DiffuseBlack'] \
+           or typ == tt['DiffusePlant'] or typ == tt['DiffuseFlag'] or typ == tt['Diffuse2']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Color"])
             nodeTex.color_space = 'COLOR'
-        if typ == typ == owm_types.TextureTypes['DiffuseOpacity']:
+        if typ == tt['DiffuseAO']:
+            nodeTex.image.use_alpha = False
+        if typ == tt['DiffuseOpacity']:
             links.new(nodeTex.outputs["Alpha"], nodeOverwatch.inputs["Opacity"])
-        if typ == owm_types.TextureTypes['DiffuseBlack']:
+        if typ == tt['DiffuseBlack']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Opacity"])
-        if typ == owm_types.TextureTypes['Opacity']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Opacity"])
-        if typ == owm_types.TextureTypes['Tertiary']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["OWSpecMap"])
-        if typ == owm_types.TextureTypes['Emission'] or typ == owm_types.TextureTypes['Emission2']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Emission Mask"])
-        if typ == owm_types.TextureTypes['Normal'] or typ == owm_types.TextureTypes['HairNormal'] or typ == owm_types.TextureTypes['CorneaNormal']:
+        if typ == tt['Opacity'] or typ == tt['Opacity2']:
+            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Opacity"])
+        if typ == tt['Tertiary'] or typ == tt['FlagTertiary'] or typ == tt['Tertiary2']:
+            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["OWSpecMap"])
+        if typ == tt['Emission'] or typ == tt['Emission2'] or typ == tt['Emission3']:
+            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Emission Mask"])
+        if typ == tt['Normal'] or typ == tt['HairNormal'] or typ == tt['CorneaNormal']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Normal"])
-            if is_tif:
-                nodeOverwatch.inputs["Normal Strength"].default_value = -1
+            nodeOverwatch.inputs["Normal Strength"].default_value = -1                
            
     return mat
 

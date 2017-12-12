@@ -13,12 +13,11 @@ def read(filename):
     if stream == None:
         return None
 
-    magic, major, minor, guid, model_guid, child_count = bin_ops.readFmtFlat(stream, owm_types.OWEntityHeader.structFormat)
-    header = owm_types.OWEntityHeader(magic, major, minor, guid, model_guid, child_count)
+    magic, major, minor, guid, model_guid, idx, model_idx, child_count = bin_ops.readFmtFlat(stream, owm_types.OWEntityHeader.structFormat)
+    header = owm_types.OWEntityHeader(magic, major, minor, guid, model_guid, idx, model_idx, child_count)
 
     children = []
     for i in range(child_count):
-        child_file, child_hardpoint, child_variable, child_attachment = bin_ops.readFmtFlat(stream, owm_types.OWEntityChild.structFormat)
-        children.append(owm_types.OWEntityChild(child_file, child_hardpoint, child_variable, child_attachment))
-    print(magic, major, minor, guid, model_guid, child_count, children)
-    return owm_types.OWEntityFile(header, guid, model_guid, children)
+        child_file, child_hardpoint, child_variable, child_hp_index, child_var_index, child_attachment = bin_ops.readFmtFlat(stream, owm_types.OWEntityChild.structFormat)
+        children.append(owm_types.OWEntityChild(child_file, child_hardpoint, child_variable, child_hp_index, child_var_index, child_attachment))
+    return owm_types.OWEntityFile(header, guid, model_guid, idx, model_idx, children)

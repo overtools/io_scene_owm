@@ -1,3 +1,8 @@
+import copy
+from . import bin_ops
+from enum import Enum
+import os
+
 OWMATTypes = {
     "ALBEDO": 0x00,
     "NORMAL": 0x01,
@@ -9,19 +14,25 @@ TextureTypes = {
     "DiffuseAO": 2903569922,  # Alpha channel is AO
     "DiffuseOpacity": 1239794147,
     "DiffuseBlack": 3989656707,  # Alpha is black ???
+    "DiffusePlant": 3093211343,
+    "DiffuseFlag": 1281400944,
+    "Diffuse2": 1716930793,
     "Normal": 378934698,
     "HairNormal": 562391268, # why?
     "CorneaNormal": 562391268, # maybe not
     "Tertiary": 548341454,  # Metal (R) + Highlight (G) + Detail (B)
+    "FlagTertiary": 996643046,
+    "Tertiary2": 3852121246,  # used for Mei's ice wall
     "Opacity": 1482859648,
+    "Opacity2": 1140682086,
     "MaterialMask": 1557393490, # ?
     "SubsurfaceScattering": 3004687613,
     "Emission": 3166598269,
     "Emission2": 1523270506,
+    "Emission3": 4243598436, # used for Mei's ice wall
     "HairAnisotropy": 2337956496,
     "Specular": 1117188170, # maybe hairspec
-    "AO": 3761386704,  # maybe hairao
-    "SomeKindOfGradient": 1140682086
+    "AO": 3761386704  # maybe hairao
 }
 
 
@@ -45,14 +56,30 @@ class OWSettings:
                           self.importTexEffect)
 
 
+class OWEffectSettings:
+    def __init__(self, settings, filename, force_fps, target_fps, import_DMCE, import_CECE, create_camera):
+        self.settings = settings
+        self.filename = filename
+        self.force_fps = force_fps
+        self.target_fps = target_fps
+        self.import_DMCE = import_DMCE
+        self.import_CECE = import_CECE
+        self.create_camera = create_camera
+
+    def mutate(self, path):
+        new = copy.deepcopy(self)
+        new.filename = path
+        return new
+
 class OWMDLFile:
-    def __init__(self, header, bones, refpose_bones, meshes, empties, cloths):
+    def __init__(self, header, bones, refpose_bones, meshes, empties, cloths, guid):
         self.header = header
         self.bones = bones
         self.refpose_bones = refpose_bones
         self.meshes = meshes
         self.empties = empties
         self.cloths = cloths
+        self.guid = guid
 
 
 class OWMATFile:
@@ -62,11 +89,13 @@ class OWMATFile:
 
 
 class OWEntityFile:
-    def __init__(self, header, file, model, children):
+    def __init__(self, header, file, model, idx, model_idx, children):
         self.header = header
         self.file = file
         self.model = model
         self.children = children
+        self.index = idx
+        self.model_index = model_idx
 
 
 class OWMAPFile:
@@ -76,26 +105,213 @@ class OWMAPFile:
         self.details = details
         self.lights = lights
 
+class OWAnimFile:
+    def __init__(self, header, data, path, model_path):
+        self.header = header
+        self.data = data
+        self.anim_path = path
+        self.model_path = model_path
+
+class OWEffectHeader:
+    magic_format = [str,]
+
+
+
+class CECEAction(Enum):
+    UnknownTODO = 0
+    Show = 1
+    PlayAnimation = 4
+
+    
+class OWEffectData:
+    time_format = ['<?ff', str]
+    header_format = ['<HHIfiiiiii']
+
+    def __init__(self, guid, length, dmces, ceces, neces, rpces):
+        self.guid = guid
+        self.length = length
+        self.dmces = dmces
+        self.ceces = ceces
+        self.neces = neces
+        self.rpces = rpces
+
+    class EffectTimeInfo:
+        def __init__(self, use_time, start, end, hardpoint):
+            self.use_time = use_time
+            self.start = start
+            self.end = end
+            self.hardpoint = hardpoint
+        
+        def __repr__(self):
+            return '<EffectTimeInfo>: Start:{} End:{} Hardpoint:{}'.format(self.start, self.end, self.hardpoint)
+        
+        @classmethod
+        def read(cls, stream):
+            do_time, start, end, hardpoint = bin_ops.readFmtFlat(stream, OWEffectData.time_format)
+            return cls(do_time, start, end, hardpoint)
+
+    class DMCEInfo:
+        format = ['<QQQ', str, str]
+
+        def __init__(self, time, animation, material, model, model_path, anim_path):
+            self.time = time
+            self.animation = animation
+            self.material = material
+            self.model = model
+            self.model_path = model_path
+            self.anim_path = anim_path
+
+        def __repr__(self):
+            return '<DMCEInfo>: {} {} ({})'.format(os.path.basename(self.model_path), os.path.basename(self.anim_path), self.time.hardpoint)
+
+        @classmethod
+        def read(cls, stream):
+            time = OWEffectData.EffectTimeInfo.read(stream)
+            animation, material, model, anim_path, model_path = bin_ops.readFmtFlat(stream, OWEffectData.DMCEInfo.format)
+            return cls(time, animation, material, model, anim_path, model_path)
+
+    class CECEInfo:
+        format = ['<bQQI', str]
+
+        def __init__(self, time, action, animation, var, var_index, path):
+            self.time = time
+            self.action = action
+            self.animation = animation
+            self.var = var
+            self.var_index = var_index
+            self.path = path
+
+        def __repr__(self):
+            return '<CECEInfo>: {} {} ({})'.format(self.action, self.var, self.time.hardpoint)
+
+        @classmethod
+        def read(cls, stream):
+            time = OWEffectData.EffectTimeInfo.read(stream)
+            action, animation, var, var_index, path = bin_ops.readFmtFlat(stream, OWEffectData.CECEInfo.format)
+            action = CECEAction(action)
+            return cls(time, action, animation, var, var_index, path)
+
+    class NECEInfo:
+        format = ['<Q', str]
+
+        def __init__(self, time, guid, path):
+            self.time = time
+            self.guid = guid
+            self.path = path
+
+        def __repr__(self):
+            return '<NECEInfo>: {} ({})'.format(self.path, self.time.hardpoint)
+
+        @classmethod
+        def read(cls, stream):
+            time = OWEffectData.EffectTimeInfo.read(stream)
+            guid, path = bin_ops.readFmtFlat(stream, OWEffectData.NECEInfo.format)
+            return cls(time, guid, path)
+
+    class RPCEInfo:
+        format = ['<QQ', str]
+
+        def __init__(self, time, model, model_path, material):
+            self.time = time
+            self.model = model
+            self.model_path = model_path
+            self.material = material
+
+        def __repr__(self):
+            return '<RPCEInfo>: {} ({})'.format(self.model_path, self.time.hardpoint)
+
+        @classmethod
+        def read(cls, stream):
+            time = OWEffectData.EffectTimeInfo.read(stream)
+            model, material, model_path  = bin_ops.readFmtFlat(stream, OWEffectData.RPCEInfo.format)
+            return cls(time, model, model_path, material)
+
+    @classmethod
+    def read(cls, stream):
+        major, minor, guid, length, dmce_count, cece_count, nece_count, rpce_count, fece_count, osce_count = bin_ops.readFmtFlat(stream, OWEffectData.header_format)
+
+        dmces = []
+        for i in range(dmce_count):
+            dmces.append(OWEffectData.DMCEInfo.read(stream))
+
+        ceces = []
+        for i in range(cece_count):
+            ceces.append(OWEffectData.CECEInfo.read(stream))
+
+        neces = []
+        for i in range(nece_count):
+            neces.append(OWEffectData.NECEInfo.read(stream))
+
+        rpces = []
+        for i in range(rpce_count):
+            rpces.append(OWEffectData.RPCEInfo.read(stream))
+
+        print("[import_effect]: dmces={}".format(dmces))
+        print("[import_effect]: ceces={}".format(ceces))
+        print("[import_effect]: neces={}".format(neces))
+        print("[import_effect]: rpces={}".format(rpces))
+            
+        return cls(guid, length, dmces, ceces, neces, rpces)
+
+
+class OWAnimType(Enum):
+    Unknown = -1
+    Data = 0
+    Reference = 1
+    Reset = 2
+
+
+class OWAnimHeader:
+    format = ['<HHIfi']
+    reference_format = [str]
+    data_format = [str, str] # .. oweffect
+
+    def __init__(self, major, minor, guid, fps, anim_type):
+        self.major = major
+        self.minor = minor
+        self.guid = guid
+        self.fps = fps
+        self.anim_type = anim_type
+    
+    @classmethod
+    def read(cls, stream):
+        major, minor, guid, fps, anim_type = bin_ops.readFmtFlat(stream, OWAnimHeader.format)
+        anim_type = OWAnimType(anim_type)
+        return cls(major, minor, guid, fps, anim_type)
+
+
+    @staticmethod
+    def read_reference(stream):
+        return bin_ops.readFmtFlat(stream, OWAnimHeader.reference_format)
+
+    @staticmethod
+    def read_data(stream):
+        return bin_ops.readFmtFlat(stream, OWAnimHeader.data_format)
+
 
 class OWEntityHeader:
-    structFormat = [str, '<HH', str, str, '<I']
+    structFormat = [str, '<HH', str, str, '<IIi']
 
-    def __init__(self, magic, major, minor, guid, model_guid, child_count):
+    def __init__(self, magic, major, minor, guid, model_guid, idx, model_idx, child_count):
         self.magic = magic
         self.major = major
         self.minor = minor
         self.guid = guid
         self.model_guid = model_guid
         self.child_count = child_count
+        self.index = idx
+        self.model_index = model_idx
 
 class OWEntityChild:
-    structFormat = [str, '<QQ', str]
+    structFormat = [str, '<QQII', str]
 
-    def __init__(self, file, hardpoint, var, attachment):
+    def __init__(self, file, hardpoint, var, hp_index, var_index, attachment):
         self.file = file
         self.hardpoint = hardpoint
         self.var = var
         self.attachment = attachment
+        self.var_index = var_index
+        self.hardpoint_index = hp_index
 
     def __repr__(self):
         return '<OWEntityChild: {} (attached to:{})>'.format(self.file, self.attachment)
@@ -103,6 +319,7 @@ class OWEntityChild:
 
 class OWMDLHeader:
     structFormat = ['<HH', str, str, '<HII']
+    guidFormat = ['<I']
 
     def __init__(self, major, minor, material, name, boneCount, meshCount, emptyCount):
         self.major = major

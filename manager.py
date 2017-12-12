@@ -2,6 +2,7 @@ from . import import_owmap
 from . import import_owentity
 from . import import_owmdl
 from . import import_owmat
+from . import import_oweffect
 from . import owm_types
 from . import bpyhelper
 import bpy
@@ -263,6 +264,12 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
+    importRemoveCollision = BoolProperty(
+        name="Remove Collision Models",
+        description="Remove the collision models",
+        default=True,
+    )
+
     def menu_func(self, context):
         self.layout.operator_context = 'INVOKE_DEFAULT'
         self.layout.operator(
@@ -286,7 +293,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             self.importTexNormal,
             self.importTexEffect
         )
-        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, self.importLights, [self.importLampSun, self.importLampSpot, self.importLampPoint])
+        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, self.importLights, [self.importLampSun, self.importLampSpot, self.importLampPoint], self.importRemoveCollision)
         print('DONE')
         return {'FINISHED'}
 
@@ -313,6 +320,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         sub.enabled = self.importDetails
         
         col.prop(self, "importLights")
+        col.prop(self, "importRemoveCollision")
 
         col = layout.column(align=True)
         col.label('Material')
@@ -332,14 +340,13 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
     bl_label = "Import OWENTITY"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
-
-    filename_ext = ".owmap"
+    
     filter_glob = bpy.props.StringProperty(
         default="*.owentity",
         options={'HIDDEN'},
     )
 
-    importChildren = BoolProperty(
+    import_children = BoolProperty(
         name="Import Children",
         description="Import child entities",
         default=True,
@@ -368,8 +375,7 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
             True,
             True
         )
-        import_owentity.read(settings, self.importChildren)
-        # import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, self.importLights, [self.importLampSun, self.importLampSpot, self.importLampPoint])
+        import_owentity.read(settings, self.import_children)
         print('DONE')
         return {'FINISHED'}
 
@@ -377,8 +383,96 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
         layout = self.layout
 
         col = layout.column(align=True)
-        col.label('Test')
-        col.prop(self, "importChildren")
+        col.prop(self, "import_children")
+
+class import_effect_op(bpy.types.Operator, ImportHelper):
+    bl_idname = "owm_importer.import_effect"
+    bl_label = "Import OWEFFECT / OWANIM"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+
+    filename_ext = ".oweffect;.owanim"
+    filter_glob = bpy.props.StringProperty(
+        default="*.oweffect;*.owanim",
+        options={'HIDDEN'},
+    )
+
+    import_dmce = BoolProperty(
+        name="Import DMCE",
+        description="Import DMCE chunks",
+        default=True,
+    )
+
+    import_cece = BoolProperty(
+        name="Import CECE",
+        description="Import CECE chunks",
+        default=True,
+    )
+
+    force_framerate = BoolProperty(
+        name="Force Framerate",
+        description="Force Framerate",
+        default=False,
+    )
+
+    target_framerate = bpy.props.IntProperty(
+        name="Target Framerate",
+        description="Target Framerate",
+        default=60,
+        min=1
+    )
+
+    import_camera = BoolProperty(
+        name="Create Camera",
+        description="Create an estimation of the animation camera",
+        default=False,
+    )
+
+    def menu_func(self, context):
+        self.layout.operator_context = 'INVOKE_DEFAULT'
+        self.layout.operator(
+            import_map_op.bl_idname,
+            text="Text Export Operator")
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        settings = owm_types.OWSettings(
+            self.filepath,
+            0,
+            0,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True
+        )
+
+        efct_settings = owm_types.OWEffectSettings(settings, self.filepath, self.force_framerate,
+            self.target_framerate, self.import_dmce, self.import_cece, self.import_camera)
+
+        import_oweffect.read(efct_settings)
+        print('DONE')
+        return {'FINISHED'}
+
+    def draw(self, context):
+        layout = self.layout
+
+        col = layout.column(align=True)
+        col.label('Effect')
+        col.prop(self, "import_dmce")
+        col.prop(self, "import_cece")
+
+        col.label('Animation')
+        col.prop(self, 'import_camera')
+        col.prop(self, "force_framerate")
+        col2 = layout.column(align=True)
+        col2.enabled = self.force_framerate
+        col2.prop(self, 'target_framerate')        
 
 def mdlimp(self, context):
     self.layout.operator(
@@ -398,20 +492,29 @@ def mapimp(self, context):
         text="OWMAP"
     )
 
-def entimp(self, context):
+def entity_import(self, context):
     self.layout.operator(
         import_ent_op.bl_idname,
         text="OWENTITY"
+    )
+
+def effect_import(self, context):
+    self.layout.operator(
+        import_effect_op.bl_idname,
+        text="OWEFFECT / OWANIM"
     )
 
 def register():
     bpy.types.INFO_MT_file_import.append(mdlimp)
     bpy.types.INFO_MT_file_import.append(matimp)
     bpy.types.INFO_MT_file_import.append(mapimp)
-    # bpy.types.INFO_MT_file_import.append(entimp)
+    bpy.types.INFO_MT_file_import.append(entity_import)
+    bpy.types.INFO_MT_file_import.append(effect_import)
 
 def unregister():
     bpy.types.INFO_MT_file_import.remove(mdlimp)
     bpy.types.INFO_MT_file_import.remove(matimp)
     bpy.types.INFO_MT_file_import.remove(mapimp)
-    # bpy.types.INFO_MT_file_import.remove(entimp)
+    bpy.types.INFO_MT_file_import.remove(entity_import)
+    bpy.types.INFO_MT_file_import.remove(effect_import)
+
