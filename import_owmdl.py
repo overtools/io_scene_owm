@@ -47,8 +47,6 @@ def create_refpose_armature(armature_name):
 
 def import_refpose_armature(autoIk, this_data):
     a = create_refpose_armature("AnimationArmature")
-    a.data.vs.implicit_zero_bone = False
-    # todo: ^ needed?
     boneIDs = {}  # temp
 
     newBoneName()
