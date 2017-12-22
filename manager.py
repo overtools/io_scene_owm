@@ -398,17 +398,23 @@ class import_effect_op(bpy.types.Operator, ImportHelper):
     )
 
     import_dmce = BoolProperty(
-        name="Import DMCE",
-        description="Import DMCE chunks",
+        name="Import DMCE (Models)",
+        description="Import DMCE",
         default=True,
     )
 
     import_cece = BoolProperty(
-        name="Import CECE",
-        description="Import CECE chunks",
+        name="Import CECE (Entity Control)",
+        description="Import CECE",
         default=True,
     )
 
+    import_nece = BoolProperty(
+        name="Import NECE (Entities)",
+        description="Import NECE",
+        default=False,
+    )
+    
     force_framerate = BoolProperty(
         name="Force Framerate",
         description="Force Framerate",
@@ -453,7 +459,7 @@ class import_effect_op(bpy.types.Operator, ImportHelper):
         )
 
         efct_settings = owm_types.OWEffectSettings(settings, self.filepath, self.force_framerate,
-            self.target_framerate, self.import_dmce, self.import_cece, self.import_camera)
+            self.target_framerate, self.import_dmce, self.import_cece, self.import_nece, self.import_camera)
 
         import_oweffect.read(efct_settings)
         print('DONE')
@@ -466,6 +472,7 @@ class import_effect_op(bpy.types.Operator, ImportHelper):
         col.label('Effect')
         col.prop(self, "import_dmce")
         col.prop(self, "import_cece")
+        col.prop(self, "import_nece")
 
         col.label('Animation')
         col.prop(self, 'import_camera')

@@ -119,6 +119,7 @@ def importArmature(autoIk):
             bbone = armature.data.edit_bones.new(bone.name)
             addBoneName(bbone.name)
             # warning: matrix bugged.
+            
             mpos = Matrix.Translation(xzy(bone.pos))
             mrot = wxzy(bone.rot).to_matrix().to_4x4()
             m = mpos * mrot
@@ -141,7 +142,13 @@ def euler(rot): return Euler(rot[0:3])
 
 def xzy(pos): return Vector(pos)
 
-def wxzy(rot): return Quaternion(rot[0:3], rot[3])
+def wxzy(rot):
+    quat = Quaternion()
+    quat.x = rot[0]
+    quat.y = rot[1]
+    quat.z = rot[2]
+    quat.w = rot[3]
+    return quat
 
 def segregate(vertex):
     pos = []
@@ -283,7 +290,7 @@ def importEmpties(armature = None):
     global rootObject
 
     if not settings.importEmpties:
-        return []
+        return None, {}
 
     att = bpy.data.objects.new('Empties', None)
     att.parent = rootObject
@@ -299,22 +306,39 @@ def importEmpties(armature = None):
         empty.name = emp.name
         empty.show_x_ray = True
         empty.location = xzy(emp.position)
-        empty.rotation_euler = wxzy(emp.rotation).to_euler('XYZ')
+        empty.rotation_mode = 'QUATERNION'
+        empty.rotation_quaternion = wxzy(emp.rotation)
         empty['owm.hardpoint.bone'] = emp.hardpoint
         bpyhelper.select_obj(empty, True)
-        if len(emp.hardpoint) > 0 and armature is not None:
-            copy_location = empty.constraints.new("COPY_LOCATION")
-            copy_location.name = "Hardpoint Location"
-            copy_location.target = armature
-            copy_location.subtarget = emp.hardpoint
-            # copy_location.use_offset = True
+        e_dict[emp.name] = empty
+    bpy.ops.object.select_all(action='DESELECT')
 
-            copy_rotation = empty.constraints.new("COPY_ROTATION")
-            copy_rotation.name = "Hardpoint Rotation"
-            copy_rotation.target = armature
-            copy_rotation.subtarget = emp.hardpoint
-            # copy_rotation.use_offset = True
-        e_dict[empty.name] = empty
+    if armature is not None:
+        for pbone in armature.pose.bones:
+            pbone.bone.select = False
+        for name, hardpoint in e_dict.items():
+            # erm
+            bpy.ops.object.select_all(action='DESELECT')
+            hardpoint.select = True
+            bpy.context.scene.objects.active = armature
+            bpy.ops.object.mode_set(mode='POSE')
+
+            if hardpoint['owm.hardpoint.bone'] not in armature.pose.bones:
+                bpy.ops.object.mode_set(mode='OBJECT') # fixes "context is incorrect"
+                continue  # todo: why
+
+            bone = armature.pose.bones[hardpoint['owm.hardpoint.bone']].bone
+            bone.select = True
+            armature.data.bones.active = bone
+            bpy.ops.object.parent_set(type='BONE')
+            bone.select = False
+            hardpoint.select = False
+            bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.select_all(action='DESELECT')
+            
+   
+    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+    
     return att, e_dict
 
 
@@ -366,16 +390,11 @@ def readmdl(materials = None, rotate=True):
 
     armature = None
     if settings.importSkeleton and data.header.boneCount > 0:
-##        new_armature = importRefposeArmature(settings.autoIk)
-##        new_armature.name = rootName + '_Skeleton'
-##        new_armature.parent = rootObject
-        
         armature = importArmature(settings.autoIk)
-        armature.name = rootName + '_Skeleton' # _UNREFPOSE
+        armature.name = rootName + '_Skeleton'
         armature.parent = rootObject
         armature['owm.skeleton.name'] = armature.name
         armature['owm.skeleton.model'] = data.guid
-        if rotate: armature.rotation_euler = (radians(90), 0, 0)
     meshes = importMeshes(armature)
 
     impMat = False
@@ -388,14 +407,17 @@ def readmdl(materials = None, rotate=True):
         materials = import_owmat.read(matpath, '', settings.importTexNormal, settings.importTexEffect)
         bindMaterials(meshes, data, materials)
 
-    empties = []
-    if settings.importEmpties and data.header.emptyCount > 0:
-        empties = importEmpties(armature)
-        if rotate: empties[0].rotation_euler = (radians(90), 0, 0)
-
     if armature:
         boneTailMiddleObject(armature)
 
+    empties = []
+    if settings.importEmpties and data.header.emptyCount > 0:
+        empties = importEmpties(armature)
+        if rotate:
+            empties[0].rotation_euler = (radians(90), 0, 0)
+            armature.rotation_euler = (radians(90), 0, 0)
+
+    
     if impMat:
         import_owmat.cleanUnusedMaterials(materials)
 

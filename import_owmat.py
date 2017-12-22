@@ -225,7 +225,7 @@ def read(filename, prefix = '', importNormal = True, importEffect = True):
 
 def process_material_Cycles(material, prefix, root, t):
     mat = bpy.data.materials.new('%s%016X' % (prefix, material.key))
-    print("Processing material: " + mat.name)
+    # print("Processing material: " + mat.name)
     mat.use_nodes = True
    
     tile = 300
@@ -284,7 +284,7 @@ def process_material_Cycles(material, prefix, root, t):
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Emission Mask"])
         if typ == tt['Opacity'] or typ == tt['Opacity2']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Opacity"])
-        if typ == tt['Tertiary'] or typ == tt['FlagTertiary'] or typ == tt['Tertiary2']:
+        if typ == tt['Tertiary'] or typ == tt['Tertiary2']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["OWSpecMap"])
         if typ == tt['Emission'] or typ == tt['Emission2'] or typ == tt['Emission3']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Emission Mask"])

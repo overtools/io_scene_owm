@@ -21,7 +21,6 @@ TextureTypes = {
     "HairNormal": 562391268, # why?
     "CorneaNormal": 562391268, # maybe not
     "Tertiary": 548341454,  # Metal (R) + Highlight (G) + Detail (B)
-    "FlagTertiary": 996643046,
     "Tertiary2": 3852121246,  # used for Mei's ice wall
     "Opacity": 1482859648,
     "Opacity2": 1140682086,
@@ -57,13 +56,14 @@ class OWSettings:
 
 
 class OWEffectSettings:
-    def __init__(self, settings, filename, force_fps, target_fps, import_DMCE, import_CECE, create_camera):
+    def __init__(self, settings, filename, force_fps, target_fps, import_DMCE, import_CECE, import_NECE, create_camera):
         self.settings = settings
         self.filename = filename
         self.force_fps = force_fps
         self.target_fps = target_fps
         self.import_DMCE = import_DMCE
         self.import_CECE = import_CECE
+        self.import_NECE = import_NECE
         self.create_camera = create_camera
 
     def mutate(self, path):
@@ -125,7 +125,7 @@ class CECEAction(Enum):
     
 class OWEffectData:
     time_format = ['<?ff', str]
-    header_format = ['<HHIfiiiiii']
+    header_format = ['<HHIfiiiiiii']
 
     def __init__(self, guid, length, dmces, ceces, neces, rpces):
         self.guid = guid
@@ -192,11 +192,12 @@ class OWEffectData:
             return cls(time, action, animation, var, var_index, path)
 
     class NECEInfo:
-        format = ['<Q', str]
+        format = ['<QI', str]
 
-        def __init__(self, time, guid, path):
+        def __init__(self, time, guid, variable, path):
             self.time = time
             self.guid = guid
+            self.variable = variable
             self.path = path
 
         def __repr__(self):
@@ -205,8 +206,8 @@ class OWEffectData:
         @classmethod
         def read(cls, stream):
             time = OWEffectData.EffectTimeInfo.read(stream)
-            guid, path = bin_ops.readFmtFlat(stream, OWEffectData.NECEInfo.format)
-            return cls(time, guid, path)
+            guid, var, path = bin_ops.readFmtFlat(stream, OWEffectData.NECEInfo.format)
+            return cls(time, guid, var, path)
 
     class RPCEInfo:
         format = ['<QQ', str]
@@ -228,7 +229,7 @@ class OWEffectData:
 
     @classmethod
     def read(cls, stream):
-        major, minor, guid, length, dmce_count, cece_count, nece_count, rpce_count, fece_count, osce_count = bin_ops.readFmtFlat(stream, OWEffectData.header_format)
+        major, minor, guid, length, dmce_count, cece_count, nece_count, rpce_count, fece_count, osce_count, svce_count = bin_ops.readFmtFlat(stream, OWEffectData.header_format)
 
         dmces = []
         for i in range(dmce_count):

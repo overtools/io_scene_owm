@@ -2,6 +2,7 @@ import os
 
 from . import read_oweffect
 from . import import_owmdl
+from . import import_owentity
 from . import bpyhelper
 from . import owm_types
 from . import import_owmdl
@@ -72,21 +73,30 @@ def create_refpose(model_path):
         empty.rotation_euler = import_owmdl.wxzy(emp.rotation).to_euler('XYZ')
         empty['owm.hardpoint.bone'] = emp.hardpoint
         bpyhelper.select_obj(empty, True)
-        if len(emp.hardpoint) > 0:
-            copy_location = empty.constraints.new("COPY_LOCATION")
-            copy_location.name = "Hardpoint Location"
-            copy_location.target = arm
-            copy_location.subtarget = emp.hardpoint
-            # copy_location.use_offset = True
-
-            copy_rotation = empty.constraints.new("COPY_ROTATION")
-            copy_rotation.name = "Hardpoint Rotation"
-            copy_rotation.target = arm
-            copy_rotation.subtarget = emp.hardpoint
-
-            # copy_rotation.use_offset = True
             
-        e_dict[empty.name] = empty
+        e_dict[emp.name] = empty
+
+    for pbone in arm.pose.bones:
+        pbone.bone.select = False
+    # this might be a little more than what we need
+    for name, hardpoint in e_dict.items():
+        bpy.ops.object.select_all(action='DESELECT')
+        hardpoint.select = True
+        bpy.context.scene.objects.active = arm
+        bpy.ops.object.mode_set(mode='POSE')
+
+        
+        if hardpoint['owm.hardpoint.bone'] not in arm.pose.bones:
+            bpy.ops.object.mode_set(mode='OBJECT') # fixes "context is incorrect"
+            continue  # todo: why
+        bone = arm.pose.bones[hardpoint['owm.hardpoint.bone']].bone
+        bone.select = True
+        arm.data.bones.active = bone
+        bpy.ops.object.parent_set(type='BONE')
+        bone.select = False
+        hardpoint.select = False
+        bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.ops.object.select_all(action='DESELECT')
     return arm, e_dict, att
 
 
@@ -107,8 +117,15 @@ def attach(par, obj):
 
 def delete(obj):
     bpy.ops.object.select_all(action='DESELECT')
+    bpy.context.scene.objects.active = obj
     obj.select = True
     bpy.ops.object.delete()
+
+
+def deselect_tree(obj):
+    obj.select = False
+    for child in obj.children:
+        deselect_tree(child)
 
 
 def process(settings, data, pool, parent, target_framerate, hardpoints, variables):
@@ -167,7 +184,6 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                     ent_obj.hide = this_obj.hide_render = True
                     ent_obj.parent = hardpoints[c['owm.entity.child.hardpoint']]
                     ent_obj.parent['owm.effect.hardpoint.used'] = True
-                    ent_obj['owm.entity.model'] = c['owm.entity.model']
                     bpyhelper.scene_link(ent_obj)
                     variables[var] = 'entity_child', ent_obj, c
 
@@ -182,8 +198,9 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
         
         process(settings, data.data, pool, this_obj, target_framerate, hardpoints, variables)
 
-        if bpy.context.object.mode != 'OBJECT':
+        if bpy.context.object is not None and bpy.context.object.mode != 'OBJECT':
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
         for hp_name,hp in hardpoints.items():
             if 'owm.effect.hardpoint.used' not in hp:
                 delete(hp)
@@ -201,12 +218,36 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
         obj.hide = obj.hide_render = True
         bpyhelper.scene_link(obj)
 
+##        for rpce in data.rpces:
+##            # if not settings.import_RPCE:
+##            #     continue
+##            mutate = settings.settings.mutate(os.path.join(pool, rpce.model_path))
+##            mutate.importEmpties = False
+##            rpce_model = import_owmdl.read(mutate) # rootObject, armature, meshes, empties, data
+##
+##            for mesh in rpce_model[2]:
+##                # if dmce_skele is not None:
+##                #     mesh.parent = dmce_skele
+##                # else:
+##                #     mesh.parent = obj
+##                if rpce.time.ref_hardpoint != "null":
+##                    attach(hardpoints[rpce.time.ref_hardpoint], mesh)
+##
+##            if rpce.time.ref_hardpoint != "null":
+##                attach(hardpoints[rpce.time.ref_hardpoint], rpce_model[0])
+##                hardpoints[rpce.time.ref_hardpoint]['owm.effect.hardpoint.used'] = True
+##
+##            deselect_tree(rpce_model[0])
+            
+            
+
         for dmce in data.dmces:
             if not settings.import_DMCE:
                 continue
             end_frame = bpy.context.scene.frame_end
             mutate = settings.settings.mutate(os.path.join(pool, dmce.model_path))
-            mutate.importEmpties = False
+            # mutate.importEmpties = False
+            mutate.importEmpties = True
             dmce_model = import_owmdl.read(mutate) # rootObject, armature, meshes, empties, data
             dmce_model[0].parent = obj
             dmce_skele = None
@@ -219,14 +260,18 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                 for f in dmce_skele.animation_data.action.fcurves:
                     for kp in f.keyframe_points:
                         kp.co[0] += int(target_framerate * dmce.time.start)
+            else:
+                pass # todo: cleanup hardpoints
 
-                delete(dmce_model[0])
-                delete(dmce_model[1])
-
-                for mesh in dmce_model[2]:
+            delete(dmce_model[0])
+            delete(dmce_model[1])
+            for mesh in dmce_model[2]:
+                if dmce_skele is not None:
                     mesh.parent = dmce_skele
-                    if dmce.time.hardpoint != "null":
-                        attach(hardpoints[dmce.time.hardpoint], mesh)                
+                else:
+                    mesh.parent = obj
+                if dmce.time.hardpoint != "null":
+                    attach(hardpoints[dmce.time.hardpoint], mesh)
 
             bpy.context.scene.frame_end = end_frame
             if dmce.time.hardpoint != "null":
@@ -234,9 +279,36 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                     attach(hardpoints[dmce.time.hardpoint], dmce_skele)
                     dmce_model[0].parent = dmce_obj
                 else:
-                    dmce_model[1].rotation_euler = (0, 0, 0)
+                    if dmce_model[1] is not None:
+                        dmce_model[1].rotation_euler = (0, 0, 0)
                 attach(hardpoints[dmce.time.hardpoint],dmce_model[0])
                 hardpoints[dmce.time.hardpoint]['owm.effect.hardpoint.used'] = True
+
+        for nece in data.neces:
+            if not settings.import_NECE:
+                continue
+
+            act = bpy.context.scene.objects.active
+
+            mutate = settings.settings.mutate(os.path.join(pool, nece.path))
+            nece_entity, nece_data = import_owentity.read(mutate, True, True)
+
+            deselect_tree(nece_entity)
+
+            bpy.context.scene.objects.active = act
+
+            if nece.time.hardpoint != "null":
+                ent_obj = bpy.data.objects.new('EffectEntityWrapper {}'.format(nece.variable), None)
+                ent_obj.hide = ent_obj.hide_render = True
+                ent_obj.parent = hardpoints[nece.time.hardpoint]
+                ent_obj.parent['owm.effect.hardpoint.used'] = True
+                bpyhelper.scene_link(ent_obj)
+                attach(ent_obj, nece_entity)
+
+            nece_entity.parent = obj
+            nece_entity['owm.entity.child.var'] = nece.variable
+
+            variables[nece.variable] = 'entity_child', ent_obj, nece_entity
        
         show_ents = []
                     
@@ -259,7 +331,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                     print("[import_effect]: Missing CECE \"Models\\{0:012x}.00C\\{1}\"".format(cece_entity['owm.entity.model'],cece.path))
                     continue
 
-                if bpy.context.object.mode != 'OBJECT':
+                if bpy.context.object is not None and bpy.context.object.mode != 'OBJECT':
                     bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                 bpy.ops.object.select_all(action='DESELECT')
                 bpy.context.scene.objects.active = cece_entity
@@ -279,8 +351,10 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                 continue
             var_id, cece_container, cece_entity = var_data
             if cece_entity['owm.entity.child.var'] not in show_ents:
+                pass
                 # cycles dies at init time when this is used. todo: why
-                cece_container.scale = (0, 0, 0)
+                # cece_container.scale = (0, 0, 0)
+                
                 # this is using keyframes
 ##                act = bpy.context.scene.objects.active
 ##                if bpy.context.object.mode != 'OBJECT':
