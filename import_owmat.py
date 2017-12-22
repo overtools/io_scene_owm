@@ -5,7 +5,7 @@ from . import owm_types
 import bpy
 
 def cleanUnusedMaterials(materials):
-    if materials == None:
+    if materials is None:
         return
     m = {}
     for name in materials[1]:
@@ -29,17 +29,24 @@ def mutate_texture_path(file, new_ext):
     return os.path.dirname(file) + "//" + os.path.splitext(os.path.basename(file))[0] + new_ext
 
 def load_textures(texture, root, t):
+    """ Loads an overwatch texture.
+ 
+    Priority (high to low): TIFF, TGA, DDS (doesn't work properly)
+    """
     realpath = texture
     if not os.path.isabs(realpath):
         realpath = os.path.normpath('%s/%s' % (root, realpath))
         fn = os.path.splitext(os.path.basename(realpath))[0]
-    if not os.path.exists(realpath):
-        mutate_texture_path(realpath, ".tga")
+
+    tga_file = mutate_texture_path(realpath, ".tga")
+    if os.path.exists(tga_file):
+        realpath = tga_file
+    
     tif_file = mutate_texture_path(realpath, ".tif")
-    is_tif = False
     if os.path.exists(tif_file):
         realpath = tif_file
-        is_tif = True
+        
+    is_tif = True # fixme: PLEASE FIX NORMAL MAPS
     
     try:
         tex = None
@@ -50,7 +57,7 @@ def load_textures(texture, root, t):
             for eimg in bpy.data.images:
                 if eimg.name == fn or eimg.filepath == realpath:
                     img = eimg
-            if img == None:
+            if img is None:
                 img = bpy.data.images.load(realpath)
                 img.name = fn
             tex = None
@@ -58,11 +65,12 @@ def load_textures(texture, root, t):
                 if etex.name == fn:
                     tex = etex
             if tex == None:
-                tex = bpy.data.textures.new(fn, type = 'IMAGE')
+                tex = bpy.data.textures.new(fn, type='IMAGE')
                 tex.image = img
             t[fn] = tex
         return tex, is_tif
-    except: pass
+    except Exception as e:
+        print("[import_owmat]: error loading texture: {}".format(e))
     return None, False
 
 def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it doesn't exist yet
@@ -207,7 +215,8 @@ def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it 
 def read(filename, prefix = '', importNormal = True, importEffect = True):
     root, file = os.path.split(filename)
     data = read_owmat.read(filename)
-    if not data: return None
+    if not data:
+        return None
 
     t = {}
     m = {}
@@ -253,7 +262,7 @@ def process_material_Cycles(material, prefix, root, t):
         nodeTex.color_space = 'NONE'
         
         tex, is_tif = load_textures(texData[0], root, t)
-        if tex == None:
+        if tex is None:
             print("[import_owmat]: failed to load texture: {}".format(texData[0]))
             continue
         nodeTex.image = tex.image
@@ -300,8 +309,10 @@ def process_material_BI(material, prefix, importNormal, importEffect, root, t):
     for texturetype in material.textures:
         typ = texturetype[1]
         texture = texturetype[0]
-        if importNormal == False and typ == owm_types.OWMATTypes['NORMAL']: continue
-        if importEffect == False and typ == owm_types.OWMATTypes['SHADER']: continue
+        if importNormal == False and typ == owm_types.OWMATTypes['NORMAL']:
+            continue
+        if importEffect == False and typ == owm_types.OWMATTypes['SHADER']:
+            continue
  
         tex, is_tif = load_textures(texture, root, t)
        
@@ -321,6 +332,7 @@ def process_material_BI(material, prefix, importNormal, importEffect, root, t):
             mattex.texture = tex
             mattex.texture_coords = 'UV'
             t[fn] = tex
-        except: pass
+        except Exception as e:
+            print("[import_owmat]: error creating BI material: {}".format(e))
     
     return mat
