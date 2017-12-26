@@ -24,9 +24,10 @@ def read_stream(filename, stream):
             path, model_path = owm_types.OWAnimHeader.read_data(stream)
             # embedded oweffect
             data = read_stream(filename, stream)
-            return owm_types.OWAnimFile(header, data, path, model_path)
+            return owm_types.OWAnimFile(header, filename, data, path, model_path)
     if magic == "oweffect":
         data = owm_types.OWEffectData.read(stream)
+        data.filename = filename
         return data
         
     return None

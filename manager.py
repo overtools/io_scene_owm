@@ -123,7 +123,7 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
         sub.enabled = self.importSkeleton
 
         col = layout.column(align=True)
-        col.enabled = self.importMaterial
+        col.enabled = self.importMaterial  and bpy.context.scene.render.engine != 'CYCLES'
         col.label('Material')
         col.prop(self, 'importTexNormal')
         col.prop(self, 'importTexEffect')
@@ -173,6 +173,7 @@ class import_mat_op(bpy.types.Operator, ImportHelper):
         col.label('Material')
         col.prop(self, 'importTexNormal')
         col.prop(self, 'importTexEffect')
+        col.enabled = bpy.context.scene.render.engine != 'CYCLES'
 
 class import_map_op(bpy.types.Operator, ImportHelper):
     bl_idname = "owm_importer.import_map"
@@ -352,6 +353,60 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
+    uvDisplX = bpy.props.IntProperty(
+        name="X",
+        description="Displace UV X axis",
+        default=0,
+    )
+
+    uvDisplY = bpy.props.IntProperty(
+        name="Y",
+        description="Displace UV Y axis",
+        default=0,
+    )
+
+    autoIk = BoolProperty(
+        name="AutoIK",
+        description="Set AutoIK",
+        default=True,
+    )
+
+    importNormals = BoolProperty(
+        name="Import Normals",
+        description="Import Custom Normals",
+        default=True,
+    )
+
+    importEmpties = BoolProperty(
+        name="Import Empties",
+        description="Import Empty Objects",
+        default=False,
+    )
+
+    importMaterial = BoolProperty(
+        name="Import Material",
+        description="Import Referenced OWMAT",
+        default=True,
+    )
+
+    importSkeleton = BoolProperty(
+        name="Import Skeleton",
+        description="Import Bones",
+        default=(not bpyhelper.IS_BLENDER280),
+    )
+
+    importTexNormal = BoolProperty(
+        name="Import Normal Maps",
+        description="Import Normal Textures",
+        default=True,
+    )
+
+    importTexEffect = BoolProperty(
+        name="Import Misc Maps",
+        description="Import Misc Texutures (Effects, highlights)",
+        default=True,
+    )
+
     def menu_func(self, context):
         self.layout.operator_context = 'INVOKE_DEFAULT'
         self.layout.operator(
@@ -365,15 +420,15 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         settings = owm_types.OWSettings(
             self.filepath,
-            0,
-            0,
-            True,
-            True,
-            True,
-            True,
-            True,
-            True,
-            True
+            self.uvDisplX,
+            self.uvDisplY,
+            self.autoIk,
+            self.importNormals,
+            True, # self.importEmpties
+            self.importMaterial,
+            True, # self.importSkeleton
+            self.importTexNormal,
+            self.importTexEffect
         )
         import_owentity.read(settings, self.import_children)
         print('DONE')
@@ -383,7 +438,29 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
         layout = self.layout
 
         col = layout.column(align=True)
+        col.label('Entity')
         col.prop(self, "import_children")
+
+        col = layout.column(align=True)
+        col.label('Mesh')
+        col.prop(self, "importNormals")
+        col.prop(self, "importMaterial")
+        sub = col.row()
+        sub.label('UV')
+        sub.prop(self, "uvDisplX")
+        sub.prop(self, "uvDisplY")
+
+        col = layout.column(align=True)
+        col.label('Armature')
+        sub = col.row()
+        sub.prop(self, "autoIk")
+        sub.enabled = self.importSkeleton
+
+        col = layout.column(align=True)
+        col.enabled = self.importMaterial and bpy.context.scene.render.engine != 'CYCLES'
+        col.label('Material')
+        col.prop(self, 'importTexNormal')
+        col.prop(self, 'importTexEffect')
 
 class import_effect_op(bpy.types.Operator, ImportHelper):
     bl_idname = "owm_importer.import_effect"
@@ -412,7 +489,33 @@ class import_effect_op(bpy.types.Operator, ImportHelper):
     import_nece = BoolProperty(
         name="Import NECE (Entities)",
         description="Import NECE",
+        default=True,
+    )
+
+    import_svce = BoolProperty(
+        name="Import SVCE (Voice) (EXPERIMENTAL)",
+        description="Import SVCE. WARNING: CAN CRASH BLENDER",
         default=False,
+    )
+
+    svce_line_seed = bpy.props.IntProperty(
+        name="SVCE Line seed",
+        description="SVCE Line seed",
+        default=-1,
+        min=-1
+    )
+
+    svce_sound_seed = bpy.props.IntProperty(
+        name="SVCE Sound seed",
+        description="SVCE Sound seed",
+        default=-1,
+        min=-1
+    )
+
+    cleanup_hardpoints = BoolProperty(
+        name="Cleanup Hardpoints",
+        description="Remove unused hardpoints",
+        default=True,
     )
     
     force_framerate = BoolProperty(
@@ -459,7 +562,9 @@ class import_effect_op(bpy.types.Operator, ImportHelper):
         )
 
         efct_settings = owm_types.OWEffectSettings(settings, self.filepath, self.force_framerate,
-            self.target_framerate, self.import_dmce, self.import_cece, self.import_nece, self.import_camera)
+            self.target_framerate, self.import_dmce, self.import_cece, self.import_nece,
+            self.import_svce, self.svce_line_seed, self.svce_sound_seed, self.import_camera,
+            self.cleanup_hardpoints)
 
         import_oweffect.read(efct_settings)
         print('DONE')
@@ -473,9 +578,15 @@ class import_effect_op(bpy.types.Operator, ImportHelper):
         col.prop(self, "import_dmce")
         col.prop(self, "import_cece")
         col.prop(self, "import_nece")
+        col.prop(self, "import_svce")
+        svce_col = col.column(align=True)
+        svce_col.enabled = self.import_svce
+        svce_col.prop(self, "svce_line_seed")
+        svce_col.prop(self, "svce_sound_seed")
 
         col.label('Animation')
         col.prop(self, 'import_camera')
+        col.prop(self, "cleanup_hardpoints")
         col.prop(self, "force_framerate")
         col2 = layout.column(align=True)
         col2.enabled = self.force_framerate

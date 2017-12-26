@@ -56,7 +56,8 @@ class OWSettings:
 
 
 class OWEffectSettings:
-    def __init__(self, settings, filename, force_fps, target_fps, import_DMCE, import_CECE, import_NECE, create_camera):
+    def __init__(self, settings, filename, force_fps, target_fps, import_DMCE, import_CECE, import_NECE,
+                 import_SVCE, svce_line_seed, svce_sound_seed, create_camera, cleanup_hardpoints):
         self.settings = settings
         self.filename = filename
         self.force_fps = force_fps
@@ -64,7 +65,11 @@ class OWEffectSettings:
         self.import_DMCE = import_DMCE
         self.import_CECE = import_CECE
         self.import_NECE = import_NECE
+        self.import_SVCE = import_SVCE
+        self.svce_line_seed = svce_line_seed
+        self.svce_sound_seed = svce_sound_seed
         self.create_camera = create_camera
+        self.cleanup_hardpoints = cleanup_hardpoints
 
     def mutate(self, path):
         new = copy.deepcopy(self)
@@ -106,8 +111,9 @@ class OWMAPFile:
         self.lights = lights
 
 class OWAnimFile:
-    def __init__(self, header, data, path, model_path):
+    def __init__(self, header, filename, data, path, model_path):
         self.header = header
+        self.filename = filename
         self.data = data
         self.anim_path = path
         self.model_path = model_path
@@ -127,13 +133,15 @@ class OWEffectData:
     time_format = ['<?ff', str]
     header_format = ['<HHIfiiiiiii']
 
-    def __init__(self, guid, length, dmces, ceces, neces, rpces):
+    def __init__(self, guid, length, dmces, ceces, neces, rpces, svces):
         self.guid = guid
         self.length = length
         self.dmces = dmces
         self.ceces = ceces
         self.neces = neces
         self.rpces = rpces
+        self.svces = svces
+        self.filename = None
 
     class EffectTimeInfo:
         def __init__(self, use_time, start, end, hardpoint):
@@ -227,6 +235,38 @@ class OWEffectData:
             model, material, model_path  = bin_ops.readFmtFlat(stream, OWEffectData.RPCEInfo.format)
             return cls(time, model, model_path, material)
 
+    class SVCEInfo:
+        format = ['<Ii',]
+        line_format = ['i',]
+        line_sound_format = [str,]
+
+        class SVCELine:
+            def __init__(self, sounds):
+                self.sounds = sounds
+
+        def __init__(self, time, guid, lines):
+            self.time = time
+            self.guid = guid
+            self.lines = lines
+
+        def __repr__(self):
+            return '<SVCEInfo>: {} ({})'.format(self.guid, self.time.hardpoint)
+
+        @classmethod
+        def read(cls, stream):
+            time = OWEffectData.EffectTimeInfo.read(stream)
+            guid, line_count  = bin_ops.readFmtFlat(stream, OWEffectData.SVCEInfo.format)
+            lines = []
+            for i in range(line_count):
+                sound_count = bin_ops.readFmtFlat(stream, OWEffectData.SVCEInfo.line_format)
+
+                sounds = []
+                for j in range(sound_count):
+                    sounds.append(bin_ops.readFmtFlat(stream, OWEffectData.SVCEInfo.line_sound_format))
+                
+                lines.append(OWEffectData.SVCEInfo.SVCELine(sounds))
+            return cls(time, guid, lines)
+
     @classmethod
     def read(cls, stream):
         major, minor, guid, length, dmce_count, cece_count, nece_count, rpce_count, fece_count, osce_count, svce_count = bin_ops.readFmtFlat(stream, OWEffectData.header_format)
@@ -247,12 +287,17 @@ class OWEffectData:
         for i in range(rpce_count):
             rpces.append(OWEffectData.RPCEInfo.read(stream))
 
-        print("[import_effect]: dmces={}".format(dmces))
-        print("[import_effect]: ceces={}".format(ceces))
-        print("[import_effect]: neces={}".format(neces))
-        print("[import_effect]: rpces={}".format(rpces))
+        svces = []
+        for i in range(svce_count):
+            svces.append(OWEffectData.SVCEInfo.read(stream))
+
+        # print("[import_effect]: dmces={}".format(dmces))
+        # print("[import_effect]: ceces={}".format(ceces))
+        # print("[import_effect]: neces={}".format(neces))
+        # print("[import_effect]: rpces={}".format(rpces))
+        # print("[import_effect]: svces={}".format(svces))
             
-        return cls(guid, length, dmces, ceces, neces, rpces)
+        return cls(guid, length, dmces, ceces, neces, rpces, svces)
 
 
 class OWAnimType(Enum):

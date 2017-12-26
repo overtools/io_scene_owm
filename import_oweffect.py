@@ -11,6 +11,7 @@ from mathutils import *
 import math
 import bpy, bpy_extras, mathutils
 import os
+import random
 
 def get_object(obj=None): # return => is_entity, object, model_index
     if obj is None:
@@ -118,6 +119,8 @@ def attach(par, obj):
 def delete(obj):
     bpy.ops.object.select_all(action='DESELECT')
     bpy.context.scene.objects.active = obj
+    if obj is None:
+        return
     obj.select = True
     bpy.ops.object.delete()
 
@@ -201,14 +204,16 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
         if bpy.context.object is not None and bpy.context.object.mode != 'OBJECT':
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-        for hp_name,hp in hardpoints.items():
-            if 'owm.effect.hardpoint.used' not in hp:
-                delete(hp)
-            else:
-                del hp['owm.effect.hardpoint.used']
 
-        if len(hp_container.children) == 0:
-            delete(hp_container)
+        if settings.cleanup_hardpoints:
+            for hp_name,hp in hardpoints.items():
+                if 'owm.effect.hardpoint.used' not in hp:
+                    delete(hp)
+                else:
+                    del hp['owm.effect.hardpoint.used']
+
+            if len(hp_container.children) == 0:
+                delete(hp_container)
 
         return this_obj, new_skeleton
 
@@ -217,6 +222,51 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
         obj.parent = parent
         obj.hide = obj.hide_render = True
         bpyhelper.scene_link(obj)
+
+        for svce in data.svces:
+            if not settings.import_SVCE:
+                continue
+
+            bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+            bpy.context.scene.frame_set(int(target_framerate * svce.time.start))
+            
+            bpy.ops.object.speaker_add()
+            speaker = bpy.context.scene.objects.active
+            speaker.name = "SVCE Speaker"
+            speaker.location = (0, 0, 0)
+            
+            speaker.animation_data.nla_tracks['SoundTrack'].strips['NLA Strip'].frame_start = target_framerate * svce.time.start
+
+            line_seed = settings.svce_line_seed
+            if line_seed == -1:
+                line_seed = random.randint(0, 99999999)
+            sound_seed = settings.svce_sound_seed
+            if sound_seed == -1:
+                sound_seed = random.randint(0, 99999999)
+
+            line_random = random.Random(line_seed)
+            sound_random = random.Random(sound_seed)
+            
+            line = line_random.choice(svce.lines)
+            sound = sound_random.choice(line.sounds)
+            
+            speaker.data.sound = bpy.data.sounds.load(os.path.join(os.path.dirname(data.filename), sound))
+
+            # these are probably incorrect
+            speaker.data.volume = 0.7
+            speaker.data.attenuation = 0.3
+
+            speaker.parent = obj
+
+            if svce.time.hardpoint != "null":
+                attach(hardpoints[svce.time.hardpoint], speaker)
+            else:
+                # erm, seems to be in the head
+                attach(hardpoints["hardpoint_0012"], speaker)
+                hardpoints["hardpoint_0012"]['owm.effect.hardpoint.used'] = True
+
+            bpy.context.scene.frame_set(0)
 
 ##        for rpce in data.rpces:
 ##            # if not settings.import_RPCE:
@@ -246,8 +296,8 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                 continue
             end_frame = bpy.context.scene.frame_end
             mutate = settings.settings.mutate(os.path.join(pool, dmce.model_path))
-            # mutate.importEmpties = False
-            mutate.importEmpties = True
+            mutate.importEmpties = False
+            # mutate.importEmpties = True
             dmce_model = import_owmdl.read(mutate) # rootObject, armature, meshes, empties, data
             dmce_model[0].parent = obj
             dmce_skele = None
@@ -336,7 +386,10 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                 bpy.ops.object.select_all(action='DESELECT')
                 bpy.context.scene.objects.active = cece_entity
 
+                end_frame = bpy.context.scene.frame_end
+
                 anim_container, anim_skele = read(mutate, obj)
+                bpy.context.scene.frame_end = end_frame
                 anim_skele.rotation_euler = (0, 0, 0)
                 attach(cece_container, anim_container)
 
