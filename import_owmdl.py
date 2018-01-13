@@ -200,6 +200,8 @@ def bindMaterials(meshes, data, materials):
         if materials != None and meshData.materialKey in materials[1]:
             mesh.materials.clear()
             mesh.materials.append(materials[1][meshData.materialKey])
+        else:
+            print("[import_owmdl]: Unable to find material: {}".format(meshData.materialKey))
 
 def bindMaterialsUniq(meshes, data, materials):
     if materials == None:
@@ -393,6 +395,9 @@ def readmdl(materials = None, rotate=True):
         armature.parent = rootObject
         armature['owm.skeleton.name'] = armature.name
         armature['owm.skeleton.model'] = data.guid
+
+        if rotate and not settings.importEmpties:
+            armature.rotation_euler = (radians(90), 0, 0)
     meshes = importMeshes(armature)
 
     impMat = False
@@ -409,11 +414,12 @@ def readmdl(materials = None, rotate=True):
         boneTailMiddleObject(armature)
 
     empties = []
-    if settings.importEmpties and data.header.emptyCount > 0:
+    if settings.importEmpties:
         empties = importEmpties(armature)
         if rotate:
             empties[0].rotation_euler = (radians(90), 0, 0)
-            armature.rotation_euler = (radians(90), 0, 0)
+            if armature is not None:
+                armature.rotation_euler = (radians(90), 0, 0)
 
     
     if impMat:

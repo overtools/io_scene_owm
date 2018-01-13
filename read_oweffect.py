@@ -10,7 +10,7 @@ def openStream(filename):
     return stream
 
 def get_pooled_dir(this_path, new_path):
-    return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(this_path))))), new_path)
+    return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(this_path)))), new_path)
 
 def read_stream(filename, stream):
     magic = bin_ops.readFmtFlat(stream, owm_types.OWEffectHeader.magic_format)

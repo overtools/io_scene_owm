@@ -11,6 +11,7 @@ def cleanUnusedMaterials(materials):
     for name in materials[1]:
         mat = materials[1][name]
         if mat.users == 0:
+            print("[import_owmat]: removed material: {}".format(mat.name))
             bpy.data.materials.remove(mat)
         else:
             m[name] = mat
@@ -45,8 +46,6 @@ def load_textures(texture, root, t):
     tif_file = mutate_texture_path(realpath, ".tif")
     if os.path.exists(tif_file):
         realpath = tif_file
-        
-    is_tif = True # fixme: PLEASE FIX NORMAL MAPS
     
     try:
         tex = None
@@ -68,10 +67,10 @@ def load_textures(texture, root, t):
                 tex = bpy.data.textures.new(fn, type='IMAGE')
                 tex.image = img
             t[fn] = tex
-        return tex, is_tif
+        return tex
     except Exception as e:
         print("[import_owmat]: error loading texture: {}".format(e))
-    return None, False
+    return None
 
 def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it doesn't exist yet
     if(bpy.data.node_groups.find("OverwatchGenerated") is not -1):
@@ -129,13 +128,6 @@ def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it 
     nodeNormal = ng.nodes.new("ShaderNodeNormalMap")
     nodeNormal.location = (-tile*4, -tile*2)
  
-    nodeCombineRGB = ng.nodes.new("ShaderNodeCombineRGB")
-    nodeCombineRGB.location = (-tile*5, -tile*2)
-    nodeInvert = ng.nodes.new("ShaderNodeInvert")
-    nodeInvert.location = (-tile*6, -tile*2)
-    nodeSeparateRGBNorm = ng.nodes.new("ShaderNodeSeparateRGB")
-    nodeSeparateRGBNorm.location = (-tile*7, -tile*2)
- 
     ## SPECULAR SETUP ##
     nodeMathSpec2 = ng.nodes.new("ShaderNodeMath")
     nodeMathSpec2.location = (-tile*4, 0)
@@ -177,9 +169,10 @@ def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it 
     links.new(nodeInput.outputs["Color"], nodePrincipled.inputs["Base Color"])
     links.new(nodeInput.outputs["Opacity"], nodeMixTransp.inputs["Fac"])
     links.new(nodeInput.outputs["OWSpecMap"], nodeSeparateRGBSpec.inputs["Image"])
-    links.new(nodeInput.outputs["Normal"], nodeSeparateRGBNorm.inputs["Image"])
     links.new(nodeInput.outputs["Emission Mask"], nodeMixEmission.inputs["Fac"])
     links.new(nodeInput.outputs["Emission Strength"], nodeEmission.inputs["Strength"])
+    links.new(nodeInput.outputs["Normal"], nodeNormal.inputs["Color"])
+    links.new(nodeInput.outputs['Normal Strength'], nodeNormal.inputs["Strength"])
  
     links.new(nodeSeparateRGBSpec.outputs["R"], nodeMathSpec.inputs[0])
     links.new(nodeSeparateRGBSpec.outputs["R"], nodeMathMetal.inputs[0])
@@ -188,13 +181,6 @@ def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it 
     links.new(nodeMathSpec.outputs[0], nodeMathSpec2.inputs[0])
     links.new(nodeMathMetal.outputs[0], nodeMathMetal2.inputs[0])
     links.new(nodeInvertRoughness.outputs[0], nodeGamma.inputs[0])
- 
-    links.new(nodeSeparateRGBNorm.outputs["R"], nodeCombineRGB.inputs["R"])
-    links.new(nodeSeparateRGBNorm.outputs["G"], nodeInvert.inputs["Color"])
-    links.new(nodeInvert.outputs["Color"], nodeCombineRGB.inputs["G"])
-    links.new(nodeSeparateRGBNorm.outputs["B"], nodeCombineRGB.inputs["B"])
-    links.new(nodeCombineRGB.outputs["Image"], nodeNormal.inputs["Color"])
-    links.new(nodeInput.outputs['Normal Strength'], nodeNormal.inputs["Strength"])
  
     links.new(nodeMathSpec2.outputs[0], nodePrincipled.inputs["Specular"])
     links.new(nodeMathMetal2.outputs[0], nodePrincipled.inputs["Metallic"])
@@ -232,8 +218,12 @@ def read(filename, prefix = '', importNormal = True, importEffect = True):
 
     return (t, m)
 
-def process_material_Cycles(material, prefix, root, t):
+def process_material_Cycles(material, prefix, root, t):    
     mat = bpy.data.materials.new('%s%016X' % (prefix, material.key))
+
+    if material.shader != 0:
+        print("[import_owmat]: {} uses shader {}".format(mat.name, material.shader))
+    
     # print("Processing material: " + mat.name)
     mat.use_nodes = True
    
@@ -261,7 +251,7 @@ def process_material_Cycles(material, prefix, root, t):
         nodeTex.width = 250
         nodeTex.color_space = 'NONE'
         
-        tex, is_tif = load_textures(texData[0], root, t)
+        tex = load_textures(texData[0], root, t)
         if tex is None:
             print("[import_owmat]: failed to load texture: {}".format(texData[0]))
             continue
@@ -299,8 +289,7 @@ def process_material_Cycles(material, prefix, root, t):
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Emission Mask"])
         if typ == tt['Normal'] or typ == tt['HairNormal'] or typ == tt['CorneaNormal']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Normal"])
-            nodeOverwatch.inputs["Normal Strength"].default_value = -1                
-           
+    
     return mat
 
 def process_material_BI(material, prefix, importNormal, importEffect, root, t):
@@ -314,7 +303,7 @@ def process_material_BI(material, prefix, importNormal, importEffect, root, t):
         if importEffect == False and typ == owm_types.OWMATTypes['SHADER']:
             continue
  
-        tex, is_tif = load_textures(texture, root, t)
+        tex = load_textures(texture, root, t)
        
         try:
             mattex = mat.texture_slots.add()

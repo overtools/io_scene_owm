@@ -22,13 +22,15 @@ def read(settings, import_children=False, is_child=False):
 
     mdl_settings = get_mdl_settings(settings, data.model)
 
-    root_object = bpy.data.objects.new("Entity:" + data.file, None)
+    root_object = bpy.data.objects.new("Entity " + data.file, None)
     root_object.hide = root_object.hide_render = True
     root_object['owm.entity.guid'] = data.index
     root_object['owm.entity.model'] = data.model_index
-    
-    base_model = import_owmdl.read(mdl_settings, None, False, not is_child)
-    base_model[0].parent = root_object
+
+    base_model = None
+    if data.model != "null":
+        base_model = import_owmdl.read(mdl_settings, None, False, not is_child)
+        base_model[0].parent = root_object
 
     if import_children:
         for child in data.children:
@@ -55,4 +57,11 @@ def read(settings, import_children=False, is_child=False):
                 copy_scale.target = base_model[3][1][child.attachment]
     bpyhelper.scene_link(root_object)
 
+    if base_model is not None:
+        bpy.context.scene.objects.active = None
+        bpy.ops.object.select_all(action='DESELECT')
+        import_owmdl.select_all(base_model[0])
+        if base_model[1] is not None:
+            bpy.context.scene.objects.active = base_model[1]
+    
     return root_object, data

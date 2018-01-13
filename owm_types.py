@@ -94,13 +94,15 @@ class OWMATFile:
 
 
 class OWEntityFile:
-    def __init__(self, header, file, model, idx, model_idx, children):
+    def __init__(self, header, file, model, effect, idx, model_idx, effect_idx, children):
         self.header = header
         self.file = file
         self.model = model
-        self.children = children
+        self.effect = effect
         self.index = idx
         self.model_index = model_idx
+        self.effect_index = effect_idx
+        self.children = children
 
 
 class OWMAPFile:
@@ -120,7 +122,6 @@ class OWAnimFile:
 
 class OWEffectHeader:
     magic_format = [str,]
-
 
 
 class CECEAction(Enum):
@@ -336,17 +337,19 @@ class OWAnimHeader:
 
 
 class OWEntityHeader:
-    structFormat = [str, '<HH', str, str, '<IIi']
+    structFormat = [str, '<HH', str, str, str, '<IIIi']
 
-    def __init__(self, magic, major, minor, guid, model_guid, idx, model_idx, child_count):
+    def __init__(self, magic, major, minor, guid, model_guid, effect_guid, idx, model_idx, effect_idx, child_count):
         self.magic = magic
         self.major = major
         self.minor = minor
         self.guid = guid
         self.model_guid = model_guid
+        self.effect_guid = effect_guid
         self.child_count = child_count
         self.index = idx
         self.model_index = model_idx
+        self.effect_index = effect_idx
 
 class OWEntityChild:
     structFormat = [str, '<QQII', str]
@@ -377,13 +380,36 @@ class OWMDLHeader:
         self.emptyCount = emptyCount
 
 
+
+class OWMatType(Enum):
+    Material = 0
+    ModelLook = 1
+
+
 class OWMATHeader:
     structFormat = ['<HHQ']
+    new_format = ['<I']
+    new_material_header_format = ['<Ii']
+    new_id_format = ['<Q']
 
     def __init__(self, major, minor, materialCount):
         self.major = major
         self.minor = minor
         self.materialCount = materialCount
+
+
+class OWMATMaterial:
+    structFormat = ['<QI']
+    exFormat = [str]
+    typeFormat = ['<I']
+    new_material_format = [str, '<I']
+    new_modellook_format = [str]
+
+    def __init__(self, key, textureCount, textures, shader=0):
+        self.key = key
+        self.textureCount = textureCount
+        self.textures = textures
+        self.shader = shader
 
 
 class OWMAPHeader:
@@ -484,17 +510,6 @@ class OWMDLClothMesh:
         self.name = name
         self.id = id
         self.pinnedVerts = pinnedVerts
-
-
-class OWMATMaterial:
-    structFormat = ['<QI']
-    exFormat = [str]
-    typeFormat = ['<I']
-
-    def __init__(self, key, textureCount, textures):
-        self.key = key
-        self.textureCount = textureCount
-        self.textures = textures
 
 
 class OWMAPObject:

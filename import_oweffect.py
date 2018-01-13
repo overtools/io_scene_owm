@@ -185,8 +185,11 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                     var = c['owm.entity.child.var']
                     ent_obj = bpy.data.objects.new('EffectEntityWrapper {}'.format(var), None)
                     ent_obj.hide = this_obj.hide_render = True
-                    ent_obj.parent = hardpoints[c['owm.entity.child.hardpoint']]
-                    ent_obj.parent['owm.effect.hardpoint.used'] = True
+                    if c['owm.entity.child.hardpoint'] != "null":
+                        ent_obj.parent = hardpoints[c['owm.entity.child.hardpoint']]
+                        ent_obj.parent['owm.effect.hardpoint.used'] = True
+                    else:
+                        ent_obj.parent = this_obj
                     bpyhelper.scene_link(ent_obj)
                     variables[var] = 'entity_child', ent_obj, c
 
@@ -347,13 +350,16 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
 
             bpy.context.scene.objects.active = act
 
+            ent_obj = bpy.data.objects.new('EffectEntityWrapper {}'.format(nece.variable), None)
+            ent_obj.hide = ent_obj.hide_render = True
+            bpyhelper.scene_link(ent_obj)
+
             if nece.time.hardpoint != "null":
-                ent_obj = bpy.data.objects.new('EffectEntityWrapper {}'.format(nece.variable), None)
-                ent_obj.hide = ent_obj.hide_render = True
                 ent_obj.parent = hardpoints[nece.time.hardpoint]
                 ent_obj.parent['owm.effect.hardpoint.used'] = True
-                bpyhelper.scene_link(ent_obj)
-                attach(ent_obj, nece_entity)
+            else:
+                ent_obj.parent = obj
+            attach(ent_obj, nece_entity)
 
             nece_entity.parent = obj
             nece_entity['owm.entity.child.var'] = nece.variable
@@ -434,7 +440,7 @@ def read(settings, existing_parent=None):
     if data is None: return None
 
     if type(data) == owm_types.OWAnimFile:
-        pool = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(settings.filename)))))
+        pool = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(data.filename)))))
         t = None
         if settings.force_fps:
             t = settings.target_fps
