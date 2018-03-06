@@ -6,7 +6,7 @@ from . import import_oweffect
 from . import owm_types
 from . import bpyhelper
 import bpy
-from bpy.props import StringProperty, BoolProperty
+from bpy.props import StringProperty, BoolProperty, FloatProperty
 from bpy_extras.io_utils import ImportHelper
 
 class import_mdl_op(bpy.types.Operator, ImportHelper):
@@ -265,6 +265,36 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
+    multipleImportance = BoolProperty(
+        name="Multiple Importance",
+        default=False,
+    )
+
+    adjustLightValue = FloatProperty(
+        name="Adjust Light Value",
+        description="Multiply value (HSV) by this amount",
+        default=1.0,
+        step=0.1,
+        min=0.0,
+        max=1.0,
+        precision=3
+    )
+
+    useLightStrength = BoolProperty(
+        name="Use Light Strength",
+        description="Use light strength data (Experimental)",
+        default=True,
+    )
+
+    adjustLightStrength = FloatProperty(
+        name="Adjust Light Strength",
+        description="Multiply strength by this amount",
+        default=1.0,
+        step=1,
+        min=0.0,
+        precision=3
+    )
+    
     importRemoveCollision = BoolProperty(
         name="Remove Collision Models",
         description="Remove the collision models",
@@ -294,7 +324,14 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             self.importTexNormal,
             self.importTexEffect
         )
-        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, self.importLights, [self.importLampSun, self.importLampSpot, self.importLampPoint], self.importRemoveCollision)
+        light_settings = owm_types.OWLightSettings(
+            self.importLights, 
+            self.multipleImportance,
+            [self.importLampSun, self.importLampSpot, self.importLampPoint],
+            [self.adjustLightValue, self.adjustLightStrength], 
+            self.useLightStrength
+        )
+        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision)
         print('DONE')
         return {'FINISHED'}
 
@@ -335,6 +372,12 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col.prop(self, 'importLampSun')
         col.prop(self, 'importLampSpot')
         col.prop(self, 'importLampPoint')
+        col.prop(self, 'adjustLightValue')
+        col.prop(self, 'useLightStrength')
+        col.prop(self, 'multipleImportance')
+        col = col.column(align=False)
+        col.enabled = self.useLightStrength
+        col.prop(self, 'adjustLightStrength')
 
 class import_ent_op(bpy.types.Operator, ImportHelper):
     bl_idname = "owm_importer.import_entity"

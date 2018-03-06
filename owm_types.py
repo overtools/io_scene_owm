@@ -34,7 +34,6 @@ TextureTypes = {
     "AO": 3761386704  # maybe hairao
 }
 
-
 class OWSettings:
     def __init__(self, filename, uvDisplaceX, uvDisplaceY, autoIk, importNormals, importEmpties, importMaterial,
                  importSkeleton, importTexNormal, importTexEffect):
@@ -54,6 +53,16 @@ class OWSettings:
                           self.importEmpties, self.importMaterial, self.importSkeleton, self.importTexNormal,
                           self.importTexEffect)
 
+class OWLightSettings:
+    def __init__(self, enabled = False, multipleImportance = False, enabledTypes = [False, False, False], adjustValues = [1.0, 1.0], useStrength = False):
+        self.enabled = enabled
+        self.multipleImportance = multipleImportance
+        self.enabledTypes = enabledTypes
+        self.adjuistValues = {
+            "VALUE": adjustValues[0],
+            "STRENGTH": adjustValues[1]
+        }
+        self.useStrength = useStrength
 
 class OWEffectSettings:
     def __init__(self, settings, filename, force_fps, target_fps, import_DMCE, import_CECE, import_NECE,
@@ -555,9 +564,10 @@ class OWMAPLight:
     structFormat = ['<fff', '<ffff', '<I', '<f', '<fff']
     exFormat = ['<IIBBBBII', '<fff', '<ffff', '<fff', '<ffff', '<fff', '<ffff', '<ffIHHII']
 
-    def __init__(self, position, rotation, typ, fov, color):
+    def __init__(self, position, rotation, typ, fov, color, strength = 1.0):
         self.position = position
         self.rotation = rotation
         self.type = typ
         self.fov = fov
         self.color = color
+        self.strength = strength

@@ -43,5 +43,6 @@ def read(filename):
         for i in range(lightCount):
             position, rotation, typ, fov, color  = bin_ops.readFmt(stream, owm_types.OWMAPLight.structFormat)
             ex = bin_ops.readFmtFlat(stream, owm_types.OWMAPLight.exFormat)
-            lights += [owm_types.OWMAPLight(position, rotation, typ[0], fov[0], color)]
+            strength = ex[12]
+            lights += [owm_types.OWMAPLight(position, rotation, typ[0], fov[0], color, strength)]
     return owm_types.OWMAPFile(header, objects, details, lights)

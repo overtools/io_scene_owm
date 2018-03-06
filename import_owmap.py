@@ -4,6 +4,7 @@ from . import read_owmap
 from . import import_owmdl
 from . import import_owmat
 from . import bpyhelper
+from . import owm_types
 from mathutils import *
 import math
 import bpy, bpy_extras, mathutils
@@ -81,8 +82,7 @@ def import_mat(path, prefix, norm, efct):
         return None
 
 
-def read(settings, importObjects=False, importDetails=True, importPhysics=False, importLights=True,
-         importLightType=list([True, True, True]), removeCollision=True):
+def read(settings, importObjects=False, importDetails=True, importPhysics=False, light_settings=owm_types.OWLightSettings(), removeCollision=True):
     global sets
     sets = settings
 
@@ -109,7 +109,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 total += len(ent.records)
     if importDetails:
         total += len(data.details) * 3
-    if importLights:
+    if light_settings.enabled:
         total += len(data.lights)
     wm.progress_begin(prog, total)
 
@@ -260,14 +260,14 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
     LIGHT_MAP = ['SUN', 'SPOT', 'POINT']
 
-    if importLights:
+    if light_settings.enabled:
         globLight = bpy.data.objects.new(name + '_LIGHTS', None)
         globLight.hide = True
         globLight.parent = rootObj
         bpyhelper.scene_link(globLight)
         for light in data.lights:
             prog += 1
-            if not importLightType[light.type]:
+            if not light_settings.enabledTypes[light.type]:
                 continue
             # print("light, fov: %s, type: %s (%d%%)" % (light.fov, light.type, (total_C/total) * 100))
             lamp_data = bpy.data.lamps.new(name="%s_%s" % (name, LIGHT_MAP[light.type]), type=LIGHT_MAP[light.type])
@@ -275,9 +275,14 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             bpyhelper.scene_link(lamp_ob)
             lamp_ob.location = pos_matrix(light.position)
             lamp_ob.rotation_euler = Quaternion(wxzy(light.rotation)).to_euler('XYZ')
-            lamp_data.color = light.color
+            lamp_col = Color(light.color)
+            lamp_col.v *= light_settings.adjuistValues["VALUE"]
+            lamp_data.color = (lamp_col.r, lamp_col.g, lamp_col.b)
+            lamp_data.cycles.use_multiple_importance_sampling = light_settings.multipleImportance
             if lamp_data.type == 'SPOT':
                 lamp_data.spot_size = math.radians(light.fov)
+            elif light_settings.useStrength:
+                lamp_data.shadow_soft_size = light_settings.adjuistValues["STRENGTH"] * light.strength
             lamp_ob.parent = globLight
             progress_update(total, prog)
     wm.progress_end()
