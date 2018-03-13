@@ -277,12 +277,16 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             lamp_ob.rotation_euler = Quaternion(wxzy(light.rotation)).to_euler('XYZ')
             lamp_col = Color(light.color)
             lamp_col.v *= light_settings.adjuistValues["VALUE"]
-            lamp_data.color = (lamp_col.r, lamp_col.g, lamp_col.b)
             lamp_data.cycles.use_multiple_importance_sampling = light_settings.multipleImportance
+            lamp_str = light_settings.adjuistValues["STRENGTH"];
             if lamp_data.type == 'SPOT':
                 lamp_data.spot_size = math.radians(light.fov)
-            elif light_settings.useStrength:
-                lamp_data.shadow_soft_size = light_settings.adjuistValues["STRENGTH"] * light.strength
+            if light_settings.useStrength:
+                lamp_str = light_settings.adjuistValues["STRENGTH"] * light.strength
+            lamp_data.use_nodes = True
+            enode = lamp_data.node_tree.nodes.get("Emission")
+            enode.inputs.get("Color").default_value = (lamp_col.r, lamp_col.g, lamp_col.b, 1.0)
+            enode.inputs.get("Strength").default_value = lamp_str
             lamp_ob.parent = globLight
             progress_update(total, prog)
     wm.progress_end()
