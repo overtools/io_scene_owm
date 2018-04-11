@@ -46,8 +46,8 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
     )
 
     importEmpties = BoolProperty(
-        name="Import Empties",
-        description="Import Empty Objects",
+        name="Import Hardpoints",
+        description="Import Hardpoints (attachment points)",
         default=False,
     )
 
