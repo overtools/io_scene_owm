@@ -42,7 +42,7 @@ def read(settings, import_children=False, is_child=False):
             child_object['owm.entity.child.var'] = child.var_index
             child_object['owm.entity.child.hardpoint'] = child.attachment
 
-            if child.attachment != "null": # eww
+            if child.attachment != "null" and child.attachment in base_model[3][1]: # eww
                 bpyhelper.select_obj(child_object, True)
                 copy_location = child_object.constraints.new("COPY_LOCATION")
                 copy_location.name = "ChildEntity Location"

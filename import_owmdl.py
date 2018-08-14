@@ -305,7 +305,7 @@ def importEmpties(armature = None):
     if not settings.importEmpties:
         return None, {}
 
-    att = bpy.data.objects.new('Empties', None)
+    att = bpy.data.objects.new('Hardpoints', None)
     att.parent = rootObject
     att.hide = att.hide_render = True
     att['owm.hardpoint_container'] = True
@@ -348,8 +348,7 @@ def importEmpties(armature = None):
             hardpoint.select = False
             bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
-            
-   
+    
     bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
     
     return att, e_dict
@@ -433,7 +432,6 @@ def readmdl(materials = None, rotate=True):
             empties[0].rotation_euler = (radians(90), 0, 0)
             if armature is not None:
                 armature.rotation_euler = (radians(90), 0, 0)
-
     
     if impMat:
         import_owmat.cleanUnusedMaterials(materials)
