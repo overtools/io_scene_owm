@@ -52,7 +52,7 @@ class OWSettings:
     def mutate(self, filename):
         return OWSettings(filename, self.uvDisplaceX, self.uvDisplaceY, self.autoIk, self.importNormals,
                           self.importEmpties, self.importMaterial, self.importSkeleton, self.importTexNormal,
-                          self.importTexEffect)
+                          self.importTexEffect, self.importColor)
 
 class OWLightSettings:
     def __init__(self, enabled = False, multipleImportance = False, enabledTypes = [False, False, False], adjustValues = [1.0, 1.0], useStrength = False):

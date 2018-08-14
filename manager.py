@@ -356,6 +356,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label('Mesh')
         col.prop(self, "importNormals")
+        col.prop(self, 'importColor')
         col.prop(self, "importMaterial")
         
         sub = col.row()
@@ -378,7 +379,6 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label('Material')
         col.enabled = self.importMaterial
-        col.prop(self, 'importColor')
         col.prop(self, 'importTexNormal')
         col.prop(self, 'importTexEffect')
 
@@ -510,6 +510,7 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label('Mesh')
         col.prop(self, "importNormals")
+        col.prop(self, 'importColor')
         col.prop(self, "importMaterial")
         sub = col.row()
         sub.label('UV')
@@ -525,7 +526,6 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.enabled = self.importMaterial and bpy.context.scene.render.engine != 'CYCLES'
         col.label('Material')
-        col.prop(self, 'importColor')
         col.prop(self, 'importTexNormal')
         col.prop(self, 'importTexEffect')
 

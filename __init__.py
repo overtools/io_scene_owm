@@ -1,7 +1,7 @@
 bl_info = {
     "name": "OWM Import",
     "author": "dynaomi",
-    "version": (1, 7, 0),
+    "version": (1, 7, 2),
     "blender": (2, 78, 0),
     "location": "File > Import > OWM",
     "description": "Import Overwatch-Toolchain OWM files",
