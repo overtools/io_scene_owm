@@ -39,7 +39,14 @@ def read(filename):
                     boneIndices += [bin_ops.readFmtFlat(stream, owm_types.OWMDLVertex.exFormat[2])]
                 for k in range(boneDataCount):
                     boneWeights += [bin_ops.readFmtFlat(stream, owm_types.OWMDLVertex.exFormat[3])]
-            verts += [owm_types.OWMDLVertex(position, normal, uvs, boneDataCount, boneIndices, boneWeights)]
+            col1 = []
+            col2 = []
+
+            if major >= 1 and minor >= 6:
+                col1 = bin_ops.read(stream, owm_types.OWMDLVertex.exFormat[4])
+                col2 = bin_ops.read(stream, owm_types.OWMDLVertex.exFormat[4])
+
+            verts += [owm_types.OWMDLVertex(position, normal, uvs, boneDataCount, boneIndices, boneWeights, col1, col2)]
         faces = []
         for j in range(indexCount):
             pointCount = bin_ops.readFmt(stream, owm_types.OWMDLIndex.structFormat)[0]

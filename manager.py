@@ -45,6 +45,12 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
+    importColor = BoolProperty(
+        name="Import Color",
+        description="Import Custom Colors",
+        default=True,
+    )
+
     importEmpties = BoolProperty(
         name="Import Empties",
         description="Import Empty Objects",
@@ -96,7 +102,8 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
             self.importMaterial,
             self.importSkeleton,
             self.importTexNormal,
-            self.importTexEffect
+            self.importTexEffect,
+            self.importColor
         )
         import_owmdl.read(settings)
         print('DONE')
@@ -109,6 +116,7 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
         col.label('Mesh')
         col.prop(self, "importNormals")
         col.prop(self, "importEmpties")
+        col.prop(self, "importColor")
         col.prop(self, "importMaterial")
         sub = col.row()
         sub.label('UV')
@@ -202,6 +210,12 @@ class import_map_op(bpy.types.Operator, ImportHelper):
     importNormals = BoolProperty(
         name="Import Normals",
         description="Import Custom Normals",
+        default=True,
+    )
+
+    importColor = BoolProperty(
+        name="Import Color",
+        description="Import Custom Colors",
         default=True,
     )
     
@@ -322,7 +336,8 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             self.importMaterial,
             False,
             self.importTexNormal,
-            self.importTexEffect
+            self.importTexEffect,
+            self.importColor
         )
         light_settings = owm_types.OWLightSettings(
             self.importLights, 
@@ -363,6 +378,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label('Material')
         col.enabled = self.importMaterial
+        col.prop(self, 'importColor')
         col.prop(self, 'importTexNormal')
         col.prop(self, 'importTexEffect')
 
@@ -420,6 +436,12 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
+    importNormals = BoolProperty(
+        name="Import Color",
+        description="Import Custom Color",
+        default=True,
+    )
+
     importEmpties = BoolProperty(
         name="Import Empties",
         description="Import Empty Objects",
@@ -471,7 +493,8 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
             self.importMaterial,
             True, # self.importSkeleton
             self.importTexNormal,
-            self.importTexEffect
+            self.importTexEffect,
+            self.importColor
         )
         import_owentity.read(settings, self.import_children)
         print('DONE')
@@ -502,6 +525,7 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.enabled = self.importMaterial and bpy.context.scene.render.engine != 'CYCLES'
         col.label('Material')
+        col.prop(self, 'importColor')
         col.prop(self, 'importTexNormal')
         col.prop(self, 'importTexEffect')
 

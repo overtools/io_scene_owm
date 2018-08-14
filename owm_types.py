@@ -36,7 +36,7 @@ TextureTypes = {
 
 class OWSettings:
     def __init__(self, filename, uvDisplaceX, uvDisplaceY, autoIk, importNormals, importEmpties, importMaterial,
-                 importSkeleton, importTexNormal, importTexEffect):
+                 importSkeleton, importTexNormal, importTexEffect, importColor):
         self.filename = filename
         self.uvDisplaceX = uvDisplaceX
         self.uvDisplaceY = uvDisplaceY
@@ -47,6 +47,7 @@ class OWSettings:
         self.importSkeleton = importSkeleton
         self.importTexNormal = importTexNormal
         self.importTexEffect = importTexEffect
+        self.importColor = importColor
 
     def mutate(self, filename):
         return OWSettings(filename, self.uvDisplaceX, self.uvDisplaceY, self.autoIk, self.importNormals,
@@ -471,15 +472,17 @@ class OWMDLMesh:
 
 class OWMDLVertex:
     structFormat = ['<fff', '<fff']
-    exFormat = ['<ff', 'B', '<H', '<f']
+    exFormat = ['<ff', 'B', '<H', '<f', '<ffff']
 
-    def __init__(self, position, normal, uvs, boneCount, boneIndices, boneWeights):
+    def __init__(self, position, normal, uvs, boneCount, boneIndices, boneWeights, col1, col2):
         self.position = position
         self.normal = normal
         self.uvs = uvs
         self.boneCount = boneCount
         self.boneIndices = boneIndices
         self.boneWeights = boneWeights
+        self.color1 = col1
+        self.color2 = col2
 
 
 class OWMDLIndex:

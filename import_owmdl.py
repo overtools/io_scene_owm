@@ -153,6 +153,8 @@ def segregate(vertex):
     norms = []
     uvs = []
     boneData = []
+    col1 = []
+    col2 = []
     for vert in vertex:
         pos += [xzy(vert.position)]
         norm = Vector(vert.normal).normalized()
@@ -162,7 +164,9 @@ def segregate(vertex):
         norms += [norm]
         uvs += [vert.uvs]
         boneData += [[vert.boneIndices, vert.boneWeights]]
-    return (pos, norms, uvs, boneData)
+        col1 += [vert.color1]
+        col2 += [vert.color2]
+    return (pos, norms, uvs, boneData, col1, col2)
 
 def detach(faces):
     f = []
@@ -223,13 +227,22 @@ def importMesh(armature, meshData):
     obj.parent = rootObject
     bpyhelper.scene_link(obj)
 
-    pos, norms, uvs, boneData = segregate(meshData.vertices)
+    pos, norms, uvs, boneData, col1, col2 = segregate(meshData.vertices)
     faces = detach(meshData.indices)
     mesh.from_pydata(pos, [], faces)
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
     obj['owm.mesh.name'] = mesh.name
     for i in range(meshData.uvCount):
         bpyhelper.new_uv_layer(mesh, "UVMap%d" % (i + 1))
+
+    if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
+        color_layer1 = mesh.vertex_colors.new("ColorMap1")
+        color_layer2 = mesh.vertex_colors.new("ColorMap2")
+        i = 0
+        for loop in mesh.loops:
+            color_layer1.data[i].color = col1[loop.vertex_index]
+            color_layer2.data[i].color = col2[loop.vertex_index]
+            i += 1
 
     if armature:
         mod = obj.modifiers.new(type="ARMATURE", name="OWM Skeleton")
