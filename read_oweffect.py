@@ -27,7 +27,7 @@ def read_stream(filename, stream):
             return owm_types.OWAnimFile(header, filename, data, path, model_path)
     if magic == "oweffect":
         data = owm_types.OWEffectData.read(stream)
-        data.filename = filename
+        data.filename = normpath(filename)
         return data
         
     return None

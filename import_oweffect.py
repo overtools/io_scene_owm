@@ -8,6 +8,7 @@ from . import owm_types
 from . import import_owmdl
 from . import read_owmdl
 from mathutils import *
+from os.path import normpath
 import math
 import bpy, bpy_extras, mathutils
 import os
@@ -164,7 +165,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
         directory, file = os.path.split(data.anim_path)
         bpy.ops.object.select_all(action='DESELECT')
         bpy.context.scene.objects.active = new_skeleton
-        bpy.ops.import_scene.seanim(filepath=os.path.join(pool, directory) + "\\", files=[{'name': file}])
+        bpy.ops.import_scene.seanim(filepath=normpath(os.path.join(pool, directory) + "/"), files=[{'name': file}])
 
         if target_framerate != int(data.header.fps):
             scale = target_framerate / int(data.header.fps)
@@ -379,12 +380,12 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             if cece.action == owm_types.CECEAction.Show:
                 show_ents.append(cece.var_index)
             if cece.action == owm_types.CECEAction.PlayAnimation:
-                mutate = settings.mutate(os.path.join(pool, "Models\\{0:012x}.00C\\{1}".format(cece_entity['owm.entity.model'],cece.path)))
+                mutate = settings.mutate(os.path.join(pool, normpath("Models/{0:012x}.00C/{1}").format(cece_entity['owm.entity.model'],cece.path)))
                 mutate.force_fps = True
                 mutate.target_fps = target_framerate
 
                 if not os.path.exists(mutate.filename):
-                    print("[import_effect]: Missing CECE \"Models\\{0:012x}.00C\\{1}\"".format(cece_entity['owm.entity.model'],cece.path))
+                    print("[import_effect]: Missing CECE \"Models/{0:012x}.00C/{1}\"".format(cece_entity['owm.entity.model'],cece.path))
                     continue
 
                 if bpy.context.object is not None and bpy.context.object.mode != 'OBJECT':

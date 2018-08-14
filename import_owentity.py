@@ -4,12 +4,13 @@ from . import read_owentity
 from . import import_owmdl
 from . import bpyhelper
 from mathutils import *
+from os.path import normpath
 import math
 import bpy, bpy_extras, mathutils
 
 
 def get_mdl_settings(settings, modelname):
-    return settings.mutate(os.path.dirname(os.path.dirname(os.path.dirname(settings.filename))) + "\\Models\\" + modelname + "\\" + modelname.replace(".00C", "") + ".owmdl")
+    return settings.mutate(normpath(os.path.dirname(os.path.dirname(os.path.dirname(settings.filename))) + "/Models/" + modelname + "/" + modelname.replace(".00C", "") + ".owmdl"))
 
 
 def read(settings, import_children=False, is_child=False):
@@ -34,7 +35,7 @@ def read(settings, import_children=False, is_child=False):
 
     if import_children:
         for child in data.children:
-            child_settings = settings.mutate(os.path.dirname(os.path.dirname(settings.filename)) + "\\{}\\{}.owentity".format(child.file, child.file))
+            child_settings = settings.mutate(normpath(os.path.dirname(os.path.dirname(settings.filename)) + "/{}/{}.owentity".format(child.file, child.file)))
             if not os.path.exists(child_settings.filename): continue
             child_object, child_data = read(child_settings, import_children, True)
             child_object.parent = root_object
