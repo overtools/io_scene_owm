@@ -2,6 +2,7 @@ from . import bin_ops
 from . import owm_types
 import io
 import os
+from . import bpyhelper
 
 def openStream(filename):
     stream = None
@@ -10,7 +11,7 @@ def openStream(filename):
     return stream
 
 def read(filename, sub=False):
-    stream = openStream(filename)
+    stream = openStream(bpyhelper.normpath(filename))
     if stream == None:
         return False
 
@@ -27,7 +28,7 @@ def read(filename, sub=False):
             textures = []
             for i in range(materialCount):
                 texture, texture_type = bin_ops.readFmtFlat(stream, owm_types.OWMATMaterial.new_material_format)
-                textures += [(normpath(texture), 0, texture_type)]
+                textures += [(bpyhelper.normpath(texture), 0, texture_type)]
             if sub:
                 return textures, shader, ids
             else:
@@ -39,7 +40,7 @@ def read(filename, sub=False):
             materials = []
             for i in range(materialCount):
                 material_file = bin_ops.readFmtFlat(stream, owm_types.OWMATMaterial.new_modellook_format)
-                textures, shader, ids = read(os.path.join(filename, normpath(material_file)), True)
+                textures, shader, ids = read(os.path.join(filename, bpyhelper.normpath(material_file)), True)
                 for mat_id in ids:
                     materials += [owm_types.OWMATMaterial(mat_id, len(textures), textures, shader)]
             return owm_types.OWMATFile(header, materials)
@@ -56,7 +57,7 @@ def read(filename, sub=False):
                     y = ord(stream.read(1))
                 if major >= 1 and minor >= 2:
                     properType = bin_ops.readFmtFlat(stream, [owm_types.OWMATMaterial.typeFormat[0]])
-                textures += [(normpath(t), y, properType)]
+                textures += [(bpyhelper.normpath(t), y, properType)]
             materials += [owm_types.OWMATMaterial(key, textureCount, textures)]
 
     return owm_types.OWMATFile(header, materials)

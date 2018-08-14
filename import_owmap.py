@@ -123,7 +123,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
         for ob in data.objects:
             obpath = ob.model
             if not os.path.isabs(obpath):
-                obpath = os.path.normpath('%s/%s' % (root, obpath))
+                obpath = bpyhelper.normpath('%s/%s' % (root, obpath))
             if not os.path.isfile(obpath): continue
 
             obn = os.path.splitext(os.path.basename(obpath))[0]
@@ -143,7 +143,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             for idx, ent in enumerate(ob.entities):
                 matpath = ent.material
                 if not os.path.isabs(matpath):
-                    matpath = os.path.normpath('%s/%s' % (root, matpath))
+                    matpath = bpyhelper.normpath('%s/%s' % (root, matpath))
 
                 mat = None
                 hideModel = False
@@ -191,7 +191,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             obpath = ob.model
             prog += 1
             if not os.path.isabs(obpath):
-                obpath = os.path.normpath('%s/%s' % (root, obpath))
+                obpath = bpyhelper.normpath('%s/%s' % (root, obpath))
             if not os.path.isfile(obpath):
                 continue
             cacheKey = obpath
@@ -213,7 +213,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
             matpath = ob.material
             if not os.path.isabs(matpath):
-                matpath = os.path.normpath('%s/%s' % (root, matpath))
+                matpath = bpyhelper.normpath('%s/%s' % (root, matpath))
 
             mat = None
             hideModel = False
@@ -240,7 +240,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             obpath = ob.model
             prog += 1
             if not os.path.isabs(obpath):
-                obpath = os.path.normpath('%s/%s' % (root, obpath))
+                obpath = bpyhelper.normpath('%s/%s' % (root, obpath))
             cacheKey = obpath
             if settings.importMaterial and len(ob.material) > 0:
                 cacheKey = cacheKey + ob.material
@@ -278,7 +278,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             lamp_col = Color(light.color)
             lamp_col.v *= light_settings.adjuistValues["VALUE"]
             lamp_data.cycles.use_multiple_importance_sampling = light_settings.multipleImportance
-            lamp_str = light_settings.adjuistValues["STRENGTH"];
+            lamp_str = light_settings.adjuistValues["STRENGTH"]
             if lamp_data.type == 'SPOT':
                 lamp_data.spot_size = math.radians(light.fov)
             if light_settings.useStrength:

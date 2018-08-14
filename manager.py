@@ -442,6 +442,12 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
+    importColor = BoolProperty(
+        name="Import Color",
+        description="Import Custom Colors",
+        default=True,
+    )
+
     importEmpties = BoolProperty(
         name="Import Empties",
         description="Import Empty Objects",

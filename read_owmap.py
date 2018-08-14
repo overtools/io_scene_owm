@@ -1,6 +1,7 @@
 from . import bin_ops
 from . import owm_types
 import io, bpy
+from . import bpyhelper
 
 def openStream(filename):
     stream = None
@@ -9,7 +10,7 @@ def openStream(filename):
     return stream
 
 def read(filename):
-    stream = openStream(filename)
+    stream = openStream(bpyhelper.normpath(filename))
     if stream == None:
         return False
 

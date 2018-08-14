@@ -1,11 +1,11 @@
 import os
 from math import radians
 
+from . import bpyhelper
 from . import read_owmdl
 from . import import_owmat
 from . import owm_types
 from mathutils import *
-from . import bpyhelper
 import bpy, bpy_extras, mathutils, bmesh, random, collections
 
 root = ''
@@ -422,7 +422,7 @@ def readmdl(materials = None, rotate=True):
         impMat = True
         matpath = data.header.material
         if not os.path.isabs(matpath):
-            matpath = os.path.normpath('%s/%s' % (root, matpath))
+            matpath = bpyhelper.normpath('%s/%s' % (root, matpath))
         materials = import_owmat.read(matpath, '', settings.importTexNormal, settings.importTexEffect)
         bindMaterials(meshes, data, materials)
 

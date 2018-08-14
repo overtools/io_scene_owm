@@ -1,5 +1,6 @@
 from . import bin_ops
 from . import owm_types
+from . import bpyhelper
 import io
 
 def openStream(filename):
@@ -9,7 +10,7 @@ def openStream(filename):
     return stream
 
 def read(filename):
-    stream = openStream(filename)
+    stream = openStream(bpyhelper.normpath(filename))
     if stream == None:
         return Falseowm_types.OWMDLIndex.exFormat[0]
 

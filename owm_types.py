@@ -2,7 +2,7 @@ import copy
 from . import bin_ops
 from enum import Enum
 import os
-from os.path import normpath
+from . import bpyhelper
 
 OWMATTypes = {
     "ALBEDO": 0x00,
@@ -38,7 +38,7 @@ TextureTypes = {
 class OWSettings:
     def __init__(self, filename, uvDisplaceX, uvDisplaceY, autoIk, importNormals, importEmpties, importMaterial,
                  importSkeleton, importTexNormal, importTexEffect, importColor):
-        self.filename = normpath(filename)
+        self.filename = bpyhelper.normpath(filename)
         self.uvDisplaceX = uvDisplaceX
         self.uvDisplaceY = uvDisplaceY
         self.autoIk = autoIk
@@ -70,7 +70,7 @@ class OWEffectSettings:
     def __init__(self, settings, filename, force_fps, target_fps, import_DMCE, import_CECE, import_NECE,
                  import_SVCE, svce_line_seed, svce_sound_seed, create_camera, cleanup_hardpoints):
         self.settings = settings
-        self.filename = normpath(filename)
+        self.filename = bpyhelper.normpath(filename)
         self.force_fps = force_fps
         self.target_fps = target_fps
         self.import_DMCE = import_DMCE
@@ -126,7 +126,7 @@ class OWMAPFile:
 class OWAnimFile:
     def __init__(self, header, filename, data, path, model_path):
         self.header = header
-        self.filename = normpath(filename)
+        self.filename = bpyhelper.normpath(filename)
         self.data = data
         self.anim_path = path
         self.model_path = model_path
@@ -178,8 +178,8 @@ class OWEffectData:
             self.animation = animation
             self.material = material
             self.model = model
-            self.model_path = normpath(model_path)
-            self.anim_path = normpath(anim_path)
+            self.model_path = bpyhelper.normpath(model_path)
+            self.anim_path = bpyhelper.normpath(anim_path)
 
         def __repr__(self):
             return '<DMCEInfo>: {} {} ({})'.format(os.path.basename(self.model_path), os.path.basename(self.anim_path), self.time.hardpoint)
@@ -199,7 +199,7 @@ class OWEffectData:
             self.animation = animation
             self.var = var
             self.var_index = var_index
-            self.path = normpath(path)
+            self.path = bpyhelper.normpath(path)
 
         def __repr__(self):
             return '<CECEInfo>: {} {} ({})'.format(self.action, self.var, self.time.hardpoint)
@@ -218,7 +218,7 @@ class OWEffectData:
             self.time = time
             self.guid = guid
             self.variable = variable
-            self.path = normpath(path)
+            self.path = bpyhelper.normpath(path)
 
         def __repr__(self):
             return '<NECEInfo>: {} ({})'.format(self.path, self.time.hardpoint)
@@ -235,8 +235,8 @@ class OWEffectData:
         def __init__(self, time, model, model_path, material):
             self.time = time
             self.model = model
-            self.model_path = normpath(model_path)
-            self.material = normpath(material)
+            self.model_path = bpyhelper.normpath(model_path)
+            self.material = bpyhelper.normpath(material)
 
         def __repr__(self):
             return '<RPCEInfo>: {} ({})'.format(self.model_path, self.time.hardpoint)
@@ -366,7 +366,7 @@ class OWEntityChild:
     structFormat = [str, '<QQII', str]
 
     def __init__(self, file, hardpoint, var, hp_index, var_index, attachment):
-        self.file = normpath(file)
+        self.file = bpyhelper.normpath(file)
         self.hardpoint = hardpoint
         self.var = var
         self.attachment = attachment
@@ -384,7 +384,7 @@ class OWMDLHeader:
     def __init__(self, major, minor, material, name, boneCount, meshCount, emptyCount):
         self.major = major
         self.minor = minor
-        self.material = normpath(material)
+        self.material = bpyhelper.normpath(material)
         self.name = name
         self.boneCount = boneCount
         self.meshCount = meshCount
@@ -527,7 +527,7 @@ class OWMAPObject:
     structFormat = [str, '<I']
 
     def __init__(self, model, entityCount, entities):
-        self.model = normpath(model)
+        self.model = bpyhelper.normpath(model)
         self.entityCount = entityCount
         self.entities = entities
 
@@ -536,7 +536,7 @@ class OWMAPEntity:
     structFormat = [str, '<I']
 
     def __init__(self, material, recordCount, records):
-        self.material = normpath(material)
+        self.material = bpyhelper.normpath(material)
         self.recordCount = recordCount
         self.records = records
 
@@ -555,10 +555,10 @@ class OWMAPDetail:
     exFormat = ['<fff', '<fff', '<ffff']
 
     def __init__(self, model, material, position, scale, rotation):
-        self.model = normpath(model)
+        self.model = bpyhelper.normpath(model)
         self.material = material
         self.position = position
-        self.scale = normpath(scale)
+        self.scale = bpyhelper.normpath(scale)
         self.rotation = rotation
 
 

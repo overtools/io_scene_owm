@@ -1,10 +1,10 @@
 bl_info = {
     "name": "OWM Import",
-    "author": "dynaomi",
-    "version": (1, 7, 4),
+    "author": "Overtools Community",
+    "version": (1, 7, 7),
     "blender": (2, 78, 0),
     "location": "File > Import > OWM",
-    "description": "Import Overwatch-Toolchain OWM files",
+    "description": "Import TankLib/DataTool OWM files",
     "warning": "",
     "wiki_url": "",
     "tracker_url": "https://github.com/overtools/io_scene_owm/issues",

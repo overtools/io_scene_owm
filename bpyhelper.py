@@ -1,4 +1,5 @@
 import bpy
+import os.path
 
 IS_BLENDER280 = bpy.app.version >= (2, 80, 0)
 
@@ -10,6 +11,7 @@ def scene_active(): return bpy.context.scene.objects.active
 def scene_active_set(object): bpy.context.scene.objects.active = object
 def get_objects(): return bpy.context.scene.objects
 def new_uv_layer(mesh, name): return mesh.uv_textures.new(name)
+def normpath(path): return os.path.normpath(path.replace('\\', os.path.sep).replace('/', os.path.sep))
 
 if IS_BLENDER280:
     def new_uv_layer(mesh, name): return mesh.uv_layers.new(name)
