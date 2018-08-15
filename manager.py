@@ -625,6 +625,7 @@ class import_effect_op(bpy.types.Operator, ImportHelper):
             True,
             True,
             True,
+            True,
             True
         )
 
