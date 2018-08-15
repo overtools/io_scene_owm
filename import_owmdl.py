@@ -236,16 +236,16 @@ def importMesh(armature, meshData):
         bpyhelper.new_uv_layer(mesh, "UVMap%d" % (i + 1))
 
     if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
-        color_layer1 = mesh.vertex_colors.new("ColorMap1")
-        color_layer1A = mesh.vertex_colors.new("ColorMap1Alpha")
-        color_layer2 = mesh.vertex_colors.new("ColorMap2")
-        color_layer2A = mesh.vertex_colors.new("ColorMap2Alpha")
+        mesh.vertex_colors.new("ColorMap1")
+        mesh.vertex_colors.new("ColorMap1Alpha")
+        mesh.vertex_colors.new("ColorMap2")
+        mesh.vertex_colors.new("ColorMap2Alpha")
         i = 0
         for loop in mesh.loops:
-            color_layer1.data[i].color = (col1[loop.vertex_index][0], col1[loop.vertex_index][1], col1[loop.vertex_index][2], 1.0)
-            color_layer2.data[i].color = (col2[loop.vertex_index][0], col2[loop.vertex_index][1], col2[loop.vertex_index][2], 1.0)
-            color_layer1A.data[i].color = (col1[loop.vertex_index][3], col1[loop.vertex_index][3], col1[loop.vertex_index][3], 1.0)
-            color_layer2A.data[i].color = (col2[loop.vertex_index][3], col2[loop.vertex_index][3], col2[loop.vertex_index][3], 1.0)
+            mesh.vertex_colors["ColorMap1"].data[i].color = (col1[loop.vertex_index][0], col1[loop.vertex_index][1], col1[loop.vertex_index][2], 1.0)
+            mesh.vertex_colors["ColorMap1Alpha"].data[i].color = (col1[loop.vertex_index][3], col1[loop.vertex_index][3], col1[loop.vertex_index][3], 1.0)
+            mesh.vertex_colors["ColorMap2"].data[i].color = (col2[loop.vertex_index][0], col2[loop.vertex_index][1], col2[loop.vertex_index][2], 1.0)
+            mesh.vertex_colors["ColorMap2Alpha"].data[i].color = (col2[loop.vertex_index][3], col2[loop.vertex_index][3], col2[loop.vertex_index][3], 1.0)
             i += 1
 
     if armature:

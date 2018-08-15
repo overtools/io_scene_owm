@@ -37,7 +37,6 @@ def load_textures(texture, root, t):
     realpath = bpyhelper.normpath(texture)
     if not os.path.isabs(realpath):
         realpath = bpyhelper.normpath('%s/%s' % (root, realpath))
-    fn = os.path.splitext(os.path.basename(realpath))[0]
 
     tga_file = mutate_texture_path(realpath, ".tga")
     if os.path.exists(tga_file):
@@ -46,6 +45,8 @@ def load_textures(texture, root, t):
     tif_file = mutate_texture_path(realpath, ".tif")
     if os.path.exists(tif_file):
         realpath = tif_file
+
+    fn = os.path.splitext(os.path.basename(realpath))[0]
     
     try:
         tex = None
@@ -320,7 +321,6 @@ def process_material_BI(material, prefix, importNormal, importEffect, root, t):
                 mattex.use = False
             mattex.texture = tex
             mattex.texture_coords = 'UV'
-            t[fn] = tex
         except Exception as e:
             print("[import_owmat]: error creating BI material: {}".format(e))
     
