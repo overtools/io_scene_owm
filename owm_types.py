@@ -556,9 +556,9 @@ class OWMAPDetail:
 
     def __init__(self, model, material, position, scale, rotation):
         self.model = bpyhelper.normpath(model)
-        self.material = material
+        self.material = bpyhelper.normpath(material)
         self.position = position
-        self.scale = bpyhelper.normpath(scale)
+        self.scale = scale
         self.rotation = rotation
 
 
