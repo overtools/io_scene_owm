@@ -436,12 +436,6 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
-    importNormals = BoolProperty(
-        name="Import Color",
-        description="Import Custom Color",
-        default=True,
-    )
-
     importColor = BoolProperty(
         name="Import Color",
         description="Import Custom Colors",

@@ -37,7 +37,7 @@ def load_textures(texture, root, t):
     realpath = texture
     if not os.path.isabs(realpath):
         realpath = bpyhelper.normpath('%s/%s' % (root, realpath))
-        fn = os.path.splitext(os.path.basename(realpath))[0]
+    fn = os.path.splitext(os.path.basename(realpath))[0]
 
     tga_file = mutate_texture_path(realpath, ".tga")
     if os.path.exists(tga_file):
