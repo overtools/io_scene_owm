@@ -27,14 +27,14 @@ def cleanUnusedMaterials(materials):
     return (t, m)
 
 def mutate_texture_path(file, new_ext):
-    return bpyhelper.normpath(os.path.dirname(file) + '/' + os.path.splitext(os.path.basename(file))[0] + new_ext)
+    return os.path.splitext(file)[0] + new_ext
 
 def load_textures(texture, root, t):
     """ Loads an overwatch texture.
  
     Priority (high to low): TIFF, TGA, DDS (doesn't work properly)
     """
-    realpath = texture
+    realpath = bpyhelper.normpath(texture)
     if not os.path.isabs(realpath):
         realpath = bpyhelper.normpath('%s/%s' % (root, realpath))
     fn = os.path.splitext(os.path.basename(realpath))[0]
