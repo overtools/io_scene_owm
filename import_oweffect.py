@@ -164,7 +164,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
         directory, file = os.path.split(data.anim_path)
         bpy.ops.object.select_all(action='DESELECT')
         bpy.context.scene.objects.active = new_skeleton
-        bpy.ops.import_scene.seanim(filepath=bpyhelper.normpath(os.path.join(pool, directory) + "/"), files=[{'name': file}])
+        bpy.ops.import_scene.seanim(filepath=bpyhelper.normpath(os.path.join(pool, directory)) + os.path.sep, files=[{'name': file}])
 
         if target_framerate != int(data.header.fps):
             scale = target_framerate / int(data.header.fps)
