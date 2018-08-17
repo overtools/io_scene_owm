@@ -147,7 +147,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
                 mat = None
                 hideModel = False
-                if settings.importMaterial and len(ent.material) > 0:
+                if settings.importMaterial and len(ent.material) > 3:
                     if matpath not in matCache:
                         mat = import_owmat.read(matpath, '%s:%X_' % (name, idx), settings.importTexNormal,
                                                 settings.importTexEffect)
@@ -195,7 +195,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             if not os.path.isfile(obpath):
                 continue
             cacheKey = obpath
-            if settings.importMaterial and len(ob.material) > 0:
+            if settings.importMaterial and len(ob.material) > 3:
                 cacheKey = cacheKey + ob.material
             if cacheKey in objCache:
                 continue
@@ -217,7 +217,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
             mat = None
             hideModel = False
-            if settings.importMaterial and len(ob.material) > 0:
+            if settings.importMaterial and len(ob.material) > 3:
                 if matpath not in matCache:
                     mat = import_owmat.read(matpath, '%s:%X_' % (name, idx), settings.importTexNormal,
                                                  settings.importTexEffect)
@@ -242,7 +242,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             if not os.path.isabs(obpath):
                 obpath = bpyhelper.normpath('%s/%s' % (root, obpath))
             cacheKey = obpath
-            if settings.importMaterial and len(ob.material) > 0:
+            if settings.importMaterial and len(ob.material) > 3:
                 cacheKey = cacheKey + ob.material
             if cacheKey not in objCache or objCache[cacheKey] is None:
                 continue

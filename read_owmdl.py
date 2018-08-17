@@ -15,6 +15,7 @@ def read(filename):
         return Falseowm_types.OWMDLIndex.exFormat[0]
 
     major, minor, materialstr, namestr, boneCount, meshCount, emptyCount = bin_ops.readFmtFlat(stream, owm_types.OWMDLHeader.structFormat)
+
     header = owm_types.OWMDLHeader(major, minor, materialstr, namestr, boneCount, meshCount, emptyCount)
 
     bones = []

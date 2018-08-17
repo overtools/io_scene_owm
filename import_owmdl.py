@@ -418,9 +418,10 @@ def readmdl(materials = None, rotate=True):
 
     impMat = False
     materials = None
-    if materials == None and settings.importMaterial and len(data.header.material) > 0:
+    if materials == None and settings.importMaterial and len(data.header.material) > 3:
         impMat = True
         matpath = data.header.material
+
         if not os.path.isabs(matpath):
             matpath = bpyhelper.normpath('%s/%s' % (root, matpath))
         materials = import_owmat.read(matpath, '', settings.importTexNormal, settings.importTexEffect)
