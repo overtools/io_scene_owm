@@ -101,7 +101,7 @@ def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it 
     inputNormal = ng.inputs.new("NodeSocketColor", "Normal")
     inputNormal.default_value = (.5, .5, 1, 1)
     inputNormalStrength = ng.inputs.new("NodeSocketFloat", "Normal Strength")
-    inputNormalStrength.default_value = -1
+    inputNormalStrength.default_value = 1
     inputEmission = ng.inputs.new("NodeSocketFloat", "Emission Mask")
     inputEmissionStrength = ng.inputs.new("NodeSocketFloat", "Emission Strength")
     inputEmissionStrength.default_value = 1
@@ -128,6 +128,16 @@ def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it 
  
     nodeNormal = ng.nodes.new("ShaderNodeNormalMap")
     nodeNormal.location = (-tile*4, -tile*2)
+    
+    nodeCombineRGBNormal = ng.nodes.new("ShaderNodeCombineRGB")
+    nodeCombineRGBNormal.location = (-tile*5, -tile*2)
+    nodeCombineRGBNormal.inputs[2].default_value = 1    # Discarding normal map Z channel and setting it to 1.
+    
+    nodeInvertNormalGreen = ng.nodes.new("ShaderNodeInvert")
+    nodeInvertNormalGreen.location = (-tile*6, -tile*2)
+    
+    nodeSeparateRGBNormal = ng.nodes.new("ShaderNodeSeparateRGB")
+    nodeSeparateRGBNormal.location = (-tile*7, -tile*2)
  
     ## SPECULAR SETUP ##
     nodeMathSpec2 = ng.nodes.new("ShaderNodeMath")
@@ -172,8 +182,13 @@ def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it 
     links.new(nodeInput.outputs["OWSpecMap"], nodeSeparateRGBSpec.inputs["Image"])
     links.new(nodeInput.outputs["Emission Mask"], nodeMixEmission.inputs["Fac"])
     links.new(nodeInput.outputs["Emission Strength"], nodeEmission.inputs["Strength"])
-    links.new(nodeInput.outputs["Normal"], nodeNormal.inputs["Color"])
+    links.new(nodeInput.outputs["Normal"], nodeSeparateRGBNormal.inputs[0])
     links.new(nodeInput.outputs['Normal Strength'], nodeNormal.inputs["Strength"])
+    
+    links.new(nodeSeparateRGBNormal.outputs[0], nodeCombineRGBNormal.inputs[0])
+    links.new(nodeSeparateRGBNormal.outputs[1], nodeInvertNormalGreen.inputs["Color"])
+    links.new(nodeInvertNormalGreen.outputs[0], nodeCombineRGBNormal.inputs[1])
+    links.new(nodeCombineRGBNormal.outputs[0], nodeNormal.inputs["Color"])
  
     links.new(nodeSeparateRGBSpec.outputs["R"], nodeMathSpec.inputs[0])
     links.new(nodeSeparateRGBSpec.outputs["R"], nodeMathMetal.inputs[0])
@@ -272,9 +287,10 @@ def process_material_Cycles(material, prefix, root, t):
             nodeTex.label = "Texture: Unknown-{}".format(typ)
         tt = owm_types.TextureTypes
         if typ == tt['DiffuseAO'] or typ == tt['DiffuseOpacity'] or typ == tt['DiffuseBlack'] \
-           or typ == tt['DiffusePlant'] or typ == tt['DiffuseFlag'] or typ == tt['Diffuse2']:
+            or typ == tt['DiffusePlant'] or typ == tt['DiffuseFlag'] or typ == tt['Diffuse2']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Color"])
             nodeTex.color_space = 'COLOR'
+            nodeTex.name = "Color"
         if typ == tt['DiffuseAO']:
             nodeTex.image.use_alpha = False
         if typ == tt['DiffuseOpacity']:
@@ -290,6 +306,8 @@ def process_material_Cycles(material, prefix, root, t):
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Emission Mask"])
         if typ == tt['Normal'] or typ == tt['HairNormal'] or typ == tt['CorneaNormal']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Normal"])
+    
+    nodes.active = nodes.get("Color")
     
     return mat
 
@@ -315,7 +333,7 @@ def process_material_BI(material, prefix, importNormal, importEffect, root, t):
                 tex.use_normal_map = True
                 mattex.use_map_color_diffuse = False
                 mattex.use_map_normal = True
-                mattex.normal_factor = -1
+                mattex.normal_factor = 1
                 mattex.diffuse_factor = 0
             elif typ == owm_types.OWMATTypes['SHADER']:
                 mattex.use = False
