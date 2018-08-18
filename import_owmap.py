@@ -281,9 +281,11 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             lamp_str = light_settings.adjuistValues["STRENGTH"]
             if lamp_data.type == 'SPOT':
                 lamp_data.spot_size = math.radians(light.fov)
+                lamp_data.spot_blend = light.ex[light_settings.spotIndex % len(light.ex)]
             if light_settings.useStrength:
-                lamp_str = light_settings.adjuistValues["STRENGTH"] * light.strength
+                lamp_str = light_settings.adjuistValues["STRENGTH"] * light.ex[light_settings.index % len(light.ex)]
             lamp_data.use_nodes = True
+            lamp_data.shadow_soft_size = light_settings.bias
             enode = lamp_data.node_tree.nodes.get("Emission")
             enode.inputs.get("Color").default_value = (lamp_col.r, lamp_col.g, lamp_col.b, 1.0)
             enode.inputs.get("Strength").default_value = lamp_str

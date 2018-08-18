@@ -6,7 +6,7 @@ from . import import_oweffect
 from . import owm_types
 from . import bpyhelper
 import bpy
-from bpy.props import StringProperty, BoolProperty, FloatProperty
+from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty
 from bpy_extras.io_utils import ImportHelper
 
 class import_mdl_op(bpy.types.Operator, ImportHelper):
@@ -300,6 +300,15 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
+    shadowSoftBias = FloatProperty(
+        name="Light Shadow Size",
+        description="Light size for ray shadow sampling",
+        default=0.5,
+        step=0.1,
+        min=0.0,
+        precision=3
+    )
+
     adjustLightStrength = FloatProperty(
         name="Adjust Light Strength",
         description="Multiply strength by this amount",
@@ -307,6 +316,24 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         step=1,
         min=0.0,
         precision=3
+    )
+
+    lightIndex = IntProperty(
+        name="Light Value Index",
+        description="Used for debug purposes, leave it at 25",
+        default=25,
+        step=1,
+        min=0,
+        max=35
+    )
+
+    edgeIndex = IntProperty(
+        name="Light Spot Edge Index",
+        description="Used for debug purposes, leave it at 26",
+        default=26,
+        step=1,
+        min=0,
+        max=35
     )
     
     importRemoveCollision = BoolProperty(
@@ -344,7 +371,10 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             self.multipleImportance,
             [self.importLampSun, self.importLampSpot, self.importLampPoint],
             [self.adjustLightValue, self.adjustLightStrength], 
-            self.useLightStrength
+            self.useLightStrength,
+            self.shadowSoftBias,
+            self.lightIndex,
+            self.edgeIndex
         )
         import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision)
         print('DONE')
@@ -388,12 +418,15 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col.prop(self, 'importLampSun')
         col.prop(self, 'importLampSpot')
         col.prop(self, 'importLampPoint')
-        col.prop(self, 'adjustLightValue')
-        col.prop(self, 'useLightStrength')
         col.prop(self, 'multipleImportance')
-        col = col.column(align=False)
-        col.enabled = self.useLightStrength
-        col.prop(self, 'adjustLightStrength')
+        col.prop(self, 'useLightStrength')
+        col.prop(self, 'shadowSoftBias')
+        col.prop(self, 'adjustLightValue')
+        col2 = col.column(align=True)
+        col2.enabled = self.useLightStrength
+        col2.prop(self, 'adjustLightStrength')
+        col2.prop(self, 'lightIndex')
+        col.prop(self, 'edgeIndex')
 
 class import_ent_op(bpy.types.Operator, ImportHelper):
     bl_idname = "owm_importer.import_entity"

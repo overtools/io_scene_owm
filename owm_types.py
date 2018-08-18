@@ -62,7 +62,7 @@ class OWSettings:
                           self.importTexEffect, self.importColor)
 
 class OWLightSettings:
-    def __init__(self, enabled = False, multipleImportance = False, enabledTypes = [False, False, False], adjustValues = [1.0, 1.0], useStrength = False):
+    def __init__(self, enabled = False, multipleImportance = False, enabledTypes = [False, False, False], adjustValues = [1.0, 1.0], useStrength = False, bias = 0.5, index = 25, spotIndex = 26):
         self.enabled = enabled
         self.multipleImportance = multipleImportance
         self.enabledTypes = enabledTypes
@@ -71,6 +71,9 @@ class OWLightSettings:
             "STRENGTH": adjustValues[1]
         }
         self.useStrength = useStrength
+        self.bias = bias
+        self.index = index
+        self.spotIndex = spotIndex
 
 class OWEffectSettings:
     def __init__(self, settings, filename, force_fps, target_fps, import_DMCE, import_CECE, import_NECE,
@@ -571,11 +574,11 @@ class OWMAPDetail:
 class OWMAPLight:
     structFormat = ['<fff', '<ffff', '<I', '<f', '<fff']
     exFormat = ['<IIBBBBII', '<fff', '<ffff', '<fff', '<ffff', '<fff', '<ffff', '<ffIHHII']
-
-    def __init__(self, position, rotation, typ, fov, color, strength = 1.0):
+    defaultEx = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 1.0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    def __init__(self, position, rotation, typ, fov, color, ex = defaultEx):
         self.position = position
         self.rotation = rotation
         self.type = typ
         self.fov = fov
         self.color = color
-        self.strength = strength
+        self.ex = ex
