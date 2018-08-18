@@ -312,7 +312,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
     adjustLightStrength = FloatProperty(
         name="Adjust Light Strength",
         description="Multiply strength by this amount",
-        default=1.0,
+        default=10.0,
         step=1,
         min=0.0,
         precision=3
@@ -331,6 +331,15 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         name="Light Spot Edge Index",
         description="Used for debug purposes, leave it at 26",
         default=26,
+        step=1,
+        min=0,
+        max=35
+    )
+
+    sizeIndex = IntProperty(
+        name="Light Size Index",
+        description="Used for debug purposes, leave it at 12",
+        default=12,
         step=1,
         min=0,
         max=35
@@ -373,8 +382,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             [self.adjustLightValue, self.adjustLightStrength], 
             self.useLightStrength,
             self.shadowSoftBias,
-            self.lightIndex,
-            self.edgeIndex
+            [self.lightIndex, self.edgeIndex, self.sizeIndex]
         )
         import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision)
         print('DONE')
@@ -427,6 +435,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col2.prop(self, 'adjustLightStrength')
         col2.prop(self, 'lightIndex')
         col.prop(self, 'edgeIndex')
+        col.prop(self, 'sizeIndex')
 
 class import_ent_op(bpy.types.Operator, ImportHelper):
     bl_idname = "owm_importer.import_entity"

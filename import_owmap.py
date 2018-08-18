@@ -275,6 +275,8 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             bpyhelper.scene_link(lamp_ob)
             lamp_ob.location = pos_matrix(light.position)
             lamp_ob.rotation_euler = Quaternion(wxzy(light.rotation)).to_euler('XYZ')
+            light_scale = light.ex[light_settings.sizeIndex % len(light.ex)]
+            lamp_ob.scale = (light_scale, light_scale, light_scale)
             lamp_col = Color(light.color)
             lamp_col.v *= light_settings.adjuistValues["VALUE"]
             lamp_data.cycles.use_multiple_importance_sampling = light_settings.multipleImportance
