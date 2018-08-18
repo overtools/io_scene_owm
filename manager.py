@@ -264,7 +264,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
     importLampSun = BoolProperty(
         name="Import Sun lamps",
         description="Import lamps of type Sun",
-        default=True,
+        default=False,
     )
 
     importLampSpot = BoolProperty(
