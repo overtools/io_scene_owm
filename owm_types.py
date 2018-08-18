@@ -35,9 +35,10 @@ TextureTypes = {
     "AO": 3761386704,           # maybe hairao
     "DiffuseEnv": 2959599704,
     "NormalEnv": 2637552222,
-    "TertiaryEnv": 824205512,
+    "TertiaryEnv": 244152978,
     "DiffuseEnv2": 3120512190,
     "NormalEnv2": 1897827336,
+    "TertiaryEnv2": 824205512,
 }
 
 class OWSettings:
