@@ -213,11 +213,13 @@ def bindMaterialsUniq(meshes, data, materials):
     for i, obj in enumerate(meshes):
         mesh = obj.data
         meshData = data.meshes[i]
-        if materials != None and meshData.materialKey in materials[1]:
+        if meshData.materialKey in materials[1]:
             mesh.materials.clear()
             mesh.materials.append(None)
             obj.material_slots[0].link = 'OBJECT'
             obj.material_slots[0].material = materials[1][meshData.materialKey]
+        else:
+            print('[import_owmdl]: Unable to find material %016X in provided material set' % (meshData.materialKey))
 
 def importMesh(armature, meshData):
     global settings
