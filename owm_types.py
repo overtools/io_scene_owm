@@ -12,27 +12,32 @@ OWMATTypes = {
 
 TextureTypes = {
     "Unknown": 0,
-    "DiffuseAO": 2903569922,  # Alpha channel is AO
+    "DiffuseAO": 2903569922,     # Alpha channel is AO
     "DiffuseOpacity": 1239794147,
     "DiffuseBlack": 3989656707,  # Alpha is black ???
     "DiffusePlant": 3093211343,
     "DiffuseFlag": 1281400944,
     "Diffuse2": 1716930793,
     "Normal": 378934698,
-    "HairNormal": 562391268, # why?
-    "CorneaNormal": 562391268, # maybe not
-    "Tertiary": 548341454,  # Metal (R) + Highlight (G) + Detail (B)
-    "Tertiary2": 3852121246,  # used for Mei's ice wall
+    "AnisotropyNormal": 562391268,    # why?
+    "RefractNormal": 562391268,  # maybe not
+    "Tertiary": 548341454,      # Metal (R) + Highlight (G) + Detail (B)
+    "Tertiary2": 3852121246,    # used for Mei's ice wall
     "Opacity": 1482859648,
     "Opacity2": 1140682086,
     "MaterialMask": 1557393490, # ?
     "SubsurfaceScattering": 3004687613,
     "Emission": 3166598269,
     "Emission2": 1523270506,
-    "Emission3": 4243598436, # used for Mei's ice wall
-    "HairAnisotropy": 2337956496,
-    "Specular": 1117188170, # maybe hairspec
-    "AO": 3761386704  # maybe hairao
+    "Emission3": 4243598436,    # used for Mei's ice wall
+    "AnisotropyTangent": 2337956496,
+    "Specular": 1117188170,     # maybe hairspec
+    "AO": 3761386704,           # maybe hairao
+    "DiffuseEnv": 2959599704,
+    "NormalEnv": 2637552222,
+    "TertiaryEnv": 824205512,
+    "DiffuseEnv2": 3120512190,
+    "NormalEnv2": 1897827336,
 }
 
 class OWSettings:

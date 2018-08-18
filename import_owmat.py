@@ -132,6 +132,13 @@ def process_material_Cycles(material, prefix, root, t):
     nodeOverwatch.width = 250
     links.new(nodeOverwatch.outputs[0], material_output.inputs[0])
 
+    hasColorEnv = False
+    baseColorMap = None
+    hasNormalEnv = False
+    baseNormalMap = None
+    hasPBREnv = False
+    basePBRMap = None
+
     for i, texData in enumerate(material.textures):
         nodeTex = nodes.new("ShaderNodeTexImage")
         nodeTex.location = (-tile, -tile*(i))
@@ -159,11 +166,15 @@ def process_material_Cycles(material, prefix, root, t):
         tt = owm_types.TextureTypes
         if typ == tt['DiffuseAO'] or typ == tt['DiffuseOpacity'] or typ == tt['DiffuseBlack'] \
             or typ == tt['DiffusePlant'] or typ == tt['DiffuseFlag'] or typ == tt['Diffuse2']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Base Color"])
+            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Base Color Map"])
             nodeTex.color_space = 'COLOR'
-            nodeTex.name = "Color"
+            baseColorMap = nodeTex 
         if typ == tt['DiffuseAO']:
             nodeTex.image.use_alpha = False
+        if typ == tt['DiffuseEnv']:
+            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Secondary Color Map"])
+            nodeTex.color_space = 'COLOR'
+            hasColorEnv = True
         if typ == tt['DiffuseOpacity']:
             links.new(nodeTex.outputs["Alpha"], nodeOverwatch.inputs["Opacity Map"])
         if typ == tt['DiffuseBlack']:
@@ -172,13 +183,25 @@ def process_material_Cycles(material, prefix, root, t):
         if typ == tt['Opacity'] or typ == tt['Opacity2']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Opacity Map"])
         if typ == tt['Tertiary'] or typ == tt['Tertiary2']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Packed PBR"])
+            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Base PBR Map"])
+            basePBRMap = nodeTex
+        if typ == tt['TertiaryEnv']:
+            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Secondary PBR Map"])
+            hasColorEnv = True
         if typ == tt['Emission'] or typ == tt['Emission2'] or typ == tt['Emission3']:
             links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Emission Map"])
-        if typ == tt['Normal'] or typ == tt['HairNormal'] or typ == tt['CorneaNormal']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["RG Packed Normal"])
+        if typ == tt['Normal'] or typ == tt['AnisotropyNormal'] or typ == tt['RefractNormal']:
+            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Base Normal Map"])
+            baseNormalMap = nodeTex
+        if typ == tt['NormalEnv']:
+            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Secondary Normal Map"])
+            hasNormalEnv = True
     
-    nodes.active = nodes.get("Color")
+    if not hasColorEnv and baseColorMap is not None: links.new(baseColorMap.outputs["Color"], nodeOverwatch.inputs["Secondary Color Map"])
+    if not hasNormalEnv and baseNormalMap is not None: links.new(baseNormalMap.outputs["Color"], nodeOverwatch.inputs["Secondary Normal Map"])
+    if not hasPBREnv and basePBRMap is not None: links.new(basePBRMap.outputs["Color"], nodeOverwatch.inputs["Secondary PBR Map"])
+
+    nodes.active = baseColorMap
     
     return mat
 
