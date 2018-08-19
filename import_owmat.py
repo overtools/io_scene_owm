@@ -73,14 +73,6 @@ def load_textures(texture, root, t):
         print('[import_owmat]: error loading texture: {}'.format(e))
     return None
 
-def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it doesn't exist yet
-    if(bpy.data.node_groups.find(owm_types.TextureTypes['NodeGroups']['Default']) is not -1):
-        return
-    path = owm_types.get_library_path()
-    with bpy.data.libraries.load(path, False) as (data_from, data_to):
-        data_to.node_groups = [node_name for node_name in data_from.node_groups if not node_name in bpy.data.node_groups and node_name.startswith('OWM')]
-        print('[import_owmat] imported node groups: %s' % (', '.join(data_to.node_groups)))
-
 def read(filename, prefix = '', importNormal = True, importEffect = True):
     root, file = os.path.split(filename)
     data = read_owmat.read(filename)
@@ -92,8 +84,6 @@ def read(filename, prefix = '', importNormal = True, importEffect = True):
 
     if bpy.context.scene.render.engine.startswith('BLENDER'):
         bpy.context.scene.render.engine = 'CYCLES'
-
-    create_overwatch_shader()
 
     for i in range(len(data.materials)):
         m[data.materials[i].key] = process_material_Cycles(data.materials[i], prefix, root, t)

@@ -5,6 +5,7 @@ import os
 from . import bpyhelper
 from urllib.request import urlopen
 import json
+import bpy
 
 OWMATTypes = {
     'ALBEDO': 0x00,
@@ -26,13 +27,15 @@ DefaultTextureTypesById = DefaultTextureTypesById
 TextureTypes = DefaultTextureTypes
 LOADED_LIBRARY_VERSION = 0
 
-def download(src, dst, mode):
+def download(src, dst):
     try:
         print('[owm] trying to download %s' % (src))
         with urlopen(src) as res:
             data = res.read()
-            if os.path.exists(dst): os.rename(dst, dst + '.bak')
-            with open(dst, mode) as f:
+            if os.path.exists(dst): 
+                if os.path.exists(dst + '.bak'): os.remove(dst + '.bak')
+                os.rename(dst, dst + '.bak')
+            with open(dst, 'w+b') as f:
                 f.write(data)
     except BaseException as e:
         print('[owm] failed to download %s: %s' % (src, e))
@@ -47,10 +50,10 @@ def update_data():
             with urlopen('https://raw.githubusercontent.com/overtools/io_scene_owm/master/LIBRARY_VERSION') as rF:
                 data = rF.read()
                 rV = int(data.decode('ascii').split('\n')[0].strip())
-                print('[owm] local version %s, remove version %s' % (v, rV))
+                print('[owm] local version %s, remote version %s' % (v, rV))
                 if rV > v:
-                    download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/library.blend', get_library_path(), 'wb')
-                    download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/texture-map.json', get_texture_type_path(), 'w')
+                    download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/library.blend', get_library_path())
+                    download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/texture-map.json', get_texture_type_path())
                     v = rV
     except BaseException as e:
         print('[owm] failed to update: %s' % (e))
@@ -58,7 +61,7 @@ def update_data():
     if v > LOADED_LIBRARY_VERSION:
         load_data()
         LOADED_LIBRARY_VERSION = v
-        download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/LIBRARY_VERSION', get_library_version_path(), 'w')
+        download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/LIBRARY_VERSION', get_library_version_path())
 
 def get_library_path():
     return os.path.join(os.path.dirname(__file__), 'library.blend')
@@ -69,6 +72,12 @@ def get_library_version_path():
 def get_texture_type_path():
     return os.path.join(os.path.dirname(__file__), 'texture-map.json')
 
+def create_overwatch_shader():
+    path = get_library_path()
+    with bpy.data.libraries.load(path, False) as (data_from, data_to):
+        data_to.node_groups = [node_name for node_name in data_from.node_groups if not node_name in bpy.data.node_groups and node_name.startswith('OWM: ')]
+        print('[owm] imported node groups: %s' % (', '.join(data_to.node_groups)))
+
 def load_data():
     global TextureTypesById, TextureTypes
     try:
@@ -78,6 +87,10 @@ def load_data():
             for fname, tdata in TextureTypes['Mapping'].items():
                 TextureTypesById[tdata[2]] = fname
                 print('[owm] %s = %s' % (fname, json.dumps(tdata)))
+        for node_name in [node for node in bpy.data.node_groups if node.users == 0 and node.startswith('OWM: ')]:
+            print('[owm] removing unused node group: %s' % (node_name))
+            bpy.data.node_groups.remove(bpy.data.node_groups[node_name])
+        create_overwatch_shader()
     except BaseException as e:
         print('[owm] failed to load texture types: %s' % (e))
 
