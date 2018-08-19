@@ -90,14 +90,13 @@ def read(filename, prefix = '', importNormal = True, importEffect = True):
     t = {}
     m = {}
 
-    if bpy.context.scene.render.engine == 'CYCLES':
-        create_overwatch_shader()
+    if bpy.context.scene.render.engine.startswith('BLENDER'):
+        bpy.context.scene.render.engine = 'CYCLES'
+
+    create_overwatch_shader()
 
     for i in range(len(data.materials)):
-        if bpy.context.scene.render.engine == 'CYCLES':
-            m[data.materials[i].key] = process_material_Cycles(data.materials[i], prefix, root, t)
-        else:
-            m[data.materials[i].key] = process_material_BI(data.materials[i], prefix, importNormal, importEffect, root, t)
+        m[data.materials[i].key] = process_material_Cycles(data.materials[i], prefix, root, t)
 
     return (t, m)
 
@@ -192,38 +191,5 @@ def process_material_Cycles(material, prefix, root, t):
         if activeNodePoint in scratchSocket:
             nodes.active = scratchSocket[activeNodePoint].node
             break
-    
-    return mat
-
-def process_material_BI(material, prefix, importNormal, importEffect, root, t):
-    mat = bpy.data.materials.new('%s%016X' % (prefix, material.key))
-    mat.diffuse_intensity = 1.0
-    for texturetype in material.textures:
-        typ = texturetype[1]
-        texture = texturetype[0]
-        if importNormal == False and typ == owm_types.OWMATTypes['NORMAL']:
-            continue
-        if importEffect == False and typ == owm_types.OWMATTypes['SHADER']:
-            continue
- 
-        tex = load_textures(texture, root, t)
-       
-        try:
-            mattex = mat.texture_slots.add()
-            mattex.use_map_color_diffuse = True
-            mattex.diffuse_factor = 1
-            if typ == owm_types.OWMATTypes['NORMAL']:
-                tex.use_alpha = False
-                tex.use_normal_map = True
-                mattex.use_map_color_diffuse = False
-                mattex.use_map_normal = True
-                mattex.normal_factor = 1
-                mattex.diffuse_factor = 0
-            elif typ == owm_types.OWMATTypes['SHADER']:
-                mattex.use = False
-            mattex.texture = tex
-            mattex.texture_coords = 'UV'
-        except Exception as e:
-            print('[import_owmat]: error creating BI material: {}'.format(e))
     
     return mat
