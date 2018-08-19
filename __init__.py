@@ -1,19 +1,19 @@
 bl_info = {
-    "name": "OWM Import",
-    "author": "Overtools Community",
-    "version": (1, 8, 7),
-    "blender": (2, 78, 4),
-    "location": "File > Import > OWM",
-    "description": "Import TankLib/DataTool OWM files",
-    "warning": "",
-    "wiki_url": "",
-    "tracker_url": "https://github.com/overtools/io_scene_owm/issues",
-    "category": "Import-Export"
+    'name': 'OWM Import',
+    'author': 'Overtools Community',
+    'version': (1, 9, 0),
+    'blender': (2, 78, 4),
+    'location': 'File > Import > OWM',
+    'description': 'Import TankLib/DataTool OWM files',
+    'warning': '',
+    'wiki_url': '',
+    'tracker_url': 'https://github.com/overtools/io_scene_owm/issues',
+    'category': 'Import-Export'
 }
 
 rld = False
 
-if "bpy" in locals():
+if 'bpy' in locals():
     import imp
     rld = True
 

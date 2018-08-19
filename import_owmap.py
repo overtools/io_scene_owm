@@ -51,7 +51,7 @@ def wxzy(vec):
 
 
 def progress_update(total, progress):
-    # print("%d/%d (%d%%)" % (progress, total, progress / total * 100))
+    # print('%d/%d (%d%%)' % (progress, total, progress / total * 100))
     bpy.context.window_manager.progress_update(progress)
 
 def hide_recursive(obj):
@@ -156,7 +156,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                         mat = matCache[matpath]
                 if mat != None and removeCollision:
                     for tex_name, tex in mat[0].items():
-                        if tex_name == "000000001B8D" or tex_name == "000000001BA4":
+                        if tex_name == '000000001B8D' or tex_name == '000000001BA4':
                             hideModel = True
 
                 prog += 1
@@ -226,7 +226,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                     mat = matCache[matpath]
                 if removeCollision:
                     for tex_name, tex in mat[0].items():
-                        if tex_name == "000000001B8D" or tex_name == "000000001BA4":
+                        if tex_name == '000000001B8D' or tex_name == '000000001BA4':
                             hideModel = True
             if hideModel:
                 hide_recursive(mdl)
@@ -269,30 +269,30 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             prog += 1
             if not light_settings.enabledTypes[light.type]:
                 continue
-            # print("light, fov: %s, type: %s (%d%%)" % (light.fov, light.type, (total_C/total) * 100))
-            lamp_data = bpy.data.lamps.new(name="%s_%s" % (name, LIGHT_MAP[light.type]), type=LIGHT_MAP[light.type])
-            lamp_ob = bpy.data.objects.new(name="%s_%s" % (name, LIGHT_MAP[light.type]), object_data=lamp_data)
+            # print('light, fov: %s, type: %s (%d%%)' % (light.fov, light.type, (total_C/total) * 100))
+            lamp_data = bpy.data.lamps.new(name='%s_%s' % (name, LIGHT_MAP[light.type]), type=LIGHT_MAP[light.type])
+            lamp_ob = bpy.data.objects.new(name='%s_%s' % (name, LIGHT_MAP[light.type]), object_data=lamp_data)
             bpyhelper.scene_link(lamp_ob)
             lamp_ob.location = pos_matrix(light.position)
             lamp_ob.rotation_euler = Quaternion(wxzy(light.rotation)).to_euler('XYZ')
             light_scale = light.ex[light_settings.sizeIndex % len(light.ex)]
             lamp_ob.scale = (light_scale, light_scale, light_scale)
             lamp_col = Color(light.color)
-            lamp_col.v *= light_settings.adjuistValues["VALUE"]
+            lamp_col.v *= light_settings.adjuistValues['VALUE']
             lamp_data.cycles.use_multiple_importance_sampling = light_settings.multipleImportance
-            lamp_str = light_settings.adjuistValues["STRENGTH"]
+            lamp_str = light_settings.adjuistValues['STRENGTH']
             if lamp_data.type == 'SPOT':
                 lamp_data.spot_size = math.radians(light.fov)
                 lamp_data.spot_blend = light.ex[light_settings.spotIndex % len(light.ex)]
             if light_settings.useStrength:
-                lamp_str = light_settings.adjuistValues["STRENGTH"] * light.ex[light_settings.index % len(light.ex)]
+                lamp_str = light_settings.adjuistValues['STRENGTH'] * light.ex[light_settings.index % len(light.ex)]
             lamp_data.use_nodes = True
             lamp_data.shadow_soft_size = light_settings.bias
-            enode = lamp_data.node_tree.nodes.get("Emission")
-            enode.inputs.get("Color").default_value = (lamp_col.r, lamp_col.g, lamp_col.b, 1.0)
-            enode.inputs.get("Strength").default_value = lamp_str
+            enode = lamp_data.node_tree.nodes.get('Emission')
+            enode.inputs.get('Color').default_value = (lamp_col.r, lamp_col.g, lamp_col.b, 1.0)
+            enode.inputs.get('Strength').default_value = lamp_str
             lamp_ob.parent = globLight
             progress_update(total, prog)
     wm.progress_end()
-    print("Finished loading map")
+    print('Finished loading map')
     bpy.context.scene.update()

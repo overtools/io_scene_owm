@@ -3,43 +3,83 @@ from . import bin_ops
 from enum import Enum
 import os
 from . import bpyhelper
+from urllib.request import urlopen
+import json
 
 OWMATTypes = {
-    "ALBEDO": 0x00,
-    "NORMAL": 0x01,
-    "SHADER": 0x02
+    'ALBEDO': 0x00,
+    'NORMAL': 0x01,
+    'SHADER': 0x02
 }
 
-TextureTypes = {
-    "Unknown": 0,
-    "DiffuseAO": 2903569922,     # Alpha channel is AO
-    "DiffuseOpacity": 1239794147,
-    "DiffuseBlack": 3989656707,  # Alpha is black ???
-    "DiffusePlant": 3093211343,
-    "DiffuseFlag": 1281400944,
-    "Diffuse2": 1716930793,
-    "Normal": 378934698,
-    "AnisotropyNormal": 562391268,    # why?
-    "RefractNormal": 562391268,  # maybe not
-    "Tertiary": 548341454,      # Metal (R) + Highlight (G) + Detail (B)
-    "Tertiary2": 3852121246,    # used for Mei's ice wall
-    "Opacity": 1482859648,
-    "Opacity2": 1140682086,
-    "MaterialMask": 1557393490, # ?
-    "SubsurfaceScattering": 3004687613,
-    "Emission": 3166598269,
-    "Emission2": 1523270506,
-    "Emission3": 4243598436,    # used for Mei's ice wall
-    "AnisotropyTangent": 2337956496,
-    "Specular": 1117188170,     # maybe hairspec
-    "AO": 3761386704,           # maybe hairao
-    "DiffuseEnv": 2959599704,
-    "NormalEnv": 2637552222,
-    "TertiaryEnv": 244152978,
-    "DiffuseEnv2": 3120512190,
-    "NormalEnv2": 1897827336,
-    "TertiaryEnv2": 824205512,
+DefaultTextureTypesById = {}
+DefaultTextureTypes = {
+    'Mapping': {},
+    'Alias': {},
+    'Env': {},
+    'Active': [],
+    'NodeGroups': {
+        'Default': 'OWM: Physically Based Shading'
+    }
 }
+DefaultTextureTypesById = DefaultTextureTypesById
+TextureTypes = DefaultTextureTypes
+LOADED_LIBRARY_VERSION = 0
+
+def download(src, dst, mode):
+    try:
+        print('[owm] trying to download %s' % (src))
+        with urlopen(src) as res:
+            data = res.read()
+            if os.path.exists(dst): os.rename(dst, dst + '.bak')
+            with open(dst, mode) as f:
+                f.write(data)
+    except BaseException as e:
+        print('[owm] failed to download %s: %s' % (src, e))
+
+def update_data():
+    print('[owm] trying to update library file')
+    global LOADED_LIBRARY_VERSION
+    v = LOADED_LIBRARY_VERSION
+    try:
+        with open(get_library_version_path()) as f:
+            v = int(f.readline().strip())
+            with urlopen('https://raw.githubusercontent.com/overtools/io_scene_owm/master/LIBRARY_VERSION') as rF:
+                data = rF.read()
+                rV = int(data.decode('ascii').split('\n')[0].strip())
+                print('[owm] local version %s, remove version %s' % (v, rV))
+                if rV > v:
+                    download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/library.blend', get_library_path(), 'wb')
+                    download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/texture-map.json', get_texture_type_path(), 'w')
+                    v = rV
+    except BaseException as e:
+        print('[owm] failed to update: %s' % (e))
+
+    if v > LOADED_LIBRARY_VERSION:
+        load_data()
+        LOADED_LIBRARY_VERSION = v
+        download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/LIBRARY_VERSION', get_library_version_path(), 'w')
+
+def get_library_path():
+    return os.path.join(os.path.dirname(__file__), 'library.blend')
+
+def get_library_version_path():
+    return os.path.join(os.path.dirname(__file__), 'LIBRARY_VERSION')
+
+def get_texture_type_path():
+    return os.path.join(os.path.dirname(__file__), 'texture-map.json')
+
+def load_data():
+    global TextureTypesById, TextureTypes
+    try:
+        with open(get_texture_type_path()) as f:
+            TextureTypes = json.load(f)
+            TextureTypesById = {}
+            for fname, tdata in TextureTypes['Mapping'].items():
+                TextureTypesById[tdata[2]] = fname
+                print('[owm] %s = %s' % (fname, json.dumps(tdata)))
+    except BaseException as e:
+        print('[owm] failed to load texture types: %s' % (e))
 
 class OWSettings:
     def __init__(self, filename, uvDisplaceX, uvDisplaceY, autoIk, importNormals, importEmpties, importMaterial,
@@ -67,8 +107,8 @@ class OWLightSettings:
         self.multipleImportance = multipleImportance
         self.enabledTypes = enabledTypes
         self.adjuistValues = {
-            "VALUE": adjustValues[0],
-            "STRENGTH": adjustValues[1]
+            'VALUE': adjustValues[0],
+            'STRENGTH': adjustValues[1]
         }
         self.useStrength = useStrength
         self.bias = bias
@@ -313,11 +353,11 @@ class OWEffectData:
         for i in range(svce_count):
             svces.append(OWEffectData.SVCEInfo.read(stream))
 
-        # print("[import_effect]: dmces={}".format(dmces))
-        # print("[import_effect]: ceces={}".format(ceces))
-        # print("[import_effect]: neces={}".format(neces))
-        # print("[import_effect]: rpces={}".format(rpces))
-        # print("[import_effect]: svces={}".format(svces))
+        # print('[import_effect]: dmces={}'.format(dmces))
+        # print('[import_effect]: ceces={}'.format(ceces))
+        # print('[import_effect]: neces={}'.format(neces))
+        # print('[import_effect]: rpces={}'.format(rpces))
+        # print('[import_effect]: svces={}'.format(svces))
             
         return cls(guid, length, dmces, ceces, neces, rpces, svces)
 
@@ -507,7 +547,7 @@ class OWMDLEmpty:
     structFormat = [str, '<fff', '<ffff']
     exFormat = [str]
 
-    def __init__(self, name, position, rotation, hardpoint=""):
+    def __init__(self, name, position, rotation, hardpoint=''):
         self.name = name
         self.position = position
         self.rotation = rotation

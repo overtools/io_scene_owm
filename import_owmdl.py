@@ -46,7 +46,7 @@ def create_refpose_armature(armature_name):
     return a
 
 def import_refpose_armature(autoIk, this_data):
-    a = create_refpose_armature("AnimationArmature")
+    a = create_refpose_armature('AnimationArmature')
     boneIDs = {}  # temp
 
     newBoneName()
@@ -101,9 +101,9 @@ def importArmature(autoIk):
     bones = data.bones
     armature = None
     if len(bones) > 0:
-        armData = bpy.data.armatures.new("Armature")
+        armData = bpy.data.armatures.new('Armature')
         armData.draw_type = 'STICK'
-        armature = bpy.data.objects.new("Armature", armData)
+        armature = bpy.data.objects.new('Armature', armData)
         armature.show_x_ray = True
 
         bpyhelper.scene_link(armature)
@@ -205,7 +205,7 @@ def bindMaterials(meshes, data, materials):
             mesh.materials.clear()
             mesh.materials.append(materials[1][meshData.materialKey])
         else:
-            print("[import_owmdl]: Unable to find material: {}".format(meshData.materialKey))
+            print('[import_owmdl]: Unable to find material: {}'.format(meshData.materialKey))
 
 def bindMaterialsUniq(meshes, data, materials):
     if materials == None:
@@ -235,23 +235,23 @@ def importMesh(armature, meshData):
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
     obj['owm.mesh.name'] = mesh.name
     for i in range(meshData.uvCount):
-        bpyhelper.new_uv_layer(mesh, "UVMap%d" % (i + 1))
+        bpyhelper.new_uv_layer(mesh, 'UVMap%d' % (i + 1))
 
     if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
-        mesh.vertex_colors.new("ColorMap1")
-        mesh.vertex_colors.new("ColorMap1Alpha")
-        mesh.vertex_colors.new("ColorMap2")
-        mesh.vertex_colors.new("ColorMap2Alpha")
+        mesh.vertex_colors.new('ColorMap1')
+        mesh.vertex_colors.new('ColorMap1Alpha')
+        mesh.vertex_colors.new('ColorMap2')
+        mesh.vertex_colors.new('ColorMap2Alpha')
         i = 0
         for loop in mesh.loops:
-            mesh.vertex_colors["ColorMap1"].data[i].color = (col1[loop.vertex_index][0], col1[loop.vertex_index][1], col1[loop.vertex_index][2], 1.0)
-            mesh.vertex_colors["ColorMap1Alpha"].data[i].color = (col1[loop.vertex_index][3], col1[loop.vertex_index][3], col1[loop.vertex_index][3], 1.0)
-            mesh.vertex_colors["ColorMap2"].data[i].color = (col2[loop.vertex_index][0], col2[loop.vertex_index][1], col2[loop.vertex_index][2], 1.0)
-            mesh.vertex_colors["ColorMap2Alpha"].data[i].color = (col2[loop.vertex_index][3], col2[loop.vertex_index][3], col2[loop.vertex_index][3], 1.0)
+            mesh.vertex_colors['ColorMap1'].data[i].color = (col1[loop.vertex_index][0], col1[loop.vertex_index][1], col1[loop.vertex_index][2], 1.0)
+            mesh.vertex_colors['ColorMap1Alpha'].data[i].color = (col1[loop.vertex_index][3], col1[loop.vertex_index][3], col1[loop.vertex_index][3], 1.0)
+            mesh.vertex_colors['ColorMap2'].data[i].color = (col2[loop.vertex_index][0], col2[loop.vertex_index][1], col2[loop.vertex_index][2], 1.0)
+            mesh.vertex_colors['ColorMap2Alpha'].data[i].color = (col2[loop.vertex_index][3], col2[loop.vertex_index][3], col2[loop.vertex_index][3], 1.0)
             i += 1
 
     if armature:
-        mod = obj.modifiers.new(type="ARMATURE", name="OWM Skeleton")
+        mod = obj.modifiers.new(type='ARMATURE', name='OWM Skeleton')
         mod.use_vertex_groups = True
         mod.object = armature
         obj.parent = armature
@@ -343,7 +343,7 @@ def importEmpties(armature = None):
             bpy.ops.object.mode_set(mode='POSE')
 
             if hardpoint['owm.hardpoint.bone'] not in armature.pose.bones:
-                bpy.ops.object.mode_set(mode='OBJECT') # fixes "context is incorrect"
+                bpy.ops.object.mode_set(mode='OBJECT') # fixes 'context is incorrect'
                 continue  # todo: why
 
             bone = armature.pose.bones[hardpoint['owm.hardpoint.bone']].bone
@@ -452,7 +452,7 @@ def readmdl(materials = None, rotate=True):
                 if i == 0:
                     bpy.context.scene.objects.active = submesh
                 bpyhelper.select_obj(submesh, True)
-                vgrp = submesh.vertex_groups.new("clothPin")
+                vgrp = submesh.vertex_groups.new('clothPin')
                 vgrp.add(clothSubmesh.pinnedVerts, 1.0, 'REPLACE')
                 i += 1
 

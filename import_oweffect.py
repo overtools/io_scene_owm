@@ -88,7 +88,7 @@ def create_refpose(model_path):
 
         
         if hardpoint['owm.hardpoint.bone'] not in arm.pose.bones:
-            bpy.ops.object.mode_set(mode='OBJECT') # fixes "context is incorrect"
+            bpy.ops.object.mode_set(mode='OBJECT') # fixes 'context is incorrect'
             continue  # todo: why
         bone = arm.pose.bones[hardpoint['owm.hardpoint.bone']].bone
         bone.select = True
@@ -102,16 +102,16 @@ def create_refpose(model_path):
 
 
 def attach(par, obj):
-    copy_location = obj.constraints.new("COPY_LOCATION")
-    copy_location.name = "Hardpoint Location"
+    copy_location = obj.constraints.new('COPY_LOCATION')
+    copy_location.name = 'Hardpoint Location'
     copy_location.target = par
 
-    copy_rotation = obj.constraints.new("COPY_ROTATION")
-    copy_rotation.name = "Hardpoint Rotation"
+    copy_rotation = obj.constraints.new('COPY_ROTATION')
+    copy_rotation.name = 'Hardpoint Rotation'
     copy_rotation.target = par
 
-    copy_scale = obj.constraints.new("COPY_SCALE")
-    copy_scale.name = "Hardpoint Scale"
+    copy_scale = obj.constraints.new('COPY_SCALE')
+    copy_scale.name = 'Hardpoint Scale'
     copy_scale.target = par
 
     return copy_location, copy_rotation, copy_scale
@@ -185,7 +185,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                     var = c['owm.entity.child.var']
                     ent_obj = bpy.data.objects.new('EffectEntityWrapper {}'.format(var), None)
                     ent_obj.hide = this_obj.hide_render = True
-                    if c['owm.entity.child.hardpoint'] != "null":
+                    if c['owm.entity.child.hardpoint'] != 'null':
                         ent_obj.parent = hardpoints[c['owm.entity.child.hardpoint']]
                         ent_obj.parent['owm.effect.hardpoint.used'] = True
                     else:
@@ -236,7 +236,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             
             bpy.ops.object.speaker_add()
             speaker = bpy.context.scene.objects.active
-            speaker.name = "SVCE Speaker"
+            speaker.name = 'SVCE Speaker'
             speaker.location = (0, 0, 0)
             
             speaker.animation_data.nla_tracks['SoundTrack'].strips['NLA Strip'].frame_start = target_framerate * svce.time.start
@@ -262,12 +262,12 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
 
             speaker.parent = obj
 
-            if svce.time.hardpoint != "null":
+            if svce.time.hardpoint != 'null':
                 attach(hardpoints[svce.time.hardpoint], speaker)
             else:
                 # erm, seems to be in the head
-                attach(hardpoints["hardpoint_0012"], speaker)
-                hardpoints["hardpoint_0012"]['owm.effect.hardpoint.used'] = True
+                attach(hardpoints['hardpoint_0012'], speaker)
+                hardpoints['hardpoint_0012']['owm.effect.hardpoint.used'] = True
 
             bpy.context.scene.frame_set(0)
 
@@ -283,10 +283,10 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
 ##                #     mesh.parent = dmce_skele
 ##                # else:
 ##                #     mesh.parent = obj
-##                if rpce.time.ref_hardpoint != "null":
+##                if rpce.time.ref_hardpoint != 'null':
 ##                    attach(hardpoints[rpce.time.ref_hardpoint], mesh)
 ##
-##            if rpce.time.ref_hardpoint != "null":
+##            if rpce.time.ref_hardpoint != 'null':
 ##                attach(hardpoints[rpce.time.ref_hardpoint], rpce_model[0])
 ##                hardpoints[rpce.time.ref_hardpoint]['owm.effect.hardpoint.used'] = True
 ##
@@ -304,7 +304,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             dmce_model = import_owmdl.read(mutate) # rootObject, armature, meshes, empties, data
             dmce_model[0].parent = obj
             dmce_skele = None
-            if dmce.anim_path != "null":
+            if dmce.anim_path != 'null':
                 mutate2 = settings.mutate(os.path.join(pool, dmce.anim_path))
                 mutate2.force_fps = True
                 mutate2.target_fps = target_framerate
@@ -323,11 +323,11 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                     mesh.parent = dmce_skele
                 else:
                     mesh.parent = obj
-                if dmce.time.hardpoint != "null":
+                if dmce.time.hardpoint != 'null':
                     attach(hardpoints[dmce.time.hardpoint], mesh)
 
             bpy.context.scene.frame_end = end_frame
-            if dmce.time.hardpoint != "null":
+            if dmce.time.hardpoint != 'null':
                 if dmce_skele is not None:
                     attach(hardpoints[dmce.time.hardpoint], dmce_skele)
                     dmce_model[0].parent = dmce_obj
@@ -354,7 +354,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             ent_obj.hide = ent_obj.hide_render = True
             bpyhelper.scene_link(ent_obj)
 
-            if nece.time.hardpoint != "null":
+            if nece.time.hardpoint != 'null':
                 ent_obj.parent = hardpoints[nece.time.hardpoint]
                 ent_obj.parent['owm.effect.hardpoint.used'] = True
             else:
@@ -372,19 +372,19 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             if not settings.import_CECE:
                 continue
             if cece.var_index not in variables:
-                print("[import_effect]: Could not find CECE entity {} (animation={})".format(cece.var_index, cece.path))
+                print('[import_effect]: Could not find CECE entity {} (animation={})'.format(cece.var_index, cece.path))
                 continue
             else:
                 var_id, cece_container, cece_entity = variables[cece.var_index]
             if cece.action == owm_types.CECEAction.Show:
                 show_ents.append(cece.var_index)
             if cece.action == owm_types.CECEAction.PlayAnimation:
-                mutate = settings.mutate(os.path.join(pool, bpyhelper.normpath("Models/{0:012x}.00C/{1}").format(cece_entity['owm.entity.model'],cece.path)))
+                mutate = settings.mutate(os.path.join(pool, bpyhelper.normpath('Models/{0:012x}.00C/{1}').format(cece_entity['owm.entity.model'],cece.path)))
                 mutate.force_fps = True
                 mutate.target_fps = target_framerate
 
                 if not os.path.exists(mutate.filename):
-                    print("[import_effect]: Missing CECE \"Models/{0:012x}.00C/{1}\"".format(cece_entity['owm.entity.model'],cece.path))
+                    print('[import_effect]: Missing CECE \'Models/{0:012x}.00C/{1}\''.format(cece_entity['owm.entity.model'],cece.path))
                     continue
 
                 if bpy.context.object is not None and bpy.context.object.mode != 'OBJECT':
@@ -406,7 +406,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
         for var, var_data in variables.items():
             if not settings.import_CECE:
                 continue
-            if var_data[0] != "entity_child":
+            if var_data[0] != 'entity_child':
                 continue
             var_id, cece_container, cece_entity = var_data
             if cece_entity['owm.entity.child.var'] not in show_ents:
@@ -447,12 +447,12 @@ def read(settings, existing_parent=None):
         ret = process(settings, data, pool, existing_parent, t, None, {})
         
         if existing_parent is None and settings.create_camera:
-            bpy.ops.object.add(type="CAMERA")
+            bpy.ops.object.add(type='CAMERA')
             cam = bpy.context.active_object
-            cam.name = "AnimationCamera {}".format(os.path.splitext(os.path.basename(data.anim_path))[0])
+            cam.name = 'AnimationCamera {}'.format(os.path.splitext(os.path.basename(data.anim_path))[0])
             loc, rot, scale = attach(ret[1], cam)
-            loc.subtarget = "bone_007D"
-            rot.subtarget = "bone_007D"
+            loc.subtarget = 'bone_007D'
+            rot.subtarget = 'bone_007D'
             rot.use_offset = True
             cam.rotation_euler = (0, math.radians(180), 0)
             cam.parent = ret[0]

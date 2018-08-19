@@ -1,0 +1,50 @@
+{
+    "Mapping": {
+        "DiffuseAO": [["Color"], [], 2903569922],
+        "DiffuseOpacity": [["Color"], ["Opacity"], 1239794147],
+        "DiffuseBlack": [["Color"], ["Opacity", "Emission"], 3989656707],
+        "DiffusePlant": [["Color"], [], 3093211343],
+        "DiffuseFlag": [["Color"], [], 1281400944],
+        "Diffuse2": [["PBR"], [], 1716930793],
+        "Normal": [["Normal"], [], 378934698],
+        "AnisotropyNormal": [["Normal"], [], 562391268],
+        "RefractNormal": [["Normal"], [], 562391268],
+        "Tertiary": [["PBR"], [], 548341454],
+        "Tertiary2": [["PBR"], [], 3852121246],
+        "Opacity": [["Opacity"], [], 1482859648],
+        "Opacity2": [["Opacity"], [], 1140682086],
+        "MaterialMask": [[], [], 1557393490],
+        "SubsurfaceScattering": [[], [], 3004687613],
+        "Emission": [["Emission"], [], 3166598269],
+        "Emission2": [["Emission"], [], 1523270506],
+        "Emission3": [["Emission"], [], 4243598436],
+        "AnisotropyTangent": [[], [], 2337956496],
+        "Specular": [[], [], 1117188170],
+        "AO": [[], [], 3761386704],
+        "DiffuseEnv": [["Color2"], [], 2959599704],
+        "NormalEnv": [["Normal2"], [], 2637552222],
+        "TertiaryEnv": [["PBR2"], [], 244152978],
+        "DiffuseEnv2": [[], [], 3120512190],
+        "NormalEnv2": [[], [], 1897827336],
+        "TertiaryEnv2": [[], [], 824205512]
+    },
+    "Alias": {
+        "Color": "Base Color Map",
+        "Color2": "Secondary Color Map",
+        "Normal": "Base Normal Map",
+        "Normal2": "Secondary Normal Map",
+        "PBR": "Base PBR Map",
+        "PBR2": "Secondary PBR Map",
+        "Opacity": "Opacity Map",
+        "Emission": "Emission Map"
+    },
+    "Env": {
+        "Color2": "Color",
+        "Normal2": "Normal",
+        "PBR2": "PBR"
+    },
+    "Active": ["Color", "Color2"],
+    "NodeGroups": {
+        "Default": "OWM: Physically Based Shading"
+    }
+}

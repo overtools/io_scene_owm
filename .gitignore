@@ -5,3 +5,4 @@ tmp
 .idea
 *.blend*
 !library.blend
+*.bak

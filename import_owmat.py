@@ -11,7 +11,7 @@ def cleanUnusedMaterials(materials):
     for name in materials[1]:
         mat = materials[1][name]
         if mat.users == 0:
-            print("[import_owmat]: removed material: {}".format(mat.name))
+            print('[import_owmat]: removed material: {}'.format(mat.name))
             bpy.data.materials.remove(mat)
         else:
             m[name] = mat
@@ -30,19 +30,19 @@ def mutate_texture_path(file, new_ext):
     return os.path.splitext(file)[0] + new_ext
 
 def load_textures(texture, root, t):
-    """ Loads an overwatch texture.
+    ''' Loads an overwatch texture.
  
     Priority (high to low): TIFF, TGA, DDS (doesn't work properly)
-    """
+    '''
     realpath = bpyhelper.normpath(texture)
     if not os.path.isabs(realpath):
         realpath = bpyhelper.normpath('%s/%s' % (root, realpath))
 
-    tga_file = mutate_texture_path(realpath, ".tga")
+    tga_file = mutate_texture_path(realpath, '.tga')
     if os.path.exists(tga_file):
         realpath = tga_file
     
-    tif_file = mutate_texture_path(realpath, ".tif")
+    tif_file = mutate_texture_path(realpath, '.tif')
     if os.path.exists(tif_file):
         realpath = tif_file
 
@@ -70,19 +70,16 @@ def load_textures(texture, root, t):
             t[fn] = tex
         return tex
     except Exception as e:
-        print("[import_owmat]: error loading texture: {}".format(e))
+        print('[import_owmat]: error loading texture: {}'.format(e))
     return None
 
-OVERWATCH_NODEGROUP_PRIMARY_NAME = "OWM: Physically Based Shading"
-
 def create_overwatch_shader(tile=300): # Creates the Overwatch nodegroup, if it doesn't exist yet
-    global OVERWATCH_NODEGROUP_PRIMARY_NAME
-    if(bpy.data.node_groups.find(OVERWATCH_NODEGROUP_PRIMARY_NAME) is not -1):
+    if(bpy.data.node_groups.find(owm_types.TextureTypes['NodeGroups']['Default']) is not -1):
         return
-    path = os.path.join(os.path.dirname(__file__), "library.blend")
+    path = owm_types.get_library_path()
     with bpy.data.libraries.load(path, False) as (data_from, data_to):
-        data_to.node_groups = [node_name for node_name in data_from.node_groups if not node_name in bpy.data.node_groups and node_name.startswith("OWM")]
-        print("[import_owmat] imported node groups: %s" % (', '.join(data_to.node_groups)))
+        data_to.node_groups = [node_name for node_name in data_from.node_groups if not node_name in bpy.data.node_groups and node_name.startswith('OWM')]
+        print('[import_owmat] imported node groups: %s' % (', '.join(data_to.node_groups)))
 
 def read(filename, prefix = '', importNormal = True, importEffect = True):
     root, file = os.path.split(filename)
@@ -105,13 +102,9 @@ def read(filename, prefix = '', importNormal = True, importEffect = True):
     return (t, m)
 
 def process_material_Cycles(material, prefix, root, t):
-    global OVERWATCH_NODEGROUP_PRIMARY_NAME
     mat = bpy.data.materials.new('%s%016X' % (prefix, material.key))
 
-    if material.shader != 0:
-        print("[import_owmat]: {} uses shader {}".format(mat.name, material.shader))
-    
-    # print("Processing material: " + mat.name)
+    # print('Processing material: ' + mat.name)
     mat.use_nodes = True
    
     tile = 300
@@ -127,27 +120,31 @@ def process_material_Cycles(material, prefix, root, t):
  
     # Create Overwatch NodeGroup Instance
     nodeOverwatch = nodes.new('ShaderNodeGroup')
-    nodeOverwatch.node_tree = bpy.data.node_groups[OVERWATCH_NODEGROUP_PRIMARY_NAME]
+    if material.shader != 0:
+        print('[import_owmat]: {} uses shader {}'.format(mat.name, material.shader))
+        nodeOverwatch.label = 'OWM Shader %d' % (material.shader)
+    
+    if str(material.shader) in owm_types.TextureTypes['NodeGroups']:
+        nodeOverwatch.node_tree = bpy.data.node_groups[owm_types.TextureTypes['NodeGroups'][str(material.shader)]]
+    else:
+        print('[import_owmat]: could not find node group for shader %s, using default' % (material.shader))
+        nodeOverwatch.node_tree = bpy.data.node_groups[owm_types.TextureTypes['NodeGroups']['Default']]
     nodeOverwatch.location = (0, 0)
     nodeOverwatch.width = 250
     links.new(nodeOverwatch.outputs[0], material_output.inputs[0])
 
-    hasColorEnv = False
-    baseColorMap = None
-    hasNormalEnv = False
-    baseNormalMap = None
-    hasPBREnv = False
-    basePBRMap = None
-
+    tt = owm_types.TextureTypesById
+    tm = owm_types.TextureTypes
+    scratchSocket = {}
     for i, texData in enumerate(material.textures):
-        nodeTex = nodes.new("ShaderNodeTexImage")
+        nodeTex = nodes.new('ShaderNodeTexImage')
         nodeTex.location = (-tile, -tile*(i))
         nodeTex.width = 250
         nodeTex.color_space = 'NONE'
         
         tex = load_textures(texData[0], root, t)
         if tex is None:
-            print("[import_owmat]: failed to load texture: {}".format(texData[0]))
+            print('[import_owmat]: failed to load texture: {}'.format(texData[0]))
             continue
         nodeTex.image = tex.image
 
@@ -155,53 +152,46 @@ def process_material_Cycles(material, prefix, root, t):
             continue
 
         typ = texData[2]
-        named = False
-        for name, num in owm_types.TextureTypes.items():
-            if num == typ:
-                print("[import_owmat]: {} is {}".format(texData[0], name))
-                nodeTex.label = "Texture: {}".format(name)
-                named = True
-        if not named:
-            nodeTex.label = "Texture: Unknown-{}".format(typ)
-        tt = owm_types.TextureTypes
-        if typ == tt['DiffuseAO'] or typ == tt['DiffuseOpacity'] or typ == tt['DiffuseBlack'] \
-            or typ == tt['DiffusePlant'] or typ == tt['DiffuseFlag'] or typ == tt['Diffuse2']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Base Color Map"])
-            nodeTex.color_space = 'COLOR'
-            baseColorMap = nodeTex 
-        if typ == tt['DiffuseAO']:
-            nodeTex.image.use_alpha = False
-        if typ == tt['DiffuseEnv']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Secondary Color Map"])
-            nodeTex.color_space = 'COLOR'
-            hasColorEnv = True
-        if typ == tt['DiffuseOpacity']:
-            links.new(nodeTex.outputs["Alpha"], nodeOverwatch.inputs["Opacity Map"])
-        if typ == tt['DiffuseBlack']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Opacity Map"])
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Emission Map"])
-        if typ == tt['Opacity'] or typ == tt['Opacity2']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Opacity Map"])
-        if typ == tt['Tertiary'] or typ == tt['Tertiary2']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Base PBR Map"])
-            basePBRMap = nodeTex
-        if typ == tt['TertiaryEnv']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Secondary PBR Map"])
-            hasColorEnv = True
-        if typ == tt['Emission'] or typ == tt['Emission2'] or typ == tt['Emission3']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Emission Map"])
-        if typ == tt['Normal'] or typ == tt['AnisotropyNormal'] or typ == tt['RefractNormal']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Base Normal Map"])
-            baseNormalMap = nodeTex
-        if typ == tt['NormalEnv']:
-            links.new(nodeTex.outputs["Color"], nodeOverwatch.inputs["Secondary Normal Map"])
-            hasNormalEnv = True
-    
-    if not hasColorEnv and baseColorMap is not None: links.new(baseColorMap.outputs["Color"], nodeOverwatch.inputs["Secondary Color Map"])
-    if not hasNormalEnv and baseNormalMap is not None: links.new(baseNormalMap.outputs["Color"], nodeOverwatch.inputs["Secondary Normal Map"])
-    if not hasPBREnv and basePBRMap is not None: links.new(basePBRMap.outputs["Color"], nodeOverwatch.inputs["Secondary PBR Map"])
+        nodeTex.label = str(typ)
+        if typ in tt:
+            bfTyp = tm['Mapping'][tt[typ]]
+            print('[import_owmat]: {} is {}'.format(os.path.basename(texData[0]), tt[typ]))
+            nodeTex.label = str(tt[typ])
+            nodeTex.name = str(tt[typ])
+            for colorSocketPoint in bfTyp[0]:
+                nodeSocketName = colorSocketPoint
+                if colorSocketPoint in tm['Alias']:
+                    nodeSocketName = tm['Alias'][colorSocketPoint]
+                if colorSocketPoint not in scratchSocket:
+                    if nodeSocketName in nodeOverwatch.inputs:
+                        links.new(nodeTex.outputs['Color'], nodeOverwatch.inputs[nodeSocketName])
+                        scratchSocket[colorSocketPoint] = nodeTex.outputs['Color']
+                    else:
+                        print('[import_owmat] could not find node %s on shader group' % (nodeSocketName))
+            for alphaSocketPoint in bfTyp[1]:
+                nodeSocketName = alphaSocketPoint
+                if alphaSocketPoint in tm['Alias']:
+                    nodeSocketName = tm['Alias'][alphaSocketPoint]
+                if alphaSocketPoint not in scratchSocket:
+                    if nodeSocketName in nodeOverwatch.inputs:
+                        links.new(nodeTex.outputs['Alpha'], nodeOverwatch.inputs[nodeSocketName])
+                        scratchSocket[alphaSocketPoint] = nodeTex.outputs['Alpha']
+                    else:
+                        print('[import_owmat] could not find node %s on shader group' % (nodeSocketName))
 
-    nodes.active = baseColorMap
+    for envPoint, basePoint in tm['Env'].items():
+        if envPoint in scratchSocket or basePoint not in scratchSocket: continue
+        nodeSocketName = envPoint
+        if envPoint in tm['Alias']:
+            nodeSocketName = tm['Alias'][envPoint]
+        if nodeSocketName in nodeOverwatch.inputs:
+            links.new(scratchSocket[basePoint], nodeOverwatch.inputs[nodeSocketName])
+            scratchSocket[envPoint] = scratchSocket[basePoint]
+
+    for activeNodePoint in tm['Active']:
+        if activeNodePoint in scratchSocket:
+            nodes.active = scratchSocket[activeNodePoint].node
+            break
     
     return mat
 
@@ -234,6 +224,6 @@ def process_material_BI(material, prefix, importNormal, importEffect, root, t):
             mattex.texture = tex
             mattex.texture_coords = 'UV'
         except Exception as e:
-            print("[import_owmat]: error creating BI material: {}".format(e))
+            print('[import_owmat]: error creating BI material: {}'.format(e))
     
     return mat

@@ -5,7 +5,7 @@ from . import bpyhelper
 
 def openStream(filename):
     stream = None
-    with open(filename, "rb") as f:
+    with open(filename, 'rb') as f:
         stream = io.BytesIO(f.read())
     return stream
 

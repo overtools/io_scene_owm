@@ -6,7 +6,7 @@ from . import bpyhelper
 
 def openStream(filename):
     stream = None
-    with open(filename, "rb") as f:
+    with open(filename, 'rb') as f:
         stream = io.BytesIO(f.read())
     return stream
 
@@ -15,7 +15,7 @@ def get_pooled_dir(this_path, new_path):
 
 def read_stream(filename, stream):
     magic = bin_ops.readFmtFlat(stream, owm_types.OWEffectHeader.magic_format)
-    if magic == "owanim":
+    if magic == 'owanim':
         header = owm_types.OWAnimHeader.read(stream)
         if header.anim_type == owm_types.OWAnimType.Reference:
             written_path = owm_types.OWAnimHeader.read_reference(stream)
@@ -26,7 +26,7 @@ def read_stream(filename, stream):
             # embedded oweffect
             data = read_stream(filename, stream)
             return owm_types.OWAnimFile(header, filename, data, path, model_path)
-    if magic == "oweffect":
+    if magic == 'oweffect':
         data = owm_types.OWEffectData.read(stream)
         data.filename = bpyhelper.normpath(filename)
         return data
