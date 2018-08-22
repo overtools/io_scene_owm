@@ -113,14 +113,18 @@ def process_material_Cycles(material, prefix, root, t):
         print('[import_owmat]: {} uses shader {}'.format(mat.name, material.shader))
         nodeOverwatch.label = 'OWM Shader %d' % (material.shader)
     
-    if str(material.shader) in owm_types.TextureTypes['NodeGroups']:
+    if str(material.shader) in owm_types.TextureTypes['NodeGroups'] and owm_types.TextureTypes['NodeGroups'][str(material.shader)] in bpy.data.node_groups:
         nodeOverwatch.node_tree = bpy.data.node_groups[owm_types.TextureTypes['NodeGroups'][str(material.shader)]]
     else:
         print('[import_owmat]: could not find node group for shader %s, using default' % (material.shader))
-        nodeOverwatch.node_tree = bpy.data.node_groups[owm_types.TextureTypes['NodeGroups']['Default']]
+        if owm_types.TextureTypes['NodeGroups']['Default']+"s" in bpy.data.node_groups:
+            nodeOverwatch.node_tree = bpy.data.node_groups[owm_types.TextureTypes['NodeGroups']['Default']]
+        else:
+            print('[import_owmat]: could not find fallback shader %s' % (owm_types.TextureTypes['NodeGroups']['Default']))
     nodeOverwatch.location = (0, 0)
     nodeOverwatch.width = 250
-    links.new(nodeOverwatch.outputs[0], material_output.inputs[0])
+    if nodeOverwatch.node_tree is not None:
+        links.new(nodeOverwatch.outputs[0], material_output.inputs[0])
 
     tt = owm_types.TextureTypesById
     tm = owm_types.TextureTypes
@@ -138,6 +142,9 @@ def process_material_Cycles(material, prefix, root, t):
         nodeTex.image = tex.image
 
         if len(texData) == 2:
+            continue
+
+        if nodeOverwatch.node_tree is None:
             continue
 
         typ = texData[2]
@@ -168,6 +175,9 @@ def process_material_Cycles(material, prefix, root, t):
                     else:
                         print('[import_owmat] could not find node %s on shader group' % (nodeSocketName))
 
+    if nodeOverwatch.node_tree is None:
+        return mat
+            
     for envPoint, basePoint in tm['Env'].items():
         if envPoint in scratchSocket or basePoint not in scratchSocket: continue
         nodeSocketName = envPoint

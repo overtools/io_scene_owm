@@ -58,8 +58,8 @@ def update_data():
     except BaseException as e:
         print('[owm] failed to update: %s' % (e))
 
+    load_data()
     if v > LOADED_LIBRARY_VERSION:
-        load_data()
         LOADED_LIBRARY_VERSION = v
         download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/LIBRARY_VERSION', get_library_version_path())
 
@@ -74,12 +74,15 @@ def get_texture_type_path():
 
 def create_overwatch_shader():
     path = get_library_path()
+    print('[owm] attempting to import shaders')
     with bpy.data.libraries.load(path, False) as (data_from, data_to):
         data_to.node_groups = [node_name for node_name in data_from.node_groups if not node_name in bpy.data.node_groups and node_name.startswith('OWM: ')]
-        print('[owm] imported node groups: %s' % (', '.join(data_to.node_groups)))
+        if len(data_to.node_groups) > 0:
+            print('[owm] imported node groups: %s' % (', '.join(data_to.node_groups)))
 
 def load_data():
     global TextureTypesById, TextureTypes
+    print('[owm] attempting to load texture info')
     try:
         with open(get_texture_type_path()) as f:
             TextureTypes = json.load(f)
