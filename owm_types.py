@@ -75,10 +75,18 @@ def get_texture_type_path():
 def create_overwatch_shader():
     path = get_library_path()
     print('[owm] attempting to import shaders')
-    with bpy.data.libraries.load(path, False) as (data_from, data_to):
+    with bpy.data.libraries.load(path, link = True) as (data_from, data_to):
         data_to.node_groups = [node_name for node_name in data_from.node_groups if not node_name in bpy.data.node_groups and node_name.startswith('OWM: ')]
         if len(data_to.node_groups) > 0:
             print('[owm] imported node groups: %s' % (', '.join(data_to.node_groups)))
+
+def create_overwatch_library():
+    path = get_library_path()
+    print('[owm] attempting to export shaders')
+    blocks = set([node for node in bpy.data.node_groups if node.name.startswith('OWM: ')])
+    if len(blocks) > 0:
+        print('[owm] imported node groups: %s' % (', '.join(map(lambda x: x.name, blocks))))
+    bpy.data.libraries.write(path, blocks, fake_user = True, relative_remap = True)
 
 def load_data():
     global TextureTypesById, TextureTypes
@@ -90,9 +98,9 @@ def load_data():
             for fname, tdata in TextureTypes['Mapping'].items():
                 TextureTypesById[tdata[2]] = fname
                 print('[owm] %s = %s' % (fname, json.dumps(tdata)))
-        for node_name in [node for node in bpy.data.node_groups if node.users == 0 and node.startswith('OWM: ')]:
-            print('[owm] removing unused node group: %s' % (node_name))
-            bpy.data.node_groups.remove(bpy.data.node_groups[node_name])
+        for node in [node for node in bpy.data.node_groups if node.users == 0 and node.name.startswith('OWM: ')]:
+            print('[owm] removing unused node group: %s' % (node.name))
+            bpy.data.node_groups.remove(node)
         create_overwatch_shader()
     except BaseException as e:
         print('[owm] failed to load texture types: %s' % (e))

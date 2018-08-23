@@ -753,7 +753,9 @@ class OWMUtilityPanel(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row()
-        row.operator(OWMLoadOp.bl_idname, text='Load Latest OWM Library', icon='APPEND_BLEND')
+        row.operator(OWMLoadOp.bl_idname, text='Load Latest OWM Library', icon='LINK_BLEND')
+        row = layout.row()
+        row.operator(OWMSaveOp.bl_idname, text='Save OWM Library', icon='APPEND_BLEND')
 
         box = layout.box()
         box.label('Cleanup')
@@ -768,6 +770,17 @@ class OWMLoadOp(bpy.types.Operator):
     
     def execute(self, context):
         owm_types.update_data()
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return self.execute(context)
+
+class OWMSaveOp(bpy.types.Operator):
+    bl_idname = 'owm.save_library'
+    bl_label = 'Save OWM Library'
+    
+    def execute(self, context):
+        owm_types.create_overwatch_library()
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -805,6 +818,7 @@ def register():
     try:
         bpy.utils.register_class(OWMUtilityPanel)
         bpy.utils.register_class(OWMLoadOp)
+        bpy.utils.register_class(OWMSaveOp)
         bpy.utils.register_class(OWMCleanupOp)
         bpy.utils.register_class(OWMCleanupTexOp)
     except: pass
@@ -818,6 +832,7 @@ def unregister():
     try:
         bpy.utils.unregister_class(OWMUtilityPanel)
         bpy.utils.unregister_class(OWMLoadOp)
+        bpy.utils.unregister_class(OWMSaveOp)
         bpy.utils.unregister_class(OWMCleanupOp)
         bpy.utils.unregister_class(OWMCleanupTexOp)
     except: pass
