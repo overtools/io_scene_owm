@@ -40,7 +40,7 @@ def download(src, dst):
     except BaseException as e:
         print('[owm] failed to download %s: %s' % (src, e))
 
-def update_data():
+def update_data(always_download=False):
     print('[owm] trying to update library file')
     global LOADED_LIBRARY_VERSION
     v = LOADED_LIBRARY_VERSION
@@ -51,7 +51,7 @@ def update_data():
                 data = rF.read()
                 rV = int(data.decode('ascii').split('\n')[0].strip())
                 print('[owm] local version %s, remote version %s' % (v, rV))
-                if rV > v:
+                if rV > v or always_download:
                     download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/library.blend', get_library_path())
                     download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/texture-map.json', get_texture_type_path())
                     v = rV

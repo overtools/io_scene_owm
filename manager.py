@@ -769,7 +769,7 @@ class OWMLoadOp(bpy.types.Operator):
     bl_label = 'Load OWM Library'
     
     def execute(self, context):
-        owm_types.update_data()
+        owm_types.update_data(True)
         return {'FINISHED'}
 
     def invoke(self, context, event):
