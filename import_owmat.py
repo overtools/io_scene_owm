@@ -116,11 +116,11 @@ def process_material_Cycles(material, prefix, root, t):
     if str(material.shader) in owm_types.TextureTypes['NodeGroups'] and owm_types.TextureTypes['NodeGroups'][str(material.shader)] in bpy.data.node_groups:
         nodeOverwatch.node_tree = bpy.data.node_groups[owm_types.TextureTypes['NodeGroups'][str(material.shader)]]
     else:
-        print('[import_owmat]: could not find node group for shader %s, using default' % (material.shader))
-        if owm_types.TextureTypes['NodeGroups']['Default']+"s" in bpy.data.node_groups:
+        # print('[import_owmat]: could not find node group for shader %s, using default' % (material.shader))
+        if owm_types.TextureTypes['NodeGroups']['Default'] in bpy.data.node_groups:
             nodeOverwatch.node_tree = bpy.data.node_groups[owm_types.TextureTypes['NodeGroups']['Default']]
-        else:
-            print('[import_owmat]: could not find fallback shader %s' % (owm_types.TextureTypes['NodeGroups']['Default']))
+        # else:
+        #     print('[import_owmat]: could not find fallback shader %s' % (owm_types.TextureTypes['NodeGroups']['Default']))
     nodeOverwatch.location = (0, 0)
     nodeOverwatch.width = 250
     if nodeOverwatch.node_tree is not None:
