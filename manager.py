@@ -736,12 +736,78 @@ def effect_import(self, context):
         text='OWEFFECT / OWANIM'
     )
 
+class OWMUtilityPanel(bpy.types.Panel):
+    bl_idname = 'OBJECT_PT_select'
+    bl_label = 'OWM Tools'
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = 'scene'
+
+    @classmethod
+    def poll(cls, context): return 1
+
+    def draw_header(self, context):
+        layout = self.layout
+
+    def draw(self, context):
+        layout = self.layout
+
+        row = layout.row()
+        row.operator(OWMLoadOp.bl_idname, text='Load Latest OWM Library', icon='APPEND_BLEND')
+
+        box = layout.box()
+        box.label('Cleanup')
+        row = box.row()
+        row.operator(OWMCleanupOp.bl_idname, text='Unused Empties', icon='OBJECT_DATA')
+        row = box.row()
+        row.operator(OWMCleanupTexOp.bl_idname, text='Unused Materials', icon='MATERIAL')
+
+class OWMLoadOp(bpy.types.Operator):
+    bl_idname = 'owm.load_library'
+    bl_label = 'Load OWM Library'
+    
+    def execute(self, context):
+        owm_types.update_data()
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return self.execute(context)
+
+class OWMCleanupOp(bpy.types.Operator):
+    bl_idname = 'owm.delete_unused_empties'
+    bl_label = 'Delete Unused Empties'
+    
+    def execute(self, context):
+        bpyhelper.clean_empties()
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return self.execute(context)
+
+class OWMCleanupTexOp(bpy.types.Operator):
+    bl_idname = 'owm.delete_unused_materials'
+    bl_label = 'Delete Unused Materials'
+    
+    def execute(self, context):
+        bpyhelper.clean_materials()
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return self.execute(context)
+
+
 def register():
     bpy.types.INFO_MT_file_import.append(mdlimp)
     bpy.types.INFO_MT_file_import.append(matimp)
     bpy.types.INFO_MT_file_import.append(mapimp)
     bpy.types.INFO_MT_file_import.append(entity_import)
     bpy.types.INFO_MT_file_import.append(effect_import)
+    try:
+        bpy.utils.register_class(OWMUtilityPanel)
+        bpy.utils.register_class(OWMLoadOp)
+        bpy.utils.register_class(OWMCleanupOp)
+        bpy.utils.register_class(OWMCleanupTexOp)
+    except: pass
 
 def unregister():
     bpy.types.INFO_MT_file_import.remove(mdlimp)
@@ -749,4 +815,10 @@ def unregister():
     bpy.types.INFO_MT_file_import.remove(mapimp)
     bpy.types.INFO_MT_file_import.remove(entity_import)
     bpy.types.INFO_MT_file_import.remove(effect_import)
+    try:
+        bpy.utils.unregister_class(OWMUtilityPanel)
+        bpy.utils.unregister_class(OWMLoadOp)
+        bpy.utils.unregister_class(OWMCleanupOp)
+        bpy.utils.unregister_class(OWMCleanupTexOp)
+    except: pass
 

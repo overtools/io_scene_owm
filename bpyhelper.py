@@ -3,6 +3,27 @@ import os.path
 
 IS_BLENDER280 = bpy.app.version >= (2, 80, 0)
 
+def clean_empties(): 
+    for obj in bpy.data.objects:
+        if obj.type == 'EMPTY' and obj.hide == True and len(obj.children) == 0:
+            print('[owm]: removed object: {}'.format(obj.name))
+            scene_unlink(obj)
+            bpy.data.objects.remove(obj) 
+    bpy.context.scene.update()
+
+def clean_materials(): 
+    for mat in bpy.data.materials:
+        if mat.users == 0:
+            print('[owm]: removed material: {}'.format(mat.name))
+            bpy.data.materials.remove(mat)
+    bpy.context.scene.update()
+    t = {}
+    for tex in bpy.data.textures:
+        if tex.users == 0:
+            print('[owm]: removed texture: {}'.format(tex.name))
+            bpy.data.textures.remove(tex)
+    bpy.context.scene.update()
+
 def select_obj(object, value): object.select = value
 def is_selected(object): return object.select
 def scene_link(object): bpy.context.scene.objects.link(object)
