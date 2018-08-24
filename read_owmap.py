@@ -15,7 +15,7 @@ def read(filename):
         return False
 
     major, minor, name, objectCount, detailCount = bin_ops.readFmtFlat(stream, owm_types.OWMAPHeader.structFormat)
-    lightCount = 0;
+    lightCount = 0
     if major + 0xFFFF + minor >= 0x10001:
         lightCount = bin_ops.readFmtFlat(stream, owm_types.OWMAPHeader.structFormat11)
     header = owm_types.OWMAPHeader(major, minor, name, objectCount, detailCount, lightCount)
@@ -45,4 +45,15 @@ def read(filename):
             position, rotation, typ, fov, color = bin_ops.readFmt(stream, owm_types.OWMAPLight.structFormat)
             ex = bin_ops.readFmtFlat(stream, owm_types.OWMAPLight.exFormat)
             lights += [owm_types.OWMAPLight(position, rotation, typ[0], fov[0], color, ex)]
-    return owm_types.OWMAPFile(header, objects, details, lights)
+    sounds = []
+    if major + 0xFFFF + minor >= 0x10002:
+        soundCount = bin_ops.readFmtFlat(stream, owm_types.OWMAPHeader.structFormat12)
+        header.soundCount = soundCount
+        for i in range(soundCount):
+            position, filecount = bin_ops.readFmt(stream, owm_types.OWMAPSound.exFormat)
+            files = []
+            for j in range(filecount[0]):
+                files += [bin_ops.readFmtFlat(stream, owm_types.OWMAPSound.structFormat)]
+            sounds += [owm_types.OWMAPSound(position, filecount, files)]
+
+    return owm_types.OWMAPFile(header, objects, details, lights, sounds)

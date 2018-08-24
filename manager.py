@@ -352,6 +352,12 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         description='Remove the collision models',
         default=True,
     )
+    
+    importSounds = BoolProperty(
+        name='Import Sounds',
+        description='Imports sound nodes',
+        default=True,
+    )
 
     def menu_func(self, context):
         self.layout.operator_context = 'INVOKE_DEFAULT'
@@ -387,7 +393,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             [self.lightIndex, self.edgeIndex, self.sizeIndex]
         )
         owm_types.update_data()
-        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision)
+        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision, self.importSounds)
         print('DONE')
         return {'FINISHED'}
 
@@ -409,6 +415,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col.label('Map')
         col.prop(self, 'importObjects')
         col.prop(self, 'importDetails')
+        col.prop(self, 'importSounds')
         
         sub = col.row()
         sub.prop(self, 'importPhysics')
@@ -753,9 +760,10 @@ class OWMUtilityPanel(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row()
-        row.operator(OWMLoadOp.bl_idname, text='Load Latest OWM Library', icon='LINK_BLEND')
-        row = layout.row()
+        row.operator(OWMLoadOp.bl_idname, text='Load OWM Library', icon='LINK_BLEND')
         row.operator(OWMSaveOp.bl_idname, text='Save OWM Library', icon='APPEND_BLEND')
+        row = layout.row()
+        row.prop(bpy.context.scene.owm_internal_settings, 'b_logsalot', text='Log Map Progress')
 
         box = layout.box()
         box.label('Cleanup')
@@ -808,6 +816,11 @@ class OWMCleanupTexOp(bpy.types.Operator):
     def invoke(self, context, event):
         return self.execute(context)
 
+class OWMInternalSettings(bpy.types.PropertyGroup):
+    b_logsalot = bpy.props.BoolProperty(update = lambda self, context: self.updateLogsAlot(context))
+
+    def updateLogsAlot(self, context):
+        owm_types.LOG_ALOT = self.b_logsalot
 
 def register():
     bpy.types.INFO_MT_file_import.append(mdlimp)
@@ -821,7 +834,9 @@ def register():
         bpy.utils.register_class(OWMSaveOp)
         bpy.utils.register_class(OWMCleanupOp)
         bpy.utils.register_class(OWMCleanupTexOp)
+        bpy.utils.register_class(OWMInternalSettings)
     except: pass
+    bpy.types.Scene.owm_internal_settings = bpy.props.PointerProperty(type=OWMInternalSettings)
 
 def unregister():
     bpy.types.INFO_MT_file_import.remove(mdlimp)
@@ -835,5 +850,7 @@ def unregister():
         bpy.utils.unregister_class(OWMSaveOp)
         bpy.utils.unregister_class(OWMCleanupOp)
         bpy.utils.unregister_class(OWMCleanupTexOp)
+        bpy.utils.unregister_class(OWMInternalSettings)
     except: pass
+    bpy.types.Scene.owm_internal_settings = None
 

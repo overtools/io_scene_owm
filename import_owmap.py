@@ -51,7 +51,8 @@ def wxzy(vec):
 
 
 def progress_update(total, progress):
-    # print('%d/%d (%d%%)' % (progress, total, progress / total * 100))
+    if owm_types.LOG_ALOT:
+        print('%d/%d (%d%%)' % (progress, total, progress / total * 100))
     bpy.context.window_manager.progress_update(progress)
 
 def hide_recursive(obj):
@@ -82,7 +83,7 @@ def import_mat(path, prefix, norm, efct):
         return None
 
 
-def read(settings, importObjects=False, importDetails=True, importPhysics=False, light_settings=owm_types.OWLightSettings(), removeCollision=True):
+def read(settings, importObjects=False, importDetails=True, importPhysics=False, light_settings=owm_types.OWLightSettings(), removeCollision=True, importSound=True):
     global sets
     sets = settings
 
@@ -111,6 +112,8 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
         total += len(data.details) * 3
     if light_settings.enabled:
         total += len(data.lights)
+    if importSound:
+        total += len(data.sounds)
     wm.progress_begin(prog, total)
 
     matCache = {}
@@ -293,6 +296,30 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             enode.inputs.get('Strength').default_value = lamp_str
             lamp_ob.parent = globLight
             progress_update(total, prog)
+    
+    if importSound:
+        globSound = bpy.data.objects.new(name + '_SOUNDS', None)
+        globSound.hide = True
+        globSound.parent = rootObj
+        bpyhelper.scene_link(globSound)
+        for sound in data.sounds:
+            prog += 1
+            soundWrap = bpy.data.objects.new(name = '%s_SPEAKER_WRAP' % (name), object_data = None)
+            soundWrap.parent = globSound
+            hgsoundWrap.hide = True
+            soundWrap.location = pos_matrix(sound.position)
+            bpyhelper.scene_link(soundWrap)
+            for soundFile in sound.sounds:
+                print("[import_owmap] %s" % (soundFile))
+                speaker_data = bpy.data.speakers.new(name = '%s_SPEAKER' % (name))
+                speaker_ob = bpy.data.objects.new(name = '%s_SPEAKER' % (name), object_data=speaker_data)
+                speaker_ob.parent = soundWrap
+                speaker_data.sound = bpy.data.sounds.load(soundFile, check_existing=True)
+                speaker_data.volume = 0.7
+                speaker_data.attenuation = 0.3
+                bpyhelper.scene_link(speaker_ob)
+            progress_update(total, prog)
+
     wm.progress_end()
     print('Finished loading map')
     bpy.context.scene.update()

@@ -58,7 +58,7 @@ def load_textures(texture, root, t):
                 if eimg.name == fn or eimg.filepath == realpath:
                     img = eimg
             if img is None:
-                img = bpy.data.images.load(realpath)
+                img = bpy.data.images.load(realpath, check_existing=True)
                 img.name = fn
             tex = None
             for etex in bpy.data.textures:

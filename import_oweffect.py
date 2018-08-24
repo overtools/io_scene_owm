@@ -254,7 +254,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             line = line_random.choice(svce.lines)
             sound = sound_random.choice(line.sounds)
             
-            speaker.data.sound = bpy.data.sounds.load(os.path.join(os.path.dirname(data.filename), sound))
+            speaker.data.sound = bpy.data.sounds.load(os.path.join(os.path.dirname(data.filename), sound), check_existing=True)
 
             # these are probably incorrect
             speaker.data.volume = 0.7

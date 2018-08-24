@@ -7,6 +7,8 @@ from urllib.request import urlopen
 import json
 import bpy
 
+LOG_ALOT = False
+
 OWMATTypes = {
     'ALBEDO': 0x00,
     'NORMAL': 0x01,
@@ -192,11 +194,12 @@ class OWEntityFile:
 
 
 class OWMAPFile:
-    def __init__(self, header, objects, details, lights=list()):
+    def __init__(self, header, objects, details, lights=list(), sounds=list()):
         self.header = header
         self.objects = objects
         self.details = details
         self.lights = lights
+        self.sounds = sounds
 
 class OWAnimFile:
     def __init__(self, header, filename, data, path, model_path):
@@ -499,14 +502,16 @@ class OWMATMaterial:
 class OWMAPHeader:
     structFormat = ['<HH', str, '<II']
     structFormat11 = ['<I']
+    structFormat12 = ['<I']
 
-    def __init__(self, major, minor, name, objectCount, detailCount, lightCount=0):
+    def __init__(self, major, minor, name, objectCount, detailCount, lightCount=0, soundCount=0):
         self.major = major
         self.minor = minor
         self.name = name
         self.objectCount = objectCount
         self.detailCount = detailCount
         self.lightCount = lightCount
+        self.soundCount = soundCount
 
 
 class OWMDLRefposeBone:
@@ -635,6 +640,15 @@ class OWMAPDetail:
         self.position = position
         self.scale = scale
         self.rotation = rotation
+
+class OWMAPSound:
+    structFormat = [str]
+    exFormat = ['<fff', '<i']
+
+    def __init__(self, position, soundCount, sounds = list()):
+        self.position = position
+        self.soundCount = soundCount
+        self.sounds = sounds
 
 
 class OWMAPLight:
