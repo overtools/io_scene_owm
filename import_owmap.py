@@ -85,6 +85,7 @@ def import_mat(path, prefix, norm, efct):
 
 def read(settings, importObjects=False, importDetails=True, importPhysics=False, light_settings=owm_types.OWLightSettings(), removeCollision=True, importSound=True):
     global sets
+    bpyhelper.LOCK_UPDATE = True
     sets = settings
 
     root, file = os.path.split(settings.filename)
@@ -173,7 +174,6 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 # eobj = copy(obj, None)
 
                 for idx2, rec in enumerate(ent.records):
-                    prog += 1
                     nobj = copy(obj, matObj)
                     nobj.location = pos_matrix(rec.position)
                     nobj.rotation_euler = Quaternion(wxzy(rec.rotation)).to_euler('XYZ')
@@ -181,6 +181,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                     if hideModel:
                         hide_recursive(nobj)
                     progress_update(total, prog)
+                    prog += 1
                 progress_update(total, prog)
             remove(obj)
 
@@ -322,4 +323,5 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
     wm.progress_end()
     print('Finished loading map')
-    bpy.context.scene.update()
+    bpyhelper.LOCK_UPDATE = False
+    bpyhelper.scene_update()

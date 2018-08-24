@@ -480,7 +480,7 @@ def read(aux, materials = None, mutated = False, rotate=True):
     setup()
     status = readmdl(materials, rotate)
     if not mutated:
-        bpy.context.scene.update()
+        bpyhelper.scene_update()
     finalize()
     return status
 

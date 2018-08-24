@@ -106,7 +106,11 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
             self.importColor
         )
         owm_types.update_data()
-        import_owmdl.read(settings)
+        bpyhelper.LOCK_UPDATE = False
+        try:
+            import_owmdl.read(settings)
+        except KeyboardInterrupt:
+            bpyhelper.LOCK_UPDATE = False
         print('DONE')
         return {'FINISHED'}
 
@@ -173,6 +177,7 @@ class import_mat_op(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         owm_types.update_data()
+        bpyhelper.LOCK_UPDATE = False
         import_owmat.read(self.filepath, '', self.importTexNormal, self.importTexNormal)
         print('DONE')
         return {'FINISHED'}
@@ -393,6 +398,7 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             [self.lightIndex, self.edgeIndex, self.sizeIndex]
         )
         owm_types.update_data()
+        bpyhelper.LOCK_UPDATE = False
         import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision, self.importSounds)
         print('DONE')
         return {'FINISHED'}
@@ -549,6 +555,7 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
             self.importColor
         )
         owm_types.update_data()
+        bpyhelper.LOCK_UPDATE = False
         import_owentity.read(settings, self.import_children)
         print('DONE')
         return {'FINISHED'}
@@ -687,6 +694,7 @@ class import_effect_op(bpy.types.Operator, ImportHelper):
             self.import_svce, self.svce_line_seed, self.svce_sound_seed, self.import_camera,
             self.cleanup_hardpoints)
         owm_types.update_data()
+        bpyhelper.LOCK_UPDATE = False
         import_oweffect.read(efct_settings)
         print('DONE')
         return {'FINISHED'}

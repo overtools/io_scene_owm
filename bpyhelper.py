@@ -9,21 +9,27 @@ def clean_empties():
             print('[owm]: removed object: {}'.format(obj.name))
             scene_unlink(obj)
             bpy.data.objects.remove(obj) 
-    bpy.context.scene.update()
+    scene_update()
 
 def clean_materials(): 
     for mat in bpy.data.materials:
         if mat.users == 0:
             print('[owm]: removed material: {}'.format(mat.name))
             bpy.data.materials.remove(mat)
-    bpy.context.scene.update()
+    scene_update()
     t = {}
     for tex in bpy.data.textures:
         if tex.users == 0:
             print('[owm]: removed texture: {}'.format(tex.name))
             bpy.data.textures.remove(tex)
-    bpy.context.scene.update()
+    scene_update()
 
+LOCK_UPDATE = False 
+
+def scene_update():
+    if LOCK_UPDATE: return
+    bpy.context.scene.update()
+    
 def select_obj(object, value): object.select = value
 def is_selected(object): return object.select
 def scene_link(object): bpy.context.scene.objects.link(object)

@@ -15,7 +15,7 @@ def cleanUnusedMaterials(materials):
             bpy.data.materials.remove(mat)
         else:
             m[name] = mat
-    bpy.context.scene.update()
+    bpyhelper.scene_update()
     t = {}
     for name in materials[0]:
         tex = materials[0][name]
@@ -23,7 +23,7 @@ def cleanUnusedMaterials(materials):
             bpy.data.textures.remove(tex)
         else:
             t[name] = tex
-    bpy.context.scene.update()
+    bpyhelper.scene_update()
     return (t, m)
 
 def mutate_texture_path(file, new_ext):
