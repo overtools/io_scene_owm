@@ -2,7 +2,7 @@
     "Mapping": {
         "DiffuseAO": [["Color"], [], 2903569922],
         "DiffuseOpacity": [["Color"], ["Opacity"], 1239794147],
-        "DiffuseBlack": [["Color"], ["Opacity", "Emission"], 3989656707],
+        "DiffuseBlack": [["Color", "Opacity", "Emission"], [], 3989656707],
         "DiffusePlant": [["Color"], [], 3093211343],
         "DiffuseFlag": [["Color"], [], 1281400944],
         "Diffuse2": [["PBR"], [], 1716930793],
@@ -43,6 +43,7 @@
         "Normal2": "Normal",
         "PBR2": "PBR"
     },
+    "Color": ["Color", "Color2"],
     "Active": ["Color", "Color2"],
     "NodeGroups": {
         "Default": "OWM: Physically Based Shading"

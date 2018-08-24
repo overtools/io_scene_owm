@@ -18,6 +18,7 @@ DefaultTextureTypes = {
     'Mapping': {},
     'Alias': {},
     'Env': {},
+    'Color': [],
     'Active': [],
     'NodeGroups': {
         'Default': 'OWM: Physically Based Shading'

@@ -191,5 +191,9 @@ def process_material_Cycles(material, prefix, root, t):
         if activeNodePoint in scratchSocket:
             nodes.active = scratchSocket[activeNodePoint].node
             break
+
+    for colorNodePoint in tm['Color']:
+        if colorNodePoint in scratchSocket:
+            scratchSocket[colorNodePoint].node.color_space = 'COLOR'
     
     return mat
