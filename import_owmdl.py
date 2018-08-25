@@ -385,6 +385,7 @@ def boneTailMiddle(eb):
                 bone.use_connect = True
 
 def select_all(ob):
+    if bpyhelper.LOCK_UPDATE: pass
     bpyhelper.select_obj(ob, True)
     for obj in ob.children: select_all(obj)
 
@@ -458,7 +459,6 @@ def readmdl(materials = None, rotate=True):
 
             bpy.ops.object.join()
             bpy.context.object.name = cloth.name
-            bpy.ops.object.select_all(action='DESELECT')
 
             # do it manually because I don't want to be responsible for broken models:
             # https://i.imgur.com/6Jxg91T.png?1
@@ -486,6 +486,7 @@ def read(aux, materials = None, mutated = False, rotate=True):
 
 def setup():
     mode()
+    if bpyhelper.LOCK_UPDATE: return
     bpy.ops.object.select_all(action='DESELECT')
 
 def finalize():
