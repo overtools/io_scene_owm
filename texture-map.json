@@ -1,6 +1,6 @@
 {
     "Mapping": {
-        "Diffuse": [["Color"], [], 2903569922],
+        "DiffuseAO": [["Color"], [], 2903569922],
         "DiffuseOpacity": [["Color"], ["Opacity"], 1239794147],
         "DiffuseBlack": [["Color", "Opacity", "Emission"], [], 3989656707],
         "DiffusePlant": [["Color"], [], 3093211343],
