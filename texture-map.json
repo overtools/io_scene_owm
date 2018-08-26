@@ -1,11 +1,11 @@
 {
     "Mapping": {
-        "DiffuseAO": [["Color"], [], 2903569922],
+        "Diffuse": [["Color"], [], 2903569922],
         "DiffuseOpacity": [["Color"], ["Opacity"], 1239794147],
         "DiffuseBlack": [["Color", "Opacity", "Emission"], [], 3989656707],
         "DiffusePlant": [["Color"], [], 3093211343],
         "DiffuseFlag": [["Color"], [], 1281400944],
-        "Diffuse2": [["PBR"], [], 1716930793],
+        "Diffuse2": [[], [], 1716930793],
         "Normal": [["Normal"], [], 378934698],
         "AnisotropyNormal": [["Normal"], [], 562391268],
         "RefractNormal": [["Normal"], [], 562391268],
@@ -27,7 +27,7 @@
         "DiffuseEnv2": [[], [], 3120512190],
         "NormalEnv2": [[], [], 1897827336],
         "TertiaryEnv2": [[], [], 824205512],
-        "AmbientOcclusion": [[], [], 3335614873]
+        "AO2": [[], [], 3335614873]
     },
     "Alias": {
         "Color": "Base Color Map",
