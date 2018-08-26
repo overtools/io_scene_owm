@@ -1,5 +1,6 @@
 import bpy
 import os.path
+import traceback
 
 IS_BLENDER280 = bpy.app.version >= (2, 80, 0)
 
@@ -10,6 +11,9 @@ def clean_empties():
             scene_unlink(obj)
             bpy.data.objects.remove(obj) 
     scene_update()
+
+def format_exc(e):
+    return ''.join(traceback.format_exception(type(e), e, e.__traceback__))
 
 def clean_materials(): 
     for mat in bpy.data.materials:

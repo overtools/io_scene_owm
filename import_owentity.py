@@ -36,7 +36,7 @@ def read(settings, import_children=False, is_child=False):
         for child in data.children:
             child_settings = settings.mutate(bpyhelper.normpath(os.path.dirname(os.path.dirname(settings.filename)) + '/{}/{}.owentity'.format(child.file, child.file)))
             if not os.path.exists(child_settings.filename): continue
-            child_object, child_data = read(child_settings, import_children, True)
+            child_object, child_data, child_model = read(child_settings, import_children, True)
             child_object.parent = root_object
 
             child_object['owm.entity.child.var'] = child.var_index
@@ -64,4 +64,4 @@ def read(settings, import_children=False, is_child=False):
         if base_model[1] is not None:
             bpy.context.scene.objects.active = base_model[1]
     
-    return root_object, data
+    return root_object, data, base_model

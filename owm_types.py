@@ -41,7 +41,7 @@ def download(src, dst):
             with open(dst, 'w+b') as f:
                 f.write(data)
     except BaseException as e:
-        print('[owm] failed to download %s: %s' % (src, e))
+        print('[owm] failed to download %s: %s' % (src, bpyhelper.format_exc(e)))
 
 def update_data(always_download=False):
     print('[owm] trying to update library file')
@@ -59,7 +59,7 @@ def update_data(always_download=False):
                     download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/texture-map.json', get_texture_type_path())
                     v = rV
     except BaseException as e:
-        print('[owm] failed to update: %s' % (e))
+        print('[owm] failed to update: %s' % (bpyhelper.format_exc(e)))
 
     load_data()
     if v > LOADED_LIBRARY_VERSION:
@@ -106,7 +106,7 @@ def load_data():
             bpy.data.node_groups.remove(node)
         create_overwatch_shader()
     except BaseException as e:
-        print('[owm] failed to load texture types: %s' % (e))
+        print('[owm] failed to load texture types: %s' % (bpyhelper.format_exc(e)))
 
 class OWSettings:
     def __init__(self, filename, uvDisplaceX, uvDisplaceY, autoIk, importNormals, importEmpties, importMaterial,

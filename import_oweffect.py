@@ -344,7 +344,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             act = bpy.context.scene.objects.active
 
             mutate = settings.settings.mutate(os.path.join(pool, nece.path))
-            nece_entity, nece_data = import_owentity.read(mutate, True, True)
+            nece_entity, nece_data, obj_data = import_owentity.read(mutate, True, True)
 
             deselect_tree(nece_entity)
 

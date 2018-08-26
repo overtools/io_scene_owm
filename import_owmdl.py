@@ -355,8 +355,10 @@ def importEmpties(armature = None):
             bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
     
-    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-    
+    try:
+        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+    except: pass
+
     return att, e_dict
 
 
@@ -433,7 +435,7 @@ def readmdl(materials = None, rotate=True):
     if armature:
         boneTailMiddleObject(armature)
 
-    empties = []
+    empties = (None, [])
     if settings.importEmpties:
         empties = importEmpties(armature)
         if rotate:

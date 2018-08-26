@@ -70,7 +70,7 @@ def load_textures(texture, root, t):
             t[fn] = tex
         return tex
     except Exception as e:
-        print('[import_owmat]: error loading texture: {}'.format(e))
+        print('[import_owmat]: error loading texture: {}'.format(bpyhelper.format_exc(e)))
     return None
 
 def read(filename, prefix = '', importNormal = True, importEffect = True):

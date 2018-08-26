@@ -3,6 +3,7 @@ import os
 from . import read_owmap
 from . import import_owmdl
 from . import import_owmat
+from . import import_owentity
 from . import bpyhelper
 from . import owm_types
 from mathutils import *
@@ -39,7 +40,7 @@ def remove(obj):
     try:
         bpyhelper.scene_unlink(obj)
     except Exception as e:
-        print(e)
+        print('[import_owmap]: error removing object: {}'.format(bpyhelper.format_exc(e)))
 
 
 def xpzy(vec):
@@ -60,18 +61,30 @@ def hide_recursive(obj):
     for child in obj.children:
         hide_recursive(child)
 
-
 def import_mdl(mdls):
     try:
-        obj = import_owmdl.read(mdls, None)
-        obj[0].rotation_euler = (math.radians(90), 0, 0)
+        obj = None
+        if mdls.filename.endswith(".owentity"):
+            mdls.importEmpties = True
+            mdls.importSkeleton = True
+            obj = import_owentity.read(mdls, True)
+            #     0         1            2       3          4
+            #     root,    armature,  meshes,    empties,   data
+            obj = (obj[0], obj[2][1], obj[2][2], obj[2][3], obj[2][4])
+            if obj[1] is None:
+                obj[0].rotation_euler = (math.radians(90), 0, 0) # reeee
+                if len(obj[3]) > 0 and obj[3][0] is not None:
+                    obj[3][0].rotation_euler = (0, 0, 0) # :ahh:
+        else:
+            obj = import_owmdl.read(mdls, None)
+            obj[0].rotation_euler = (math.radians(90), 0, 0)
         wrapObj = bpy.data.objects.new(obj[0].name + '_WRAP', None)
         wrapObj.hide = True
         obj[0].parent = wrapObj
         bpyhelper.scene_link(wrapObj)
         return wrapObj, obj
     except Exception as e:
-        print(e)
+        print('[import_owmap]: error importing map object: {}'.format(bpyhelper.format_exc(e)))
         return None, None
 
 
@@ -79,7 +92,7 @@ def import_mat(path, prefix, norm, efct):
     try:
         return import_owmat.read(path, prefix, norm, efct)
     except Exception as e:
-        print(e)
+        print('[import_owmap]: error importing map: {}'.format(bpyhelper.format_exc(e)))
         return None
 
 
