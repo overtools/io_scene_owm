@@ -244,10 +244,10 @@ def importMesh(armature, meshData):
         mesh.vertex_colors.new('ColorMap2Blue')
         i = 0
         for loop in mesh.loops: # ARGB
-            mesh.vertex_colors['ColorMap1'].data[i].color = (col1[loop.vertex_index][3], col1[loop.vertex_index][0], col1[loop.vertex_index][1], 1.0)
-            mesh.vertex_colors['ColorMap1Blue'].data[i].color = (col1[loop.vertex_index][2], col1[loop.vertex_index][2], col1[loop.vertex_index][2], 1.0)
-            mesh.vertex_colors['ColorMap2'].data[i].color = (col2[loop.vertex_index][3], col2[loop.vertex_index][0], col2[loop.vertex_index][1], 1.0)
-            mesh.vertex_colors['ColorMap2Blue'].data[i].color = (col2[loop.vertex_index][2], col2[loop.vertex_index][2], col2[loop.vertex_index][2], 1.0)
+            mesh.vertex_colors['ColorMap1'].data[i].color = bpyhelper.safe_color(col1[loop.vertex_index][3], col1[loop.vertex_index][0], col1[loop.vertex_index][1])
+            mesh.vertex_colors['ColorMap1Blue'].data[i].color = bpyhelper.safe_color(col1[loop.vertex_index][2], col1[loop.vertex_index][2], col1[loop.vertex_index][2])
+            mesh.vertex_colors['ColorMap2'].data[i].color = bpyhelper.safe_color(col2[loop.vertex_index][3], col2[loop.vertex_index][0], col2[loop.vertex_index][1])
+            mesh.vertex_colors['ColorMap2Blue'].data[i].color = bpyhelper.safe_color(col2[loop.vertex_index][2], col2[loop.vertex_index][2], col2[loop.vertex_index][2])
             i += 1
 
     if armature:

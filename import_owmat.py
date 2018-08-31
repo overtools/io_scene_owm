@@ -148,6 +148,7 @@ def process_material_Cycles(material, prefix, root, t):
             continue
 
         typ = texData[2]
+        nodeTex['owm.material.typeid'] = str(typ)
         nodeTex.label = str(typ)
         if typ in tt:
             bfTyp = tm['Mapping'][tt[typ]]

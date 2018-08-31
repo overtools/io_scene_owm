@@ -3,6 +3,7 @@ import os.path
 import traceback
 
 IS_BLENDER280 = bpy.app.version >= (2, 80, 0)
+IS_BLENDER2795 = bpy.app.version >= (2, 79, 5)
 
 def clean_empties(): 
     for obj in bpy.data.objects:
@@ -43,6 +44,7 @@ def scene_active_set(object): bpy.context.scene.objects.active = object
 def get_objects(): return bpy.context.scene.objects
 def new_uv_layer(mesh, name): return mesh.uv_textures.new(name)
 def normpath(path): return os.path.normpath(path.replace('\\', os.path.sep).replace('/', os.path.sep))
+def safe_color(r, g, b): return (r, g, b)
 
 if IS_BLENDER280:
     def new_uv_layer(mesh, name): return mesh.uv_layers.new(name)
@@ -58,3 +60,6 @@ if IS_BLENDER280:
             def scene_active_set(object): bpy.context.scene_layer.objects.active = object
             def get_objects(): return bpy.context.scene_layer.objects
     except: pass
+
+if IS_BLENDER2795:
+    def safe_color(r, g, b): return (r, g, b, 1.0)
