@@ -100,11 +100,16 @@ def process_material_Cycles(material, prefix, root, t):
     nodes = mat.node_tree.nodes
     links = mat.node_tree.links
        
-    # Remove default diffuse node
-    nodes.remove(nodes.get('Diffuse BSDF'))
+    # Remove default nodes
+    for node in [node for node in nodes if node.type != 'OUTPUT_MATERIAL']:
+        nodes.remove(node)
  
     # Get material output node
-    material_output = nodes.get('Material Output')
+    material_output = None
+    try:
+        material_output = [node for node in nodes if node.type == 'OUTPUT_MATERIAL'][0]
+    except:
+        material_output = nodes.new('ShaderNodeOutputMaterial')
     material_output.location = (tile, 0)
  
     # Create Overwatch NodeGroup Instance
