@@ -429,7 +429,7 @@ def readmdl(materials = None, rotate=True):
 
         if not os.path.isabs(matpath):
             matpath = bpyhelper.normpath('%s/%s' % (root, matpath))
-        materials = import_owmat.read(matpath, '', settings.importTexNormal, settings.importTexEffect)
+        materials = import_owmat.read(matpath, '')
         bindMaterials(meshes, data, materials)
 
     if armature:

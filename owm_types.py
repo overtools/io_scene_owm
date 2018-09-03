@@ -110,7 +110,7 @@ def load_data():
 
 class OWSettings:
     def __init__(self, filename, uvDisplaceX, uvDisplaceY, autoIk, importNormals, importEmpties, importMaterial,
-                 importSkeleton, importTexNormal, importTexEffect, importColor):
+                 importSkeleton, importColor):
         self.filename = bpyhelper.normpath(filename)
         self.uvDisplaceX = uvDisplaceX
         self.uvDisplaceY = uvDisplaceY
@@ -119,14 +119,11 @@ class OWSettings:
         self.importEmpties = importEmpties
         self.importMaterial = importMaterial
         self.importSkeleton = importSkeleton
-        self.importTexNormal = importTexNormal
-        self.importTexEffect = importTexEffect
         self.importColor = importColor
 
     def mutate(self, filename):
         return OWSettings(filename, self.uvDisplaceX, self.uvDisplaceY, self.autoIk, self.importNormals,
-                          self.importEmpties, self.importMaterial, self.importSkeleton, self.importTexNormal,
-                          self.importTexEffect, self.importColor)
+                          self.importEmpties, self.importMaterial, self.importSkeleton, self.importColor)
 
 class OWLightSettings:
     def __init__(self, enabled = False, multipleImportance = False, enabledTypes = [False, False, False], adjustValues = [1.0, 1.0], useStrength = False, bias = 0.5, indices = [25, 26, 12]):

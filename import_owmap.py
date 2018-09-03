@@ -88,9 +88,9 @@ def import_mdl(mdls):
         return None, None
 
 
-def import_mat(path, prefix, norm, efct):
+def import_mat(path, prefix):
     try:
-        return import_owmat.read(path, prefix, norm, efct)
+        return import_owmat.read(path, prefix)
     except Exception as e:
         print('[import_owmap]: error importing map: {}'.format(bpyhelper.format_exc(e)))
         return None
@@ -166,8 +166,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 hideModel = False
                 if settings.importMaterial and len(ent.material) > 3:
                     if matpath not in matCache:
-                        mat = import_owmat.read(matpath, '%s:%X_' % (name, idx), settings.importTexNormal,
-                                                settings.importTexEffect)
+                        mat = import_owmat.read(matpath, '%s:%X_' % (name, idx))
                         matCache[matpath] = mat
                     else:
                         mat = matCache[matpath]
@@ -236,8 +235,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             hideModel = False
             if settings.importMaterial and len(ob.material) > 3:
                 if matpath not in matCache:
-                    mat = import_owmat.read(matpath, '%s:%X_' % (name, idx), settings.importTexNormal,
-                                                 settings.importTexEffect)
+                    mat = import_owmat.read(matpath, '%s:%X_' % (name, idx))
                     matCache[matpath] = mat
                 else:
                     mat = matCache[matpath]

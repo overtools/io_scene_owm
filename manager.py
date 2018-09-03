@@ -69,18 +69,6 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
         default=(not bpyhelper.IS_BLENDER280),
     )
 
-    importTexNormal = BoolProperty(
-        name='Import Normal Maps',
-        description='Import Normal Textures',
-        default=True,
-    )
-
-    importTexEffect = BoolProperty(
-        name='Import Misc Maps',
-        description='Import Misc Texutures (Effects, highlights)',
-        default=True,
-    )
-
     def menu_func(self, context):
         self.layout.operator_context = 'INVOKE_DEFAULT'
         self.layout.operator(
@@ -101,8 +89,6 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
             self.importEmpties,
             self.importMaterial,
             self.importSkeleton,
-            self.importTexNormal,
-            self.importTexEffect,
             self.importColor
         )
         owm_types.update_data()
@@ -135,11 +121,9 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
         sub.prop(self, 'autoIk')
         sub.enabled = self.importSkeleton
 
-        col = layout.column(align=True)
-        col.enabled = self.importMaterial  and bpy.context.scene.render.engine != 'CYCLES'
-        col.label('Material')
-        col.prop(self, 'importTexNormal')
-        col.prop(self, 'importTexEffect')
+        # col = layout.column(align=True)
+        # col.enabled = self.importMaterial  and bpy.context.scene.render.engine != 'CYCLES'
+        # col.label('Material')
 
 class import_mat_op(bpy.types.Operator, ImportHelper):
     bl_idname = 'owm_importer.import_material'
@@ -151,18 +135,6 @@ class import_mat_op(bpy.types.Operator, ImportHelper):
     filter_glob = bpy.props.StringProperty(
         default='*.owmat',
         options={'HIDDEN'},
-    )
-
-    importTexNormal = BoolProperty(
-        name='Import Normal Maps',
-        description='Import Normal Textures',
-        default=True,
-    )
-
-    importTexEffect = BoolProperty(
-        name='Import Misc Maps',
-        description='Import Misc Texutures (Effects, highlights)',
-        default=True,
     )
 
     def menu_func(self, context):
@@ -178,17 +150,15 @@ class import_mat_op(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         owm_types.update_data()
         bpyhelper.LOCK_UPDATE = False
-        import_owmat.read(self.filepath, '', self.importTexNormal, self.importTexNormal)
+        import_owmat.read(self.filepath, '')
         print('DONE')
         return {'FINISHED'}
 
     def draw(self, context):
         layout = self.layout
-        col = layout.column(align=True)
-        col.label('Material')
-        col.prop(self, 'importTexNormal')
-        col.prop(self, 'importTexEffect')
-        col.enabled = bpy.context.scene.render.engine != 'CYCLES'
+        # col = layout.column(align=True)
+        # col.label('Material')
+        # col.enabled = bpy.context.scene.render.engine != 'CYCLES'
 
 class import_map_op(bpy.types.Operator, ImportHelper):
     bl_idname = 'owm_importer.import_map'
@@ -253,18 +223,6 @@ class import_map_op(bpy.types.Operator, ImportHelper):
     importMaterial = BoolProperty(
         name='Import Material',
         description='Import Referenced OWMAT',
-        default=True,
-    )
-    
-    importTexNormal = BoolProperty(
-        name='Import Normal Maps',
-        description='Import Normal Textures',
-        default=True,
-    )
-
-    importTexEffect = BoolProperty(
-        name='Import Misc Maps',
-        description='Import Misc Texutures (Effects, highlights)',
         default=True,
     )
 
@@ -384,8 +342,6 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             False,
             self.importMaterial,
             False,
-            self.importTexNormal,
-            self.importTexEffect,
             self.importColor
         )
         light_settings = owm_types.OWLightSettings(
@@ -430,11 +386,9 @@ class import_map_op(bpy.types.Operator, ImportHelper):
         col.prop(self, 'importLights')
         col.prop(self, 'importRemoveCollision')
 
-        col = layout.column(align=True)
-        col.label('Material')
-        col.enabled = self.importMaterial
-        col.prop(self, 'importTexNormal')
-        col.prop(self, 'importTexEffect')
+        # col = layout.column(align=True)
+        # col.label('Material')
+        # col.enabled = self.importMaterial and bpy.context.scene.render.engine != 'CYCLES'
 
         col = layout.column(align=True)
         col.label('Lights')
@@ -518,18 +472,6 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
         default=(not bpyhelper.IS_BLENDER280),
     )
 
-    importTexNormal = BoolProperty(
-        name='Import Normal Maps',
-        description='Import Normal Textures',
-        default=True,
-    )
-
-    importTexEffect = BoolProperty(
-        name='Import Misc Maps',
-        description='Import Misc Texutures (Effects, highlights)',
-        default=True,
-    )
-
     def menu_func(self, context):
         self.layout.operator_context = 'INVOKE_DEFAULT'
         self.layout.operator(
@@ -550,8 +492,6 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
             True, # self.importEmpties
             self.importMaterial,
             True, # self.importSkeleton
-            self.importTexNormal,
-            self.importTexEffect,
             self.importColor
         )
         owm_types.update_data()
@@ -583,11 +523,9 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
         sub.prop(self, 'autoIk')
         sub.enabled = self.importSkeleton
 
-        col = layout.column(align=True)
-        col.enabled = self.importMaterial and bpy.context.scene.render.engine != 'CYCLES'
-        col.label('Material')
-        col.prop(self, 'importTexNormal')
-        col.prop(self, 'importTexEffect')
+        # col = layout.column(align=True)
+        # col.enabled = self.importMaterial and bpy.context.scene.render.engine != 'CYCLES'
+        # col.label('Material')
 
 class import_effect_op(bpy.types.Operator, ImportHelper):
     bl_idname = 'owm_importer.import_effect'
@@ -679,8 +617,6 @@ class import_effect_op(bpy.types.Operator, ImportHelper):
             self.filepath,
             0,
             0,
-            True,
-            True,
             True,
             True,
             True,

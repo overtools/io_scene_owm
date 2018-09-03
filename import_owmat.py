@@ -73,7 +73,7 @@ def load_textures(texture, root, t):
         print('[import_owmat]: error loading texture: {}'.format(bpyhelper.format_exc(e)))
     return None
 
-def read(filename, prefix = '', importNormal = True, importEffect = True):
+def read(filename, prefix = ''):
     root, file = os.path.split(filename)
     data = read_owmat.read(filename)
     if not data:
@@ -82,13 +82,16 @@ def read(filename, prefix = '', importNormal = True, importEffect = True):
     t = {}
     m = {}
 
-    if bpy.context.scene.render.engine.startswith('BLENDER'):
-        bpy.context.scene.render.engine = 'CYCLES'
-
     for i in range(len(data.materials)):
-        m[data.materials[i].key] = process_material_Cycles(data.materials[i], prefix, root, t)
+        m[data.materials[i].key] = process_material(data.materials[i], prefix, root, t)
 
     return (t, m)
+
+def process_material(material, prefix, root, t):
+    if bpy.context.scene.render.engine == 'CYCLES':
+        return process_material_Cycles(material, prefix, root, t)
+    else:
+        return process_material_BI(material, prefix, root, t)
 
 def process_material_Cycles(material, prefix, root, t):
     mat = bpy.data.materials.new('%s%016X' % (prefix, material.key))
@@ -202,4 +205,49 @@ def process_material_Cycles(material, prefix, root, t):
         if colorNodePoint in scratchSocket:
             scratchSocket[colorNodePoint].node.color_space = 'COLOR'
     
+    return mat
+
+def process_material_BI(material, prefix, root, t):
+    mat = bpy.data.materials.new('%s%016X' % (prefix, material.key))
+    mat.diffuse_intensity = 1.0
+
+    mat.texture_slots.add() # for some reason the first texture duplicates itself
+    
+    tt = owm_types.TextureTypesById
+
+    ti = 1
+
+    for texturetype in material.textures:
+        typ = texturetype[2]
+        texture = texturetype[0]
+
+        tex = load_textures(texture, root, t)
+
+        if tex is None:
+            print('[import_owmat]: failed to load texture: {}'.format(texData[0]))
+            continue
+
+        ti += 1
+       
+        mattex = mat.texture_slots.add()
+
+        mattex.use_map_color_diffuse = True
+        mattex.texture = tex
+        mattex.texture_coords = 'UV'
+ 
+        if typ in tt:
+            if not tex.name.endswith(')'): tex.name = '%s (%s)' % (tt[typ], tex.name)
+            if tt[typ].startswith('Normal'):
+                tex.use_alpha = False
+                tex.use_normal_map = True
+                mattex.use_map_color_diffuse = False
+                mattex.use_map_normal = True
+                mattex.normal_factor = 1
+            elif tt[typ].startswith('Diffuse'):
+                mattex.diffuse_factor = 1
+            else:
+                mattex.use = False
+        else:
+            if not tex.name.endswith(')'): tex.name = '%s (%s)' % (str(typ), tex.name)
+            mattex.use = False
     return mat
