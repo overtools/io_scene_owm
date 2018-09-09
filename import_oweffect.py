@@ -185,7 +185,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                     var = c['owm.entity.child.var']
                     ent_obj = bpy.data.objects.new('EffectEntityWrapper {}'.format(var), None)
                     ent_obj.hide = this_obj.hide_render = True
-                    if c['owm.entity.child.hardpoint'] != 'null':
+                    if c['owm.entity.child.hardpoint'] != 'null' and c['owm.entity.child.hardpoint'] in hardpoints:
                         ent_obj.parent = hardpoints[c['owm.entity.child.hardpoint']]
                         ent_obj.parent['owm.effect.hardpoint.used'] = True
                     else:
@@ -264,7 +264,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
 
             if svce.time.hardpoint != 'null':
                 attach(hardpoints[svce.time.hardpoint], speaker)
-            else:
+            else if 'hardpoint_0012' in hardpoints:
                 # erm, seems to be in the head
                 attach(hardpoints['hardpoint_0012'], speaker)
                 hardpoints['hardpoint_0012']['owm.effect.hardpoint.used'] = True
@@ -323,11 +323,11 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                     mesh.parent = dmce_skele
                 else:
                     mesh.parent = obj
-                if dmce.time.hardpoint != 'null':
+                if dmce.time.hardpoint != 'null' and dmce.time.hardpoint in hardpoints:
                     attach(hardpoints[dmce.time.hardpoint], mesh)
 
             bpy.context.scene.frame_end = end_frame
-            if dmce.time.hardpoint != 'null':
+            if dmce.time.hardpoint != 'null' and dmce.time.hardpoint in hardpoints:
                 if dmce_skele is not None:
                     attach(hardpoints[dmce.time.hardpoint], dmce_skele)
                     dmce_model[0].parent = dmce_obj
@@ -354,7 +354,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             ent_obj.hide = ent_obj.hide_render = True
             bpyhelper.scene_link(ent_obj)
 
-            if nece.time.hardpoint != 'null':
+            if nece.time.hardpoint != 'null' and nece.time.hardpoint in hardpoints:
                 ent_obj.parent = hardpoints[nece.time.hardpoint]
                 ent_obj.parent['owm.effect.hardpoint.used'] = True
             else:

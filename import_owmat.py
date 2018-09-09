@@ -224,7 +224,7 @@ def process_material_BI(material, prefix, root, t):
         tex = load_textures(texture, root, t)
 
         if tex is None:
-            print('[import_owmat]: failed to load texture: {}'.format(texData[0]))
+            print('[import_owmat]: failed to load texture: {}'.format(texturetype[0]))
             continue
 
         ti += 1
