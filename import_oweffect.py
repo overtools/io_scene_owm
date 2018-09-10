@@ -264,7 +264,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
 
             if svce.time.hardpoint != 'null':
                 attach(hardpoints[svce.time.hardpoint], speaker)
-            else if 'hardpoint_0012' in hardpoints:
+            elif 'hardpoint_0012' in hardpoints:
                 # erm, seems to be in the head
                 attach(hardpoints['hardpoint_0012'], speaker)
                 hardpoints['hardpoint_0012']['owm.effect.hardpoint.used'] = True
