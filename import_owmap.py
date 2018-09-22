@@ -318,7 +318,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             prog += 1
             soundWrap = bpy.data.objects.new(name = '%s_SPEAKER_WRAP' % (name), object_data = None)
             soundWrap.parent = globSound
-            hgsoundWrap.hide = True
+            soundWrap.hide = True
             soundWrap.location = pos_matrix(sound.position)
             bpyhelper.scene_link(soundWrap)
             for soundFile in sound.sounds:
