@@ -8,6 +8,7 @@ from . import bpyhelper
 import bpy
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty
 from bpy_extras.io_utils import ImportHelper
+from bpy.app.handlers import persistent
 
 class import_mdl_op(bpy.types.Operator, ImportHelper):
     bl_idname = 'owm_importer.import_model'
@@ -708,6 +709,7 @@ class OWMUtilityPanel(bpy.types.Panel):
         row.operator(OWMSaveOp.bl_idname, text='Save OWM Library', icon='APPEND_BLEND')
         row = layout.row()
         row.prop(bpy.context.scene.owm_internal_settings, 'b_logsalot', text='Log Map Progress')
+        row.prop(bpy.context.scene.owm_internal_settings, 'b_download', text='Always Download Library')
 
         box = layout.box()
         box.label('Cleanup')
@@ -761,11 +763,22 @@ class OWMCleanupTexOp(bpy.types.Operator):
         return self.execute(context)
 
 class OWMInternalSettings(bpy.types.PropertyGroup):
-    b_logsalot = bpy.props.BoolProperty(update = lambda self, context: self.updateLogsAlot(context))
+    b_logsalot = bpy.props.BoolProperty(update = lambda self, context: self.update_logs_alot(context))
+    b_download = bpy.props.BoolProperty(update = lambda self, context: self.update_download(context))
+    i_library_state = bpy.props.IntProperty(update = lambda self, context: self.dummy(context))
 
-    def updateLogsAlot(self, context):
+    def update_logs_alot(self, context):
         owm_types.LOG_ALOT = self.b_logsalot
 
+    def update_download(self, context):
+        owm_types.ALWAYS_DOWNLOAD = self.b_download
+        
+    def dummy(self, context): pass
+        
+@persistent
+def owm_reset(_):
+    owm_types.reset();
+        
 def register():
     bpy.types.INFO_MT_file_import.append(mdlimp)
     bpy.types.INFO_MT_file_import.append(matimp)
@@ -781,8 +794,11 @@ def register():
         bpy.utils.register_class(OWMInternalSettings)
     except: pass
     bpy.types.Scene.owm_internal_settings = bpy.props.PointerProperty(type=OWMInternalSettings)
+    bpy.app.handlers.load_post.append(owm_reset)
 
 def unregister():
+    owm_reset()
+    bpy.app.handlers.load_post.remove(owm_reset)
     bpy.types.INFO_MT_file_import.remove(mdlimp)
     bpy.types.INFO_MT_file_import.remove(matimp)
     bpy.types.INFO_MT_file_import.remove(mapimp)
@@ -797,4 +813,3 @@ def unregister():
         bpy.utils.unregister_class(OWMInternalSettings)
     except: pass
     bpy.types.Scene.owm_internal_settings = None
-

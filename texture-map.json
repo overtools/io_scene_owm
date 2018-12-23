@@ -47,6 +47,7 @@
     "Color": ["Color", "Color2"],
     "Active": ["Color", "Color2"],
     "NodeGroups": {
-        "Default": "OWM: Physically Based Shading"
+        "Default": "OWM: Physically Based Shading",
+        "54": "OWM: Refractive Shading"
     }
 }
