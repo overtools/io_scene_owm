@@ -57,7 +57,7 @@ def progress_update(total, progress):
     bpy.context.window_manager.progress_update(progress)
 
 def hide_recursive(obj):
-    obj.hide = obj.hide_render = True
+    obj.hide_viewport = obj.hide_render = True
     for child in obj.children:
         hide_recursive(child)
 
@@ -79,7 +79,7 @@ def import_mdl(mdls):
             obj = import_owmdl.read(mdls, None)
             obj[0].rotation_euler = (math.radians(90), 0, 0)
         wrapObj = bpy.data.objects.new(obj[0].name + '_WRAP', None)
-        wrapObj.hide = True
+        wrapObj.hide_viewport = True
         obj[0].parent = wrapObj
         bpyhelper.scene_link(wrapObj)
         return wrapObj, obj
@@ -110,7 +110,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
     if len(name) == 0:
         name = os.path.splitext(file)[0]
     rootObj = bpy.data.objects.new(name, None)
-    rootObj.hide = True
+    rootObj.hide_viewport = True
     bpyhelper.scene_link(rootObj)
 
     wm = bpy.context.window_manager
@@ -134,7 +134,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
     if importObjects:
         globObj = bpy.data.objects.new(name + '_OBJECTS', None)
-        globObj.hide = True
+        globObj.hide_viewport = True
         globObj.parent = rootObj
         bpyhelper.scene_link(globObj)
         for ob in data.objects:
@@ -153,7 +153,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 continue
 
             obnObj = bpy.data.objects.new(obn + '_COLLECTION', None)
-            obnObj.hide = True
+            obnObj.hide_viewport = True
             obnObj.parent = globObj
             bpyhelper.scene_link(obnObj)
 
@@ -178,7 +178,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 prog += 1
 
                 matObj = bpy.data.objects.new(os.path.splitext(os.path.basename(matpath))[0], None)
-                matObj.hide = True
+                matObj.hide_viewport = True
                 matObj.parent = obnObj
                 bpyhelper.scene_link(matObj)
 
@@ -199,7 +199,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
     if importDetails:
         globDet = bpy.data.objects.new(name + '_DETAILS', None)
-        globDet.hide = True
+        globDet.hide_viewport = True
         globDet.parent = rootObj
         bpyhelper.scene_link(globDet)
         objCache = {}
@@ -277,7 +277,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
     if light_settings.enabled:
         globLight = bpy.data.objects.new(name + '_LIGHTS', None)
-        globLight.hide = True
+        globLight.hide_viewport = True
         globLight.parent = rootObj
         bpyhelper.scene_link(globLight)
         for light in data.lights:
@@ -311,14 +311,14 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
     
     if importSound:
         globSound = bpy.data.objects.new(name + '_SOUNDS', None)
-        globSound.hide = True
+        globSound.hide_viewport = True
         globSound.parent = rootObj
         bpyhelper.scene_link(globSound)
         for sound in data.sounds:
             prog += 1
             soundWrap = bpy.data.objects.new(name = '%s_SPEAKER_WRAP' % (name), object_data = None)
             soundWrap.parent = globSound
-            soundWrap.hide = True
+            soundWrap.hide_viewport = True
             soundWrap.location = pos_matrix(sound.position)
             bpyhelper.scene_link(soundWrap)
             for soundFile in sound.sounds:

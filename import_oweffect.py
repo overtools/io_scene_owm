@@ -59,7 +59,7 @@ def create_refpose(model_path):
 
     att = bpy.data.objects.new('Hardpoints', None)
     att.parent = arm
-    att.hide = att.hide_render = True
+    att.hide_viewport = att.hide_render = True
     att['owm.hardpoint_container'] = True
     bpyhelper.scene_link(att)
 
@@ -69,7 +69,6 @@ def create_refpose(model_path):
         empty = bpy.context.active_object
         empty.parent = att
         empty.name = emp.name
-        empty.show_x_ray = True
         empty.location = import_owmdl.xzy(emp.position)
         empty.rotation_euler = import_owmdl.wxzy(emp.rotation).to_euler('XYZ')
         empty['owm.hardpoint.bone'] = emp.hardpoint
@@ -82,8 +81,8 @@ def create_refpose(model_path):
     # this might be a little more than what we need
     for name, hardpoint in e_dict.items():
         bpy.ops.object.select_all(action='DESELECT')
-        hardpoint.select = True
-        bpy.context.scene.objects.active = arm
+        bpyhelper.select_obj(hardpoint, True)
+        bpy.context.view_layer.objects.active = arm
         bpy.ops.object.mode_set(mode='POSE')
 
         
@@ -95,7 +94,7 @@ def create_refpose(model_path):
         arm.data.bones.active = bone
         bpy.ops.object.parent_set(type='BONE')
         bone.select = False
-        hardpoint.select = False
+        bpyhelper.select_obj(hardpoint, False)
         bpy.ops.object.mode_set(mode='OBJECT')
     bpy.ops.object.select_all(action='DESELECT')
     return arm, e_dict, att
@@ -118,15 +117,15 @@ def attach(par, obj):
 
 def delete(obj):
     bpy.ops.object.select_all(action='DESELECT')
-    bpy.context.scene.objects.active = obj
+    bpy.context.view_layer.objects.active = obj
     if obj is None:
         return
-    obj.select = True
+    bpyhelper.select_obj(hardpoint, True)
     bpy.ops.object.delete()
 
 
 def deselect_tree(obj):
-    obj.select = False
+    bpyhelper.select_obj(hardpoint, False)
     for child in obj.children:
         deselect_tree(child)
 
@@ -139,7 +138,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
         is_entity, obj, model = get_object()
         
         this_obj = bpy.data.objects.new('Animation {}'.format(os.path.splitext(os.path.basename(data.anim_path))[0]), None)
-        this_obj.hide = this_obj.hide_render = True
+        this_obj.hide_viewport = this_obj.hide_render = True
         bpyhelper.scene_link(this_obj)
         if parent is None:
             parent = this_obj
@@ -163,7 +162,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
         
         directory, file = os.path.split(data.anim_path)
         bpy.ops.object.select_all(action='DESELECT')
-        bpy.context.scene.objects.active = new_skeleton
+        bpy.context.view_layer.objects.active = new_skeleton
         bpy.ops.import_scene.seanim(filepath=bpyhelper.normpath(os.path.join(pool, directory)) + os.path.sep, files=[{'name': file}])
 
         if target_framerate != int(data.header.fps):
@@ -171,7 +170,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             bpy.context.scene.frame_end *= scale
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             bpy.ops.object.select_all(action='DESELECT')
-            bpy.context.scene.objects.active = new_skeleton
+            bpy.context.view_layer.objects.active = new_skeleton
 
             for f in new_skeleton.animation_data.action.fcurves:
                 for kp in f.keyframe_points:
@@ -184,7 +183,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                 if 'owm.entity.child.var' in c:
                     var = c['owm.entity.child.var']
                     ent_obj = bpy.data.objects.new('EffectEntityWrapper {}'.format(var), None)
-                    ent_obj.hide = this_obj.hide_render = True
+                    ent_obj.hide_viewport = this_obj.hide_render = True
                     if c['owm.entity.child.hardpoint'] != 'null' and c['owm.entity.child.hardpoint'] in hardpoints:
                         ent_obj.parent = hardpoints[c['owm.entity.child.hardpoint']]
                         ent_obj.parent['owm.effect.hardpoint.used'] = True
@@ -223,7 +222,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
     if type(data) == owm_types.OWEffectData:
         obj = bpy.data.objects.new('Effect {}'.format(data.guid), None)
         obj.parent = parent
-        obj.hide = obj.hide_render = True
+        obj.hide_viewport = obj.hide_render = True
         bpyhelper.scene_link(obj)
 
         for svce in data.svces:
@@ -235,7 +234,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             bpy.context.scene.frame_set(int(target_framerate * svce.time.start))
             
             bpy.ops.object.speaker_add()
-            speaker = bpy.context.scene.objects.active
+            speaker = bpy.context.view_layer.objects.active
             speaker.name = 'SVCE Speaker'
             speaker.location = (0, 0, 0)
             
@@ -341,17 +340,17 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             if not settings.import_NECE:
                 continue
 
-            act = bpy.context.scene.objects.active
+            act = bpy.context.view_layer.objects.active
 
             mutate = settings.settings.mutate(os.path.join(pool, nece.path))
             nece_entity, nece_data, obj_data = import_owentity.read(mutate, True, True)
 
             deselect_tree(nece_entity)
 
-            bpy.context.scene.objects.active = act
+            bpy.context.view_layer.objects.active = act
 
             ent_obj = bpy.data.objects.new('EffectEntityWrapper {}'.format(nece.variable), None)
-            ent_obj.hide = ent_obj.hide_render = True
+            ent_obj.hide_viewport = ent_obj.hide_render = True
             bpyhelper.scene_link(ent_obj)
 
             if nece.time.hardpoint != 'null' and nece.time.hardpoint in hardpoints:
@@ -390,7 +389,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                 if bpy.context.object is not None and bpy.context.object.mode != 'OBJECT':
                     bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
                 bpy.ops.object.select_all(action='DESELECT')
-                bpy.context.scene.objects.active = cece_entity
+                bpy.context.view_layer.objects.active = cece_entity
 
                 end_frame = bpy.context.scene.frame_end
 
@@ -415,11 +414,11 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                 # cece_container.scale = (0, 0, 0)
                 
                 # this is using keyframes
-##                act = bpy.context.scene.objects.active
+##                act = bpy.context.view_layer.objects.active
 ##                if bpy.context.object.mode != 'OBJECT':
 ##                    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 ##                bpy.ops.object.select_all(action='DESELECT')
-##                bpy.context.scene.objects.active = cece_container
+##                bpy.context.view_layer.objects.active = cece_container
 ##                cece_container.select = True
 ##                
 ##                frame = 0
@@ -430,7 +429,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
 ##                bpy.ops.anim.keyframe_insert_menu(type='Scaling')
 ##                bpy.context.scene.frame_set(1)
 ##                cece_container.select = False
-##                bpy.context.scene.objects.active = act
+##                bpy.context.view_layer.objects.active = act
                 
         
 def read(settings, existing_parent=None):

@@ -35,12 +35,12 @@ def fixLength(bone):
 
 def create_refpose_armature(armature_name):
     a = bpy.data.objects.new(armature_name,bpy.data.armatures.new(armature_name))
-    a.show_x_ray = True
-    a.data.draw_type = 'STICK'
+    a.data.display_type = 'STICK'
     bpy.context.scene.objects.link(a)
-    for i in bpy.context.selected_objects: i.select = False #deselect all objects
+    for i in bpy.context.selected_objects:
+        bpyhelper.select_obj(i, False) #deselect all objects
     a.select = True
-    bpy.context.scene.objects.active = a
+    bpy.context.view_layer.objects.active = a
     bpy.ops.object.mode_set(mode='OBJECT')
 
     return a
@@ -74,7 +74,7 @@ def import_refpose_armature(autoIk, this_data):
             a.data.edit_bones[index].parent = a.data.edit_bones[bone.parent]
         index += 1
 
-    bpy.context.scene.objects.active = a
+    bpy.context.view_layer.objects.active = a
     bpy.ops.object.mode_set(mode='POSE')
 
     # sect 2: get frame
@@ -102,9 +102,8 @@ def importArmature(autoIk):
     armature = None
     if len(bones) > 0:
         armData = bpy.data.armatures.new('Armature')
-        armData.draw_type = 'STICK'
+        armData.display_type = 'STICK'
         armature = bpy.data.objects.new('Armature', armData)
-        armature.show_x_ray = True
 
         bpyhelper.scene_link(armature)
 
@@ -120,8 +119,8 @@ def importArmature(autoIk):
             
             mpos = Matrix.Translation(xzy(bone.pos))
             mrot = wxzy(bone.rot).to_matrix().to_4x4()
-            m = mpos * mrot
-            
+            m = mpos @ mrot
+
             bbone.matrix = m
                 
             fixLength(bbone)
@@ -186,7 +185,7 @@ def makeVertexGroups(mesh, boneData):
                 if name != None:
                     vgrp = mesh.vertex_groups.get(name)
                     if vgrp == None:
-                        vgrp = mesh.vertex_groups.new(name)
+                        vgrp = mesh.vertex_groups.new(name = name)
                     vgrp.add([vidx], w, 'REPLACE')
 
 def randomColor():
@@ -238,10 +237,10 @@ def importMesh(armature, meshData):
         bpyhelper.new_uv_layer(mesh, 'UVMap%d' % (i + 1))
 
     if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
-        mesh.vertex_colors.new('ColorMap1')
-        mesh.vertex_colors.new('ColorMap1Blue')
-        mesh.vertex_colors.new('ColorMap2')
-        mesh.vertex_colors.new('ColorMap2Blue')
+        bpyhelper.new_color_layer(mesh, 'ColorMap1')
+        bpyhelper.new_color_layer(mesh, 'ColorMap1Blue')
+        bpyhelper.new_color_layer(mesh, 'ColorMap2')
+        bpyhelper.new_color_layer(mesh, 'ColorMap2Blue')
         i = 0
         for loop in mesh.loops: # ARGB
             mesh.vertex_colors['ColorMap1'].data[i].color = bpyhelper.safe_color(col1[loop.vertex_index][3], col1[loop.vertex_index][0], col1[loop.vertex_index][1])
@@ -258,10 +257,10 @@ def importMesh(armature, meshData):
 
         makeVertexGroups(obj, boneData)
 
-        current_theme = bpy.context.user_preferences.themes.items()[0][0]
-        theme = bpy.context.user_preferences.themes[current_theme]
+        current_theme = bpy.context.preferences.themes.items()[0][0]
+        theme = bpy.context.preferences.themes[current_theme]
 
-        bgrp = armature.pose.bone_groups.new(obj.name)
+        bgrp = armature.pose.bone_groups.new(name = obj.name)
         bgrp.color_set = 'CUSTOM'
         bgrp.colors.normal = (randomColor())
         bgrp.colors.select = theme.view_3d.bone_pose
@@ -313,7 +312,7 @@ def importEmpties(armature = None):
 
     att = bpy.data.objects.new('Hardpoints', None)
     att.parent = rootObject
-    att.hide = att.hide_render = True
+    att.hide_viewport = att.hide_render = True
     att['owm.hardpoint_container'] = True
     bpyhelper.scene_link(att)
 
@@ -323,7 +322,6 @@ def importEmpties(armature = None):
         empty = bpy.context.active_object
         empty.parent = att
         empty.name = emp.name
-        empty.show_x_ray = True
         empty.location = xzy(emp.position)
         empty.rotation_mode = 'QUATERNION'
         empty.rotation_quaternion = wxzy(emp.rotation)
@@ -338,8 +336,8 @@ def importEmpties(armature = None):
         for name, hardpoint in e_dict.items():
             # erm
             bpy.ops.object.select_all(action='DESELECT')
-            hardpoint.select = True
-            bpy.context.scene.objects.active = armature
+            bpyhelper.select_obj(hardpoint, True)
+            bpy.context.view_layer.objects.active = armature
             bpy.ops.object.mode_set(mode='POSE')
 
             if hardpoint['owm.hardpoint.bone'] not in armature.pose.bones:
@@ -351,7 +349,7 @@ def importEmpties(armature = None):
             armature.data.bones.active = bone
             bpy.ops.object.parent_set(type='BONE')
             bone.select = False
-            hardpoint.select = False
+            bpyhelper.select_obj(hardpoint, False)
             bpy.ops.object.mode_set(mode='OBJECT')
         bpy.ops.object.select_all(action='DESELECT')
     
@@ -405,7 +403,7 @@ def readmdl(materials = None, rotate=True):
         rootName = data.header.name
 
     rootObject = bpy.data.objects.new(rootName, None)
-    rootObject.hide = rootObject.hide_render = True
+    rootObject.hide_viewport = rootObject.hide_render = True
     rootObject['owm.model.guid'] = data.guid
     bpyhelper.scene_link(rootObject)
 
@@ -453,7 +451,7 @@ def readmdl(materials = None, rotate=True):
             for clothSubmesh in cloth.meshes:
                 submesh = meshes[clothSubmesh.id]
                 if i == 0:
-                    bpy.context.scene.objects.active = submesh
+                    bpy.context.view_layer.objects.active = submesh
                 bpyhelper.select_obj(submesh, True)
                 vgrp = submesh.vertex_groups.new('clothPin')
                 vgrp.add(clothSubmesh.pinnedVerts, 1.0, 'REPLACE')
@@ -464,7 +462,7 @@ def readmdl(materials = None, rotate=True):
 
             # do it manually because I don't want to be responsible for broken models:
             # https://i.imgur.com/6Jxg91T.png?1
-            # bpy.context.scene.objects.active = mainObj
+            # bpy.context.view_layer.objects.active = mainObj
             # bpy.ops.object.editmode_toggle()
             # bpy.ops.mesh.select_all(action='SELECT')
             # bpy.ops.mesh.remove_doubles()

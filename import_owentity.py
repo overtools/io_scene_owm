@@ -23,7 +23,7 @@ def read(settings, import_children=False, is_child=False):
     mdl_settings = get_mdl_settings(settings, data.model)
 
     root_object = bpy.data.objects.new('Entity ' + data.file, None)
-    root_object.hide = root_object.hide_render = True
+    root_object.hide_viewport = root_object.hide_render = True
     root_object['owm.entity.guid'] = data.index
     root_object['owm.entity.model'] = data.model_index
 
@@ -58,10 +58,10 @@ def read(settings, import_children=False, is_child=False):
     bpyhelper.scene_link(root_object)
 
     if base_model is not None:
-        bpy.context.scene.objects.active = None
+        bpy.context.view_layer.objects.active = None
         bpy.ops.object.select_all(action='DESELECT')
         import_owmdl.select_all(base_model[0])
         if base_model[1] is not None:
-            bpy.context.scene.objects.active = base_model[1]
+            bpy.context.view_layer.objects.active = base_model[1]
     
     return root_object, data, base_model

@@ -6,3 +6,4 @@ tmp
 *.blend*
 !library.blend
 *.bak
+venv

@@ -1,16 +1,3 @@
-bl_info = {
-    'name': 'OWM Import',
-    'author': 'Overtools Community',
-    'version': (2, 0, 1),
-    'blender': (2, 78, 0),
-    'location': 'File > Import > OWM',
-    'description': 'Import TankLib/DataTool OWM files',
-    'warning': '',
-    'wiki_url': '',
-    'tracker_url': 'https://github.com/overtools/io_scene_owm/issues',
-    'category': 'Import-Export'
-}
-
 rld = False
 
 if 'bpy' in locals():
@@ -32,6 +19,20 @@ from . import read_oweffect
 from . import bpyhelper
 from . import manager
 
+
+bl_info = {
+    'name': 'OWM Import',
+    'author': 'Overtools Community',
+    'version': (2, 1, 0),
+    'blender': (2, 80, 0),
+    'location': 'File > Import > OWM',
+    'description': 'Import TankLib/DataTool OWM files',
+    'warning': '',
+    'wiki_url': '',
+    'tracker_url': 'https://github.com/overtools/io_scene_owm/issues',
+    'category': 'Import-Export'
+}
+
 if rld:
     imp.reload(bin_ops)
     imp.reload(import_owmap)
@@ -51,11 +52,9 @@ if rld:
 import bpy
 
 def register():
-    bpy.utils.register_module(__name__)
     manager.register()
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
     manager.unregister()
 
 if __name__ == '__main__':
