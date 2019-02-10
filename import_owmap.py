@@ -285,7 +285,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             if not light_settings.enabledTypes[light.type]:
                 continue
             # print('light, fov: %s, type: %s (%d%%)' % (light.fov, light.type, (total_C/total) * 100))
-            lamp_data = bpy.data.lamps.new(name='%s_%s' % (name, LIGHT_MAP[light.type]), type=LIGHT_MAP[light.type])
+            lamp_data = bpy.data.lights.new(name='%s_%s' % (name, LIGHT_MAP[light.type]), type=LIGHT_MAP[light.type])
             lamp_ob = bpy.data.objects.new(name='%s_%s' % (name, LIGHT_MAP[light.type]), object_data=lamp_data)
             bpyhelper.scene_link(lamp_ob)
             lamp_ob.location = pos_matrix(light.position)
