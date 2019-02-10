@@ -18,7 +18,7 @@ acm = bpy_extras.io_utils.axis_conversion(from_forward='-Z', from_up='Y').to_4x4
 def pos_matrix(pos):
     global acm
     posMtx = mathutils.Matrix.Translation(pos)
-    mtx = acm * posMtx
+    mtx = acm @ posMtx
     return mtx.to_translation()
 
 

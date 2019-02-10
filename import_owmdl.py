@@ -86,7 +86,7 @@ def import_refpose_armature(autoIk, this_data):
         # rot = wxzy(refpose_bone.rot).to_matrix().to_4x4()  # maybe use existing def?
         bone = a.pose.bones[getBoneName(index)]
         bone.matrix_basis.identity()
-        bone.matrix = Matrix.Translation(pos) * rot.to_matrix().to_4x4()
+        bone.matrix = Matrix.Translation(pos) @ rot.to_matrix().to_4x4()
         index += 1
 
     # sect 3: apply
