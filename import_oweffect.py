@@ -59,6 +59,7 @@ def create_refpose(model_path):
 
     att = bpy.data.objects.new('Hardpoints', None)
     att.parent = arm
+    att.parent_type = "ARMATURE"
     att.hide_viewport = att.hide_render = True
     att['owm.hardpoint_container'] = True
     bpyhelper.scene_link(att)
@@ -68,7 +69,9 @@ def create_refpose(model_path):
         bpy.ops.object.empty_add(type='CIRCLE', radius=0.05 )
         empty = bpy.context.active_object
         empty.parent = att
+        empty.parent_type = "ARMATURE"
         empty.name = emp.name
+        empty.show_in_front = True
         empty.location = import_owmdl.xzy(emp.position)
         empty.rotation_euler = import_owmdl.wxzy(emp.rotation).to_euler('XYZ')
         empty['owm.hardpoint.bone'] = emp.hardpoint
@@ -92,7 +95,7 @@ def create_refpose(model_path):
         bone = arm.pose.bones[hardpoint['owm.hardpoint.bone']].bone
         bone.select = True
         arm.data.bones.active = bone
-        bpy.ops.object.parent_set(type='BONE')
+        bpy.ops.object.parent_set(type='ARMATURE')
         bone.select = False
         bpyhelper.select_obj(hardpoint, False)
         bpy.ops.object.mode_set(mode='OBJECT')

@@ -35,6 +35,7 @@ def fixLength(bone):
 
 def create_refpose_armature(armature_name):
     a = bpy.data.objects.new(armature_name,bpy.data.armatures.new(armature_name))
+    a.show_in_front = True
     a.data.display_type = 'STICK'
     bpy.context.scene.objects.link(a)
     for i in bpy.context.selected_objects:
@@ -347,7 +348,7 @@ def importEmpties(armature = None):
             bone = armature.pose.bones[hardpoint['owm.hardpoint.bone']].bone
             bone.select = True
             armature.data.bones.active = bone
-            bpy.ops.object.parent_set(type='BONE')
+            bpy.ops.object.parent_set(type='ARMATURE')
             bone.select = False
             bpyhelper.select_obj(hardpoint, False)
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -412,6 +413,7 @@ def readmdl(materials = None, rotate=True):
         armature = importArmature(settings.autoIk)
         armature.name = rootName + '_Skeleton'
         armature.parent = rootObject
+        armature.show_in_front = True
         armature['owm.skeleton.name'] = armature.name
         armature['owm.skeleton.model'] = data.guid
 
