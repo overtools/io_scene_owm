@@ -6,7 +6,7 @@ from . import import_oweffect
 from . import owm_types
 from . import bpyhelper
 import bpy
-from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty
+from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, CollectionProperty
 from bpy_extras.io_utils import ImportHelper
 from bpy.app.handlers import persistent
 
@@ -14,8 +14,7 @@ from bpy.app.handlers import persistent
 class ImportOWMDL(bpy.types.Operator, ImportHelper):
     bl_idname = 'import_mesh.overtools_model'
     bl_label = 'Import Overtools Model (owmdl)'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
+    bl_options = {'UNDO'}
 
     filename_ext = '.owmdl'
     filter_glob : StringProperty(
@@ -131,8 +130,7 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
 class ImportOWMAT(bpy.types.Operator, ImportHelper):
     bl_idname = 'import_material.overtools_material'
     bl_label = 'Import Overtools Material (owmat)'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
+    bl_options = {'UNDO'}
 
     filename_ext = '.owmat'
     filter_glob : StringProperty(
@@ -167,11 +165,10 @@ class ImportOWMAT(bpy.types.Operator, ImportHelper):
 class ImportOWMAP(bpy.types.Operator, ImportHelper):
     bl_idname = 'import_mesh.overtools_map'
     bl_label = 'Import Overtools Map (owmap)'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
+    bl_options = {'UNDO'}
 
     filename_ext = '.owmap'
-    filter_glob = bpy.props.StringProperty(
+    filter_glob : bpy.props.StringProperty(
         default='*.owmap',
         options={'HIDDEN'},
     )
@@ -416,10 +413,10 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
 class ImportOWENTITY(bpy.types.Operator, ImportHelper):
     bl_idname = 'import_mesh.overtools_entity'
     bl_label = 'Import Overtools Entity (owentity)'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
+    bl_options = {'UNDO'}
 
-    filter_glob = bpy.props.StringProperty(
+    filename_ext = '.owentity'
+    filter_glob : bpy.props.StringProperty(
         default='*.owentity',
         options={'HIDDEN'},
     )
@@ -537,8 +534,7 @@ class ImportOWENTITY(bpy.types.Operator, ImportHelper):
 class ImportOWEFFECT(bpy.types.Operator, ImportHelper):
     bl_idname = 'import_anim.overtools_effect'
     bl_label = 'Import Overtools Animation Effect (oweffect, owanim)'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
+    bl_options = {'UNDO'}
 
     filename_ext = '.oweffect;.owanim'
     filter_glob : bpy.props.StringProperty(
@@ -698,7 +694,7 @@ def entity_import(self, context):
 def effect_import(self, context):
     self.layout.operator(
         ImportOWEFFECT.bl_idname,
-        text='Overtools Animation Effect (.oweffect, .owanim)'
+        text='Overtools Animation Effect (.oweffect/.owanim)'
     )
 
 
