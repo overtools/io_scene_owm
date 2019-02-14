@@ -21,119 +21,94 @@ def addBoneName(newName):
     global blenderBoneNames
     blenderBoneNames += [newName]
 def getBoneName(originalIndex):
-    if originalIndex < len(blenderBoneNames):
-        return blenderBoneNames[originalIndex]
-    else:
+    if originalIndex >= len(blenderBoneNames) or originalIndex == -1:
         return None
+    return blenderBoneNames[originalIndex]
 
-def fixLength(bone):
-    default_length = 0.005
-    if bone.length == 0:
-        bone.tail = bone.head - Vector((0, .001, 0))
-    if bone.length < default_length:
-        bone.length = default_length
+def importArmature(autoIk):
+    bones = data.refpose_bones
+    if len(bones) == 0:
+        return
 
-def create_refpose_armature(armature_name):
-    a = bpy.data.objects.new(armature_name,bpy.data.armatures.new(armature_name))
-    a.show_x_ray = True
-    a.data.draw_type = 'STICK'
-    bpy.context.scene.objects.link(a)
-    for i in bpy.context.selected_objects: i.select = False #deselect all objects
-    a.select = True
-    bpy.context.scene.objects.active = a
-    bpy.ops.object.mode_set(mode='OBJECT')
+    armature = None
+    armData = bpy.data.armatures.new('Armature')
+    armData.draw_type = 'STICK'
+    armature = bpy.data.objects.new('Armature', armData)
+    armature.show_x_ray = True
 
-    return a
+    bpyhelper.scene_link(armature)
 
-def import_refpose_armature(autoIk, this_data):
-    a = create_refpose_armature('AnimationArmature')
-    boneIDs = {}  # temp
+    bpyhelper.scene_active_set(armature)
+    bpy.ops.object.mode_set(mode='EDIT')
 
+    # The bones are not topologically sorted, so make two passes
+    # over the list. The first computes the matrices for all
+    # bones, and the second pass applies parenting since all bones
+    # are guaranteed to exist then.
     newBoneName()
-    def addBone(num,name):
-        bone = a.data.edit_bones.new(name)
-        addBoneName(name)
-        bone.tail = 0,5,0 # Blender removes zero-length bones
-        bone.tail = 0,1,0 # Blender removes zero-length bones
-        bone.tail = 0,0.005,0
-        # fixLength(bone)
-        boneIDs[num] = bone.name
-        return bone
-    
-    bpy.ops.object.mode_set(mode='EDIT',toggle=False)
-    index = 0
-    for bone in this_data.refpose_bones:
-        addBone(index,str(bone.name))
-        index += 1
-    
-    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+    matrices = {}
+    for bone in bones:
+        bbone = armData.edit_bones.new(bone.name)
+        bbone.tail = 0, 0.05, 0 # Blender removes zero-length bones
+        addBoneName(bbone.name)
+        
+        mpos = Matrix.Translation(xzy(bone.pos))
+        mrot = euler(bone.rot).to_matrix().to_4x4()
+        matrices[bone.name] = mpos * mrot
 
-    index = 0
-    for bone in this_data.refpose_bones:
-        if bone.parent != -1:
-            a.data.edit_bones[index].parent = a.data.edit_bones[bone.parent]
-        index += 1
+        
+        
+    for i, bone in enumerate(bones):
+        if getBoneName(bone.parent) is not None:
+            bbone = armData.edit_bones[i]
+            bbone.parent = armature.data.edit_bones[bone.parent]
 
-    bpy.context.scene.objects.active = a
+    # Pose the skeleton by applying the computed matrices.
+    bpy.context.scene.objects.active = armature
     bpy.ops.object.mode_set(mode='POSE')
 
-    # sect 2: get frame
-    index = 0
-    for refpose_bone in this_data.refpose_bones:
-        pos = Vector([refpose_bone.pos[0], refpose_bone.pos[1], refpose_bone.pos[2]])
-        rot = Euler([refpose_bone.rot[0], refpose_bone.rot[1], refpose_bone.rot[2]])
-        # rot = wxzy(refpose_bone.rot).to_matrix().to_4x4()  # maybe use existing def?
-        bone = a.pose.bones[getBoneName(index)]
+    for bone in armature.pose.bones:
         bone.matrix_basis.identity()
-        bone.matrix = Matrix.Translation(pos) * rot.to_matrix().to_4x4()
-        index += 1
+        bone.matrix = matrices[bone.name]
 
-    # sect 3: apply
     bpy.ops.pose.armature_apply()
+
+    # Visualization for the bones. Based on code from SEAnim importer.
+    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3,size=2)
+    bone_vis = bpy.context.active_object
+    bone_vis.data.name = bone_vis.name = "smd_bone_vis"
+    bone_vis.use_fake_user = True
+    bpy.context.scene.objects.unlink(bone_vis)
+    bpy.context.scene.objects.active = armature
+
+    # Calculate armature dimensions...Blender should be doing this!
+    maxs = [0,0,0]
+    mins = [0,0,0]
+
+    j = 0
+    for bone in armData.bones:
+        for i in range(3):
+            maxs[i] = max(maxs[i],bone.head_local[i])
+            mins[i] = min(mins[i],bone.head_local[i])
     
+    dimensions = []
+    for i in range(3):
+            dimensions.append(maxs[i] - mins[i])
+    
+    length = max(0.001, (dimensions[0] + dimensions[1] + dimensions[2]) / 600) # very small indeed, but a custom bone is used for display
+    
+    # Apply spheres
+    bpy.ops.object.mode_set(mode='EDIT')
+    for bone in [armData.edit_bones[b.name] for b in bones]:
+            bone.tail = bone.head + (bone.tail - bone.head).normalized() * length # Resize loose bone tails based on armature size
+            armature.pose.bones[bone.name].custom_shape = bone_vis # apply bone shape    
     bpy.ops.object.mode_set(mode='OBJECT')
-    a.data.use_auto_ik = autoIk
-    return a
-    
+    armData.use_auto_ik = autoIk
 
-# rewrite me
-def importArmature(autoIk):
-    bones = data.bones
-    armature = None
-    if len(bones) > 0:
-        armData = bpy.data.armatures.new('Armature')
-        armData.draw_type = 'STICK'
-        armature = bpy.data.objects.new('Armature', armData)
-        armature.show_x_ray = True
 
-        bpyhelper.scene_link(armature)
-
-        bpyhelper.scene_active_set(armature)
-        bpy.ops.object.mode_set(mode='EDIT')
-
-        newBoneName()
-        
-        for bone in bones:
-            bbone = armature.data.edit_bones.new(bone.name)
-            addBoneName(bbone.name)
-            # warning: matrix bugged.
-            
-            mpos = Matrix.Translation(xzy(bone.pos))
-            mrot = wxzy(bone.rot).to_matrix().to_4x4()
-            m = mpos * mrot
-            
-            bbone.matrix = m
-                
-            fixLength(bbone)
-            
-        for i, bone in enumerate(bones):
-            if bone.parent > -1:
-                bbone = armData.edit_bones[i]
-                bbone.parent = armature.data.edit_bones[bone.parent]
-
-        bpyhelper.select_obj(armature, True)
-        bpy.ops.object.mode_set(mode='OBJECT')
-        armature.data.use_auto_ik = autoIk
+    bpy.ops.object.mode_set(mode='OBJECT')
+    armature.data.use_auto_ik = autoIk
     return armature
 
 def euler(rot): return Euler(rot[0:3])
@@ -362,30 +337,6 @@ def importEmpties(armature = None):
     return att, e_dict
 
 
-def boneTailMiddleObject(armature):
-    bpyhelper.scene_active_set(armature)
-    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-    eb = armature.data.edit_bones
-    boneTailMiddle(eb)
-    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-
-def boneTailMiddle(eb):
-    for bone in eb:
-        if len(bone.children) > 0:
-            bone.tail = Vector(map(sum,zip(*(child.head.xyz for child in bone.children))))/len(bone.children)
-        else:
-            if bone.parent != None:
-                if bone.head.xyz != bone.parent.tail.xyz:
-                    delta = bone.head.xyz - bone.parent.tail.xyz
-                else:
-                    delta = bone.parent.tail.xyz - bone.parent.head.xyz
-                bone.tail = bone.head.xyz + delta
-    for bone in eb:
-        fixLength(bone)
-        if bone.parent:
-            if bone.head == bone.parent.tail:
-                bone.use_connect = True
-
 def select_all(ob):
     if bpyhelper.LOCK_UPDATE: pass
     bpyhelper.select_obj(ob, True)
@@ -431,9 +382,6 @@ def readmdl(materials = None, rotate=True):
             matpath = bpyhelper.normpath('%s/%s' % (root, matpath))
         materials = import_owmat.read(matpath, '')
         bindMaterials(meshes, data, materials)
-
-    if armature:
-        boneTailMiddleObject(armature)
 
     empties = (None, [])
     if settings.importEmpties:
