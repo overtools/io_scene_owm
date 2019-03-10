@@ -9,6 +9,8 @@ import bpy
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty
 from bpy_extras.io_utils import ImportHelper
 from bpy.app.handlers import persistent
+from bpy.utils import smpte_from_seconds
+from datetime import datetime
 
 class import_mdl_op(bpy.types.Operator, ImportHelper):
     bl_idname = 'owm_importer.import_model'
@@ -93,12 +95,13 @@ class import_mdl_op(bpy.types.Operator, ImportHelper):
             self.importColor
         )
         owm_types.update_data()
+        t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
         try:
             import_owmdl.read(settings)
         except KeyboardInterrupt:
             bpyhelper.LOCK_UPDATE = False
-        print('DONE')
+        print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -150,9 +153,13 @@ class import_mat_op(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         owm_types.update_data()
+        t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
-        import_owmat.read(self.filepath, '')
-        print('DONE')
+        try:
+            import_owmat.read(self.filepath, '')
+        except KeyboardInterrupt:
+            bpyhelper.LOCK_UPDATE = False
+        print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -355,9 +362,13 @@ class import_map_op(bpy.types.Operator, ImportHelper):
             [self.lightIndex, self.edgeIndex, self.sizeIndex]
         )
         owm_types.update_data()
+        t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
-        import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision, self.importSounds)
-        print('DONE')
+        try:
+            import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision, self.importSounds)
+        except KeyboardInterrupt:
+            bpyhelper.LOCK_UPDATE = False
+        print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -496,9 +507,13 @@ class import_ent_op(bpy.types.Operator, ImportHelper):
             self.importColor
         )
         owm_types.update_data()
+        t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
-        import_owentity.read(settings, self.import_children)
-        print('DONE')
+        try:
+            import_owentity.read(settings, self.import_children)
+        except KeyboardInterrupt:
+            bpyhelper.LOCK_UPDATE = False
+        print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def draw(self, context):
@@ -631,9 +646,13 @@ class import_effect_op(bpy.types.Operator, ImportHelper):
             self.import_svce, self.svce_line_seed, self.svce_sound_seed, self.import_camera,
             self.cleanup_hardpoints)
         owm_types.update_data()
+        t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
-        import_oweffect.read(efct_settings)
-        print('DONE')
+        try:
+            import_oweffect.read(efct_settings)
+        except KeyboardInterrupt:
+            bpyhelper.LOCK_UPDATE = False
+        print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def draw(self, context):
