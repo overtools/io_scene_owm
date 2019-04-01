@@ -33,6 +33,7 @@ ALWAYS_DOWNLOAD = False
 
 LIBRARY_STATE = 0 # 0 = Uninitialized, 1 = Linked, 2 = Loaded
 LIBRARY_STATE_ENUM = ["UNINITIALIZED", "LINKED", "LOADED"]
+LIBRARY_BRANCH = "blender-2.80"
 
 def reset():
     global DefaultTextureTypes, TextureTypes, LOADED_LIBRARY_VERSION, ALWAYS_DOWNLOAD, LIBRARY_STATE, LIBRARY_STATE_ENUM, LOG_ALOT
@@ -61,19 +62,19 @@ def download(src, dst):
 
 def update_data(is_editing = False):
     print('[owm] trying to update library file')
-    global LOADED_LIBRARY_VERSION
+    global LOADED_LIBRARY_VERSION, LIBRARY_BRANCH
     v = LOADED_LIBRARY_VERSION
     try:
         with open(get_library_version_path()) as f:
             v = int(f.readline().strip())
             LOADED_LIBRARY_VERSION = v
-            with urlopen('https://raw.githubusercontent.com/overtools/io_scene_owm/master/LIBRARY_VERSION') as rF:
+            with urlopen('https://raw.githubusercontent.com/overtools/io_scene_owm/%s/LIBRARY_VERSION' % LIBRARY_BRANCH) as rF:
                 data = rF.read()
                 rV = int(data.decode('ascii').split('\n')[0].strip())
                 print('[owm] local version %s, remote version %s' % (v, rV))
                 if rV > v or ALWAYS_DOWNLOAD:
-                    download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/library.blend', get_library_path())
-                    download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/texture-map.json', get_texture_type_path())
+                    download('https://raw.githubusercontent.com/overtools/io_scene_owm/%s/library.blend' % LIBRARY_BRANCH, get_library_path())
+                    download('https://raw.githubusercontent.com/overtools/io_scene_owm/%s/texture-map.json' % LIBRARY_BRANCH, get_texture_type_path())
                     v = rV
     except BaseException as e:
         print('[owm] failed to update: %s' % (bpyhelper.format_exc(e)))
@@ -81,7 +82,7 @@ def update_data(is_editing = False):
     load_data(is_editing)
     if v > LOADED_LIBRARY_VERSION or ALWAYS_DOWNLOAD:
         LOADED_LIBRARY_VERSION = v
-        download('https://raw.githubusercontent.com/overtools/io_scene_owm/master/LIBRARY_VERSION', get_library_version_path())
+        download('https://raw.githubusercontent.com/overtools/io_scene_owm/%s/LIBRARY_VERSION' % LIBRARY_BRANCH, get_library_version_path())
 
 def get_library_path():
     return os.path.join(os.path.dirname(__file__), 'library.blend')

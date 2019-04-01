@@ -6,7 +6,7 @@ IS_BLENDER280 = bpy.app.version >= (2, 80, 0)
 
 def clean_empties():
     for obj in bpy.data.objects:
-        if obj.type == 'EMPTY' and obj.hide == True and len(obj.children) == 0:
+        if obj.type == 'EMPTY' and obj.hide_render == True and obj.hide_viewport == True and len(obj.children) == 0:
             print('[owm]: removed object: {}'.format(obj.name))
             scene_unlink(obj)
             bpy.data.objects.remove(obj)

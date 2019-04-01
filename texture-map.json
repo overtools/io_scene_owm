@@ -27,7 +27,13 @@
         "DiffuseEnv2": [[], [], 3120512190],
         "NormalEnv2": [[], [], 1897827336],
         "TertiaryEnv2": [[], [], 824205512],
-        "AO2": [[], [], 3335614873]
+        "AO2": [[], [], 3335614873],
+        "NormalGold": [["Normal"], [], 3580490186],
+        "GoldModifier": [[], [], 3179937788],
+        "TertiaryGold": [["PBR"], [], 2725167452],
+        "EmissionGold": [["Emission"], [], 1401396944],
+        "AOGold": [[], [], 1007310079],
+        "DiffuseGold": [["Color"], [], 996643046]
     },
     "Alias": {
         "Color": "Base Color Map",
