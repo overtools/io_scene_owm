@@ -69,7 +69,7 @@ def create_refpose(model_path):
         bpy.ops.object.empty_add(type='CIRCLE', radius=0.05 )
         empty = bpy.context.active_object
         empty.parent = att
-        empty.parent_type = "ARMATURE"
+        empty.parent_type = "OBJECT"
         empty.name = emp.name
         empty.show_in_front = True
         empty.location = import_owmdl.xzy(emp.position)
@@ -123,7 +123,7 @@ def delete(obj):
     bpy.context.view_layer.objects.active = obj
     if obj is None:
         return
-    bpyhelper.select_obj(hardpoint, True)
+    bpyhelper.select_obj(obj, True)
     bpy.ops.object.delete()
 
 
@@ -166,6 +166,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
         directory, file = os.path.split(data.anim_path)
         bpy.ops.object.select_all(action='DESELECT')
         bpy.context.view_layer.objects.active = new_skeleton
+        bpy.ops.import_scene.seanim
         bpy.ops.import_scene.seanim(filepath=bpyhelper.normpath(os.path.join(pool, directory)) + os.path.sep, files=[{'name': file}])
 
         if target_framerate != int(data.header.fps):

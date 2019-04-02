@@ -271,6 +271,68 @@ def importMesh(armature, meshData):
 
     return obj
 
+def create_refpose_armature(armature_name):
+    a = bpy.data.objects.new(armature_name,bpy.data.armatures.new(armature_name))
+    a.show_in_front = True
+    a.data.display_type = 'STICK'
+    bpyhelper.scene_link(a)
+    for i in bpy.context.selected_objects:
+        bpyhelper.select_obj(i, False) #deselect all objects
+    bpyhelper.select_obj(a, True)
+    bpy.context.view_layer.objects.active = a
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    return a
+
+def import_refpose_armature(autoIk, this_data):
+    a = create_refpose_armature('AnimationArmature')
+    boneIDs = {}  # temp
+
+    newBoneName()
+    def addBone(num,name):
+        bone = a.data.edit_bones.new(name)
+        addBoneName(name)
+        bone.tail = 0,5,0 # Blender removes zero-length bones
+        bone.tail = 0,1,0 # Blender removes zero-length bones
+        bone.tail = 0,0.005,0
+        # fixLength(bone)
+        boneIDs[num] = bone.name
+        return bone
+    
+    bpy.ops.object.mode_set(mode='EDIT',toggle=False)
+    index = 0
+    for bone in this_data.refpose_bones:
+        addBone(index,str(bone.name))
+        index += 1
+    
+    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+
+    index = 0
+    for bone in this_data.refpose_bones:
+        if bone.parent != -1:
+            a.data.edit_bones[index].parent = a.data.edit_bones[bone.parent]
+        index += 1
+
+    bpy.context.view_layer.objects.active = a
+    bpy.ops.object.mode_set(mode='POSE')
+
+    # sect 2: get frame
+    index = 0
+    for refpose_bone in this_data.refpose_bones:
+        pos = Vector([refpose_bone.pos[0], refpose_bone.pos[1], refpose_bone.pos[2]])
+        rot = Euler([refpose_bone.rot[0], refpose_bone.rot[1], refpose_bone.rot[2]])
+        # rot = wxzy(refpose_bone.rot).to_matrix().to_4x4()  # maybe use existing def?
+        bone = a.pose.bones[getBoneName(index)]
+        bone.matrix_basis.identity()
+        bone.matrix = Matrix.Translation(pos) @ rot.to_matrix().to_4x4()
+        index += 1
+
+    # sect 3: apply
+    bpy.ops.pose.armature_apply()
+    
+    bpy.ops.object.mode_set(mode='OBJECT')
+    a.data.use_auto_ik = autoIk
+    return a
 
 def importMeshes(armature):
     global data

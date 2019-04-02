@@ -51,9 +51,9 @@ def wxzy(vec):
     return vec[3], vec[0], -vec[2], vec[1]
 
 
-def progress_update(total, progress):
+def progress_update(total, progress, nextFile):
     if owm_types.LOG_ALOT:
-        print('%d/%d (%d%%)' % (progress, total, progress / total * 100))
+        print('%d/%d (%d%%) %s' % (progress, total, progress / total * 100, nextFile))
     bpy.context.window_manager.progress_update(progress)
 
 def hide_recursive(obj):
@@ -142,6 +142,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             if not os.path.isabs(obpath):
                 obpath = bpyhelper.normpath('%s/%s' % (root, obpath))
             if not os.path.isfile(obpath): continue
+            progress_update(total, prog, obpath)
 
             obn = os.path.splitext(os.path.basename(obpath))[0]
 
@@ -186,15 +187,14 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 # eobj = copy(obj, None)
 
                 for idx2, rec in enumerate(ent.records):
+                    progress_update(total, prog, obpath)
                     nobj = copy(obj, matObj)
                     nobj.location = pos_matrix(rec.position)
                     nobj.rotation_euler = Quaternion(wxzy(rec.rotation)).to_euler('XYZ')
                     nobj.scale = xpzy(rec.scale)
                     if hideModel:
                         hide_recursive(nobj)
-                    progress_update(total, prog)
                     prog += 1
-                progress_update(total, prog)
             remove(obj)
 
     if importDetails:
@@ -210,6 +210,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 obpath = bpyhelper.normpath('%s/%s' % (root, obpath))
             if not os.path.isfile(obpath):
                 continue
+            progress_update(total, prog, obpath)
             cacheKey = obpath
             if settings.importMaterial and len(ob.material) > 3:
                 cacheKey = cacheKey + ob.material
@@ -249,7 +250,6 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             import_owmdl.bindMaterialsUniq(internal_obj[2], internal_obj[4], mat)
 
             objCache[cacheKey] = mdl
-            progress_update(total, prog)
 
         for ob in data.details:
             obpath = ob.model
@@ -257,6 +257,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             if not os.path.isabs(obpath):
                 obpath = bpyhelper.normpath('%s/%s' % (root, obpath))
             cacheKey = obpath
+            progress_update(total, prog, obpath)
             if settings.importMaterial and len(ob.material) > 3:
                 cacheKey = cacheKey + ob.material
             if cacheKey not in objCache or objCache[cacheKey] is None:
@@ -266,12 +267,11 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             objnode.location = pos_matrix(ob.position)
             objnode.rotation_euler = Quaternion(wxzy(ob.rotation)).to_euler('XYZ')
             objnode.scale = xpzy(ob.scale)
-            progress_update(total, prog)
 
         for ob in objCache:
             prog += 1
             remove(objCache[ob])
-            progress_update(total, prog)
+            progress_update(total, prog, ob)
 
     LIGHT_MAP = ['SUN', 'SPOT', 'POINT']
 
@@ -307,7 +307,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             enode.inputs.get('Color').default_value = (lamp_col.r, lamp_col.g, lamp_col.b, 1.0)
             enode.inputs.get('Strength').default_value = lamp_str
             lamp_ob.parent = globLight
-            progress_update(total, prog)
+            progress_update(total, prog, "Lamp")
     
     if importSound:
         globSound = bpy.data.objects.new(name + '_SOUNDS', None)
@@ -330,7 +330,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 speaker_data.volume = 0.7
                 speaker_data.attenuation = 0.3
                 bpyhelper.scene_link(speaker_ob)
-            progress_update(total, prog)
+            progress_update(total, prog, "Sound")
 
     wm.progress_end()
     print('Finished loading map')
