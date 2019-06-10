@@ -335,4 +335,4 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
     wm.progress_end()
     print('Finished loading map')
     bpyhelper.LOCK_UPDATE = False
-    bpyhelper.scene_update()
+    bpyhelper.viewlayer_update()

@@ -10,7 +10,7 @@ def clean_empties():
             print('[owm]: removed object: {}'.format(obj.name))
             scene_unlink(obj)
             bpy.data.objects.remove(obj)
-    scene_update()
+    viewlayer_update()
 
 def format_exc(e):
     return ''.join(traceback.format_exception(type(e), e, e.__traceback__))
@@ -20,17 +20,17 @@ def clean_materials():
         if mat.users == 0:
             print('[owm]: removed material: {}'.format(mat.name))
             bpy.data.materials.remove(mat)
-    scene_update()
+    viewlayer_update()
     t = {}
     for tex in bpy.data.textures:
         if tex.users == 0:
             print('[owm]: removed texture: {}'.format(tex.name))
             bpy.data.textures.remove(tex)
-    scene_update()
+    viewlayer_update()
 
 LOCK_UPDATE = False
 
-def scene_update():
+def viewlayer_update():
     if LOCK_UPDATE: return
     bpy.context.view_layer.update()
 def select_obj(object, value): object.select_set(value)

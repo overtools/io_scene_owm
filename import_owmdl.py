@@ -453,7 +453,7 @@ def readmdl(materials = None, rotate=True):
                 armature.rotation_euler = (radians(90), 0, 0)
     
     if impMat:
-        import_owmat.cleanUnusedMaterials(materials)
+        import_owmat.clean_unused_materials(materials)
 
     if len(data.cloths) > 0:
         for cloth in data.cloths:
@@ -491,7 +491,7 @@ def read(aux, materials = None, mutated = False, rotate=True):
     setup()
     status = readmdl(materials, rotate)
     if not mutated:
-        bpyhelper.scene_update()
+        bpyhelper.viewlayer_update()
     finalize()
     return status
 

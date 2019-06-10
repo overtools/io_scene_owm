@@ -4,7 +4,7 @@ from . import read_owmat
 from . import owm_types
 import bpy
 
-def cleanUnusedMaterials(materials):
+def clean_unused_materials(materials):
     if materials is None:
         return
     m = {}
@@ -15,7 +15,7 @@ def cleanUnusedMaterials(materials):
             bpy.data.materials.remove(mat)
         else:
             m[name] = mat
-    bpyhelper.scene_update()
+    bpyhelper.viewlayer_update()
     t = {}
     for name in materials[0]:
         tex = materials[0][name]
@@ -23,28 +23,24 @@ def cleanUnusedMaterials(materials):
             bpy.data.textures.remove(tex)
         else:
             t[name] = tex
-    bpyhelper.scene_update()
+    bpyhelper.viewlayer_update()
     return (t, m)
 
 def mutate_texture_path(file, new_ext):
     return os.path.splitext(file)[0] + new_ext
 
 def load_textures(texture, root, t):
-    ''' Loads an overwatch texture.
- 
-    Priority (high to low): TIFF, TGA, DDS (doesn't work properly)
-    '''
+    ''' Loads a texture. '''
+    extensions = ['tga', 'tif', 'png']  # If no file with any of these extensions is found, we default to .dds.
+
     realpath = bpyhelper.normpath(texture)
     if not os.path.isabs(realpath):
         realpath = bpyhelper.normpath('%s/%s' % (root, realpath))
 
-    tga_file = mutate_texture_path(realpath, '.tga')
-    if os.path.exists(tga_file):
-        realpath = tga_file
-    
-    tif_file = mutate_texture_path(realpath, '.tif')
-    if os.path.exists(tif_file):
-        realpath = tif_file
+    for ext in extensions:
+        search_path = mutate_texture_path(realpath, '.'+ext)
+        if os.path.exists(search_path):
+            realpath = search_path
 
     fn = os.path.splitext(os.path.basename(realpath))[0]
     
