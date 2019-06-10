@@ -135,7 +135,8 @@ def process_material(material, prefix, root, t):
         nodeTex = nodes.new('ShaderNodeTexImage')
         nodeTex.location = (-tile, -tile*(i))
         nodeTex.width = 250
-        nodeTex.color_space = 'NONE'
+        if nodeTex.image:
+            nodeTex.image.colorspace_settings.name = 'Non-Color'
         
         tex = load_textures(texData[0], root, t)
         if tex is None:
@@ -197,6 +198,8 @@ def process_material(material, prefix, root, t):
 
     for colorNodePoint in tm['Color']:
         if colorNodePoint in scratchSocket:
-            scratchSocket[colorNodePoint].node.color_space = 'COLOR'
+            image = scratchSocket[colorNodePoint].node.image
+            if image:
+                image.colorspace_settings.name = 'sRGB'
     
     return mat
