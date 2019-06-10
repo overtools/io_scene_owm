@@ -88,6 +88,11 @@ def process_material(material, prefix, root, t):
 
     # print('Processing material: ' + mat.name)
     mat.use_nodes = True
+
+    # Setting default transparency blend mode for Eevee
+    mat.blend_method = 'CLIP'
+    # Setting default roughness for solid view
+    mat.roughness = 0.6
    
     tile = 300
     nodes = mat.node_tree.nodes
@@ -131,14 +136,18 @@ def process_material(material, prefix, root, t):
         nodeTex = nodes.new('ShaderNodeTexImage')
         nodeTex.location = (-tile, -tile*(i))
         nodeTex.width = 250
-        if nodeTex.image:
-            nodeTex.image.colorspace_settings.name = 'Non-Color'
         
         tex = load_textures(texData[0], root, t)
         if tex is None:
             print('[import_owmat]: failed to load texture: {}'.format(texData[0]))
             continue
         nodeTex.image = tex.image
+        if nodeTex.image:
+            nodeTex.image.colorspace_settings.name = 'Non-Color'
+            
+            # Eye AO and Cornea materials should use "Alpha Blend" blend mode. Since shader type doesn't reliably correlate to alpha blend mode, we're identifying them by whether they use a specific texture. Not ideal but good enough for now.
+            if(nodeTex.image.name in ['0000000027EB', '0000000027ED']):
+                mat.blend_method = 'BLEND'
 
         if len(texData) == 2:
             continue
@@ -154,6 +163,12 @@ def process_material(material, prefix, root, t):
             print('[import_owmat]: {} is {}'.format(os.path.basename(texData[0]), tt[typ]))
             nodeTex.label = str(tt[typ])
             nodeTex.name = str(tt[typ])
+    
+            # If an Anisotropic Rotation texture exists, treat this as a hair material
+            if str(tt[typ]) == 'AnisotropyRotation' and 'Anisotropic' in nodeOverwatch.inputs:
+                nodeOverwatch.inputs['Anisotropic'].default_value = 1
+                nodeOverwatch.inputs['Base PBR Map'].default_value = (0.66, 0.5, 0, 1)
+
             for colorSocketPoint in bfTyp[0]:
                 nodeSocketName = colorSocketPoint
                 if colorSocketPoint in tm['Alias']:
