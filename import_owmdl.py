@@ -323,7 +323,7 @@ def fix_bone_tail(edit_bones, bone=None):
     for c in bone.children:
         fix_bone_tail(edit_bones, c)
 
-def importArmature(autoIk):
+def importArmature():
     bones = data.refpose_bones
     if len(bones) == 0:
         return
@@ -369,15 +369,6 @@ def importArmature(autoIk):
 
     bpy.ops.pose.armature_apply()
 
-    # Visualization for the bones. Based on code from SEAnim importer.
-    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=3, radius=2)
-    bone_vis = bpy.context.active_object
-    bone_vis.data.name = bone_vis.name = "smd_bone_vis"
-    bone_vis.use_fake_user = True
-    bpyhelper.scene_unlink(bone_vis)
-    bpy.context.view_layer.objects.active = armature
-
     # Calculate armature dimensions...Blender should be doing this!
     maxs = [0,0,0]
     mins = [0,0,0]
@@ -397,19 +388,12 @@ def importArmature(autoIk):
     # Apply spheres
     bpy.ops.object.mode_set(mode='EDIT')
     for bone in [armData.edit_bones[b.name] for b in bones]:
-            bone.tail = bone.head + (bone.tail - bone.head).normalized() * length # Resize loose bone tails based on armature size
-            #armature.pose.bones[bone.name].custom_shape = bone_vis # apply bone shape    
-    bpy.ops.object.mode_set(mode='OBJECT')
-    armature.pose.use_auto_ik = autoIk
-
-    bpy.ops.object.mode_set(mode='OBJECT')
-    armature.pose.use_auto_ik = autoIk
+        bone.tail = bone.head + (bone.tail - bone.head).normalized() * length # Resize loose bone tails based on armature size
     
     if(settings.renameBones):
         rename_bones(armature)
     
     if(settings.adjustTails):
-        bpy.ops.object.mode_set(mode='EDIT')
         fix_bone_tail(armature.data.edit_bones, armature.data.edit_bones.get("Root_Pelvis"))
     bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -589,7 +573,7 @@ def create_refpose_armature(armature_name):
 
     return a
 
-def import_refpose_armature(autoIk, this_data):
+def import_refpose_armature(this_data):
     a = create_refpose_armature('AnimationArmature')
     boneIDs = {}  # temp
 
@@ -636,7 +620,6 @@ def import_refpose_armature(autoIk, this_data):
     bpy.ops.pose.armature_apply()
 
     bpy.ops.object.mode_set(mode='OBJECT')
-    a.pose.use_auto_ik = autoIk
     return a
 
 def importMeshes(armature):
@@ -726,7 +709,7 @@ def readmdl(materials = None, rotate=True):
 
     armature = None
     if settings.importSkeleton and data.header.boneCount > 0:
-        armature = importArmature(settings.autoIk)
+        armature = importArmature()
         armature.name = rootName + '_Skeleton'
         armature.parent = rootObject
         armature.show_in_front = True

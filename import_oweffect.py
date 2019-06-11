@@ -55,7 +55,7 @@ def get_meshes(skeleton):
 
 def create_refpose(model_path):
     model_data = read_owmdl.read(model_path)
-    arm = import_owmdl.import_refpose_armature(False, model_data)
+    arm = import_owmdl.import_refpose_armature(model_data)
 
     att = bpy.data.objects.new('Hardpoints', None)
     att.parent = arm

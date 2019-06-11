@@ -146,12 +146,11 @@ def load_data(is_editing = False):
         print('[owm] failed to load texture types: %s' % (bpyhelper.format_exc(e)))
 
 class OWSettings:
-    def __init__(self, filename, uvDisplaceX, uvDisplaceY, autoIk, importNormals, importEmpties, importMaterial,
+    def __init__(self, filename, uvDisplaceX, uvDisplaceY, importNormals, importEmpties, importMaterial,
                  importSkeleton, renameBones, adjustTails, importColor):
         self.filename = bpyhelper.normpath(filename)
         self.uvDisplaceX = uvDisplaceX
         self.uvDisplaceY = uvDisplaceY
-        self.autoIk = autoIk
         self.importNormals = importNormals
         self.importEmpties = importEmpties
         self.importMaterial = importMaterial
@@ -161,7 +160,7 @@ class OWSettings:
         self.importColor = importColor
 
     def mutate(self, filename):
-        return OWSettings(filename, self.uvDisplaceX, self.uvDisplaceY, self.autoIk, self.importNormals,
+        return OWSettings(filename, self.uvDisplaceX, self.uvDisplaceY, self.importNormals,
                           self.importEmpties, self.importMaterial, self.importSkeleton, self.importColor)
 
 class OWLightSettings:
