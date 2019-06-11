@@ -13,6 +13,222 @@ settings = None
 data = None
 rootObject = None
 blenderBoneNames = []
+prefix_ow = "bone_0"
+# Hopefully this works for all characters.
+overwatch = {
+    #"000" : "useless",
+    "001" : "Root_Ground",
+    #"38D" : "useless",
+    #"180" : "useless",
+    #"3BE" : "useless",
+    #"181" : "useless",
+    #"07D" : "useless",
+    #"5F0" : "useless",
+    #"07E" : "useless",
+    #"0C1" : "useless",
+    #"0C2" : "useless",
+    "002" : "Root_Pelvis",      #!
+    #"97F" : "useless",
+    #"985" : "useless",
+    "052" : "Spine1_Def",
+    "003" : "Spine1",           #!
+    "004" : "Spine2",           #!
+    "005" : "Spine3",           #!
+    "051" : "Spine2_Def",
+    #"109" : "useless",
+    "00F" : "Spine3_Def",
+    "010" : "Neck_Def",
+    "0EF" : "Collar_Back",      #Sombra
+    "0EE" : "Collar.R",         #Sombra
+    "0EC" : "Collar_Front",     #Sombra
+    "0ED" : "Collar.L",         #Sombra
+    "050" : "Clavicle.L",       #!
+    "035" : "Clavicle.R",       #!
+    "034" : "Clavicle_Def.L",
+    "00D" : "Shoulder.L",       #!
+    "031" : "Shoulder_Def.L",
+    "04D" : "Shoulder_Def.R",
+    "00E" : "Elbow.L",          #!
+    "032" : "Twist_Arm_6.L",
+    "04F" : "Twist_Arm_5.L",
+    "01A" : "Twist_Arm_4.L",
+    "01B" : "Twist_Arm_3.L",
+    "030" : "Twist_Arm_2.L",
+    "01C" : "Hand_Def.L",
+    "029" : "Thumb1.L",
+    "02A" : "Thumb2.L",
+    "02B" : "Thumb3.L",
+    "0E6" : "Thumb_Adjust_1.L",
+    "0E4" : "Thumb_Adjust_2.L",
+    "0DE" : "Thumb_Adjust_3.L",
+    "0E2" : "Palm_Adjust_1.L",
+    "835" : "Index1.L",
+    "01D" : "Index2.L",
+    "01E" : "Index3.L",
+    "01F" : "Index4.L",
+    "837" : "Middle1.L",
+    "020" : "Middle2.L",
+    "021" : "Middle3.L",
+    "022" : "Middle4.L",
+    "839" : "Ring1.L",
+    "026" : "Ring2.L",
+    "027" : "Ring3.L",
+    "028" : "Ring4.L",
+    "0E0" : "Pinky1.L",
+    "023" : "Pinky2.L",
+    "024" : "Pinky3.L",
+    "025" : "Pinky4.L",
+    "0EA" : "Palm_Adjust_2.L",
+    "036" : "Shoulder.R",       #!
+    "00C" : "Clavicle_Def.R",
+    "037" : "Elbow.R",          #!
+    "04E" : "Twist_Arm_6.R",
+    "033" : "Twist_Arm_5.R",
+    "038" : "Twist_Arm_4.R",
+    "039" : "Twist_Arm_3.R",
+    #"04A" : "useless",
+    "04C" : "Twist_Arm_2.R",
+    "03A" : "Hand_Def.R",
+    "047" : "Thumb1.R",
+    "0E7" : "Thumb_Adjust_1.R",
+    "0E5" : "Thumb_Adjust_2.R",
+    "0DF" : "Thumb_Adjust_3.R",
+    "048" : "Thumb2.R",
+    "049" : "Thumb3.R",
+    "0E3" : "Palm_Adjust_1.R",
+    "836" : "Index1.R",
+    "03B" : "Index2.R",
+    "03C" : "Index3.R",
+    "03D" : "Index4.R",
+    "838" : "Middle1.R",
+    "03E" : "Middle2.R",
+    "03F" : "Middle3.R",
+    "040" : "Middle4.R",
+    "83A" : "Ring1.R",
+    "044" : "Ring2.R",
+    "045" : "Ring3.R",
+    "046" : "Ring4.R",
+    "0E1" : "Pinky1.R",
+    "041" : "Pinky2.R",
+    "042" : "Pinky3.R",
+    "043" : "Pinky4.R",
+    "0EB" : "Palm_Adjust_2.R",
+    "011" : "Head_Def",
+    "016" : "Eyebrow_Mid",
+    "017" : "EyeBrow1.L",
+    "018" : "EyeBrow2.L",
+    "019" : "EyeBrow3.L",
+    "385" : "EyeBrow4.L",
+    "012" : "Head_Top",
+    "388" : "Nose_Bridge.L",
+    "39A" : "Eye.L",
+    "397" : "Eyelid_Top_2_Rot.L",
+    "396" : "Eyelid_Bot_2_Rot.L",
+    "007" : "Eyelid_Corner_Outer.L",
+    "38C" : "Eyelid_Top_3.L",
+    "38B" : "Eyelid_Top_2.L",
+    "38A" : "Eyelid_Top_1.L",
+    "006" : "Eyelid_Corner_Inner.L",
+    "38D" : "Eyelid_Bot_1.L",
+    "38E" : "Eyelid_Bot_2.L",
+    "38F" : "Eyelid_Bot_3.L",
+    "608" : "Cheek_Upper_Inner.L",
+    "3A2" : "Cheek_Upper_Middle.L",
+    "60A" : "Cheek_Upper_Outer.L",
+    "71D" : "Cheek_Mid_Outer.L",
+    "39E" : "Cheek_Mid.L",
+    "3A4" : "Cheek_Mid_Inner.L",
+    "009" : "Nose.L",
+    "008" : "Nose_Tip",
+    "00B" : "Face_Lower",       #!
+    "3BC" : "Jaw",
+    "3B7" : "Teeth_Top",
+    "3B8" : "Teeth_Bottom",
+    "3BB" : "Tongue1",
+    "3BA" : "Tongue2",
+    "3B9" : "Tongue3",
+    "3A0" : "Cheek_Jaw_2.L",
+    "3A6" : "Cheek_Jaw_1.L",
+    "60C" : "Cheek_LaughLine.L",
+    "3AA" : "Lip_Top_Mid",
+    "3A9" : "Lip_Top_2.L",
+    "3A8" : "Lip_Top_3.L",
+    "3B0" : "Lip_Corner.L",
+    "3AF" : "Lip_Bottom_3.L",
+    "3AC" : "Lip_Bottom_2.L",
+    "3AD" : "Chin_Outer.L",
+    "3AB" : "Lip_Bottom_Mid",
+    "3B6" : "Chin_Mid",
+    "015" : "EyeBrow1.R",
+    "014" : "EyeBrow2.R",
+    "013" : "EyeBrow3.R",
+    "384" : "EyeBrow4.R",
+    "39B" : "Eye.R",
+    "398" : "Eyelid_Bot_2_Rot.R",
+    "399" : "Eyelid_Top_2_Rot.R",
+    "389" : "Nose_Bridge.R",
+    "386" : "Eyelid_Corner_Outer.R",
+    "395" : "Eyelid_Top_3.R",
+    "394" : "Eyelid_Top_2.R",
+    "393" : "Eyelid_Top_1.R",
+    "387" : "Eyelid_Corner_Inner.R",
+    "391" : "Eyelid_Bot_1.R",
+    "390" : "Eyelid_Bot_2.R",
+    "392" : "Eyelid_Bot_3.R",
+    "609" : "Cheek_Upper_Inner.R",
+    "3A3" : "Cheek_Upper_Middle.R",
+    "60B" : "Cheek_Upper_Outer.R",
+    "71E" : "Cheek_Mid_Outer.R",
+    "39F" : "Cheek_Mid.R",
+    "3A5" : "Cheek_Mid_Inner.R",
+    "00A" : "Nose.R",
+    "60D" : "Cheek_LaughLine.R",
+    "3A7" : "Cheek_Jaw_1.R",
+    "3A1" : "Cheek_Jaw_2.R",
+    "3B4" : "Lip_Top_2.R",
+    "3B5" : "Lip_Top_3.R",
+    "3B3" : "Lip_Corner.R",
+    "3B2" : "Lip_Bottom_3.R",
+    "3B1" : "Lip_Bottom_2.R",
+    "3AE" : "Chin_Outer.R",
+    "056" : "Thigh_Def.L",
+    "055" : "Thigh.L",          #!
+    "059" : "Knee.L",           #!
+    "060" : "Thigh_Def.R",
+    "05F" : "Thigh.R",          #!
+    "063" : "Knee.R",
+    "057" : "Twist_Leg_4.L",
+    "061" : "Twist_Leg_4.R",
+    "058" : "Twist_Leg_3.L",
+    "062" : "Twist_Leg_3.R",
+    "05C" : "Knee_Def.L",
+    "066" : "Knee_Def.R",
+    "05D" : "Twist_Leg_2.L",
+    "067" : "Twist_Leg_2.R",
+    "05E" : "Twist_Leg_1.L",
+    "068" : "Twist_Leg_1.R",
+    "05A" : "Foot_Def.L",
+    "064" : "Foot_Def.R",
+    "05B" : "Toe_Def.L",
+    "065" : "Toe_Def.R",
+    #"3BD" : "useless",
+    #"180" : "useless",
+    "17A" : "BackThing",
+    #"984" : "useless",
+    "054" : "Hip_Def",
+    "053" : "Hip",          #!
+    "7B3" : "Hair_1",
+    "7B4" : "Hair_2",
+    "7B5" : "Hair_3",
+    "7B6" : "Hair_4",
+    "624" : "Twist_Arm_1.L",
+    "61F" : "Twist_Arm_1.R",
+    "0E8" : "Hand_Adjust.L",
+    "0E9" : "Hand_Adjust.R",
+    "57B" : "Clavicle_Adjust.L",
+    "57C" : "Clavicle_Adjust.R",
+    "57E" : "Neck_Def"
+}
 
 def newBoneName():
     global blenderBoneNames
@@ -24,6 +240,88 @@ def getBoneName(originalIndex):
     if originalIndex >= len(blenderBoneNames) or originalIndex == -1:
         return None
     return blenderBoneNames[originalIndex]
+
+def rename_bones(armature):
+    ''' Rename bones using a dictionary ''' # Relies on the assumption that all characters use the same bone IDs for roughly the same bones. Possibly wrong.
+    
+    prefix = prefix_ow
+    name_dict = overwatch
+
+    for b in armature.pose.bones:
+        try:
+            new_name = name_dict[b.name[len(prefix):]]
+            print("Renaming " + b.name + " to: " + new_name)
+            for i, bn in enumerate(blenderBoneNames):
+                if bn == b.name:
+                    blenderBoneNames[i] = new_name
+            b.name = new_name
+        except KeyError:
+            print("Not renaming:" + b.name)
+
+def fix_bone_tail(edit_bones, bone=None):
+    ''' Recursive function to go through a bone hierarchy and move the bone tails to useful positions when possible. '''
+    
+    assert len(edit_bones) > 0, "Armature needs to be in edit mode and has to have bones."
+    
+    scale = 0.005
+    
+    default = ["Teeth_Top", "Teeth_Bottom", "Lip_Bottom_2.L", "Lip_Bottom_2.R", "Lip_Bottom_3.L", "Lip_Bottom_3.R", "Lip_Bottom_Mid", "Lip_Corner.L", "Lip_Corner.R", "Chin_Outer.L", "Chin_Outer.R", "Cheek_Jaw_1.L", "Cheek_Jaw_1.R", "Cheek_Jaw_2.L", "Cheek_Jaw_2.R", "Cheek_Mid.L", "Cheek_Mid.R", "Lip_Top_2.L", "Lip_Top_2.R", "Lip_Top_3.L", "Lip_Top_3.R", "Lip_Top_Mid", "Cheek_Mid_Outer.L", "Cheek_Mid_Outer.R", "Cheek_LaughLine.L", "Cheek_LaughLine.R", "Eyelid_Bot_1.L", "Eyelid_Bot_2.L", "Eyelid_Bot_3.L", "Eyelid_Bot_1.R", "Eyelid_Bot_2.R", "Eyelid_Bot_3.R", "Eyelid_Top_1.L", "Eyelid_Top_2.L", "Eyelid_Top_3.L", "Eyelid_Top_1.R", "Eyelid_Top_2.R", "Eyelid_Top_3.R", "Nose_Tip", "Nose.L", "Nose.R"]
+
+    # Dictionary for connecting specific bones
+    connect_dict = {
+        'Head_Def' : 'Head_Top',
+        'Eyelid_Top_2_Rot.L' : 'Eyelid_Top_2.L',
+        'Eyelid_Top_2_Rot.R' : 'Eyelid_Top_2.R',
+        'Spine3' : 'Neck_Def',
+        'Spine2' : 'Spine3',
+        'Spine1' : 'Spine2',
+        'Hip' : 'Spine2',
+        'Hand_Def.L' : 'Middle2.L',
+        'Hand_Def.R' : 'Middle2.R',
+    }
+
+    if(bone == None):
+        bone=edit_bones[0]
+    
+    # Give some bones a default scale and orientation
+    if(bone.name in default):
+        bone.tail = bone.head + Vector((0, 0, 0.01))
+    # If a bone is in connect_dict, just move its tail to the bone specified in the dictionary.
+    elif(bone.name in connect_dict):
+        target = edit_bones.get(connect_dict[bone.name])
+        if(target != None):
+            bone.tail = target.head
+    else:
+        # For bones with multiple children, we connect the bone to the farthest away child.
+        if(len(bone.children) > 0):
+            farthest_child = bone.children[0]
+            farthest_distance = 0
+            for c in bone.children:
+                distance = (bone.head - c.head).length
+                if(distance > farthest_distance):
+                    farthest_child = c
+                    farthest_distance = distance
+            
+            if(farthest_distance > 0.001):
+                bone.tail = farthest_child.head
+        
+        # For bones with no children...
+        else:
+            if(bone.parent != None):
+                # Get the parent's head->tail vector
+                parent_vec = bone.parent.tail - bone.parent.head
+                # If the bone has siblings, set the scale to an arbitrary amount.
+                if( len(bone.parent.children) > 1): 
+                    bone.tail = bone.head + parent_vec.normalized() * scale
+                # If no siblings, just use the parents transforms.
+                else:
+                    bone.tail = bone.head + parent_vec
+        
+    if(bone.name in default):
+        bone.tail = bone.head + Vector((0, scale, 0))
+    # Recursion over this bone's children.
+    for c in bone.children:
+        fix_bone_tail(edit_bones, c)
 
 def importArmature(autoIk):
     bones = data.refpose_bones
@@ -56,8 +354,6 @@ def importArmature(autoIk):
         mrot = euler(bone.rot).to_matrix().to_4x4()
         matrices[bone.name] = mpos @ mrot
 
-        
-        
     for i, bone in enumerate(bones):
         if getBoneName(bone.parent) is not None:
             bbone = armData.edit_bones[i]
@@ -102,12 +398,21 @@ def importArmature(autoIk):
     bpy.ops.object.mode_set(mode='EDIT')
     for bone in [armData.edit_bones[b.name] for b in bones]:
             bone.tail = bone.head + (bone.tail - bone.head).normalized() * length # Resize loose bone tails based on armature size
-            armature.pose.bones[bone.name].custom_shape = bone_vis # apply bone shape    
+            #armature.pose.bones[bone.name].custom_shape = bone_vis # apply bone shape    
     bpy.ops.object.mode_set(mode='OBJECT')
     armature.pose.use_auto_ik = autoIk
 
     bpy.ops.object.mode_set(mode='OBJECT')
     armature.pose.use_auto_ik = autoIk
+    
+    if(settings.renameBones):
+        rename_bones(armature)
+    
+    if(settings.adjustTails):
+        bpy.ops.object.mode_set(mode='EDIT')
+        fix_bone_tail(armature.data.edit_bones, armature.data.edit_bones.get("Root_Pelvis"))
+    bpy.ops.object.mode_set(mode='OBJECT')
+
     return armature
 
 def euler(rot): return Euler(rot[0:3])
@@ -329,7 +634,7 @@ def import_refpose_armature(autoIk, this_data):
 
     # sect 3: apply
     bpy.ops.pose.armature_apply()
-    
+
     bpy.ops.object.mode_set(mode='OBJECT')
     a.pose.use_auto_ik = autoIk
     return a
@@ -395,7 +700,6 @@ def importEmpties(armature = None):
     except: pass
 
     return att, e_dict
-
 
 def select_all(ob):
     if bpyhelper.LOCK_UPDATE: pass

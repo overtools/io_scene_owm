@@ -147,7 +147,7 @@ def load_data(is_editing = False):
 
 class OWSettings:
     def __init__(self, filename, uvDisplaceX, uvDisplaceY, autoIk, importNormals, importEmpties, importMaterial,
-                 importSkeleton, importColor):
+                 importSkeleton, renameBones, adjustTails, importColor):
         self.filename = bpyhelper.normpath(filename)
         self.uvDisplaceX = uvDisplaceX
         self.uvDisplaceY = uvDisplaceY
@@ -156,6 +156,8 @@ class OWSettings:
         self.importEmpties = importEmpties
         self.importMaterial = importMaterial
         self.importSkeleton = importSkeleton
+        self.renameBones = renameBones
+        self.adjustTails = adjustTails
         self.importColor = importColor
 
     def mutate(self, filename):

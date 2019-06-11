@@ -71,6 +71,18 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
         description='Import Bones',
         default=True,
     )
+    
+    renameBones : BoolProperty(
+        name='Rename Bones',
+        description='EXPERIMENTAL! Attempt renaming main human bones',
+        default=False,
+    )
+    
+    adjustTails : BoolProperty(
+        name='Adjust Tails',
+        description='EXPERIMENTAL! Adjust bone tails. Works best with Rename Bones enabled',
+        default=False,
+    )
 
     def menu_func(self, context):
         self.layout.operator_context = 'INVOKE_DEFAULT'
@@ -92,6 +104,8 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
             self.importEmpties,
             self.importMaterial,
             self.importSkeleton,
+            self.renameBones,
+            self.adjustTails,
             self.importColor
         )
         owm_types.update_data()
@@ -121,6 +135,8 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label(text = 'Armature')
         col.prop(self, 'importSkeleton')
+        col.prop(self, 'renameBones')
+        col.prop(self, 'adjustTails')
         sub = col.row()
         sub.prop(self, 'autoIk')
         sub.enabled = self.importSkeleton
