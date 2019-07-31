@@ -331,7 +331,7 @@ def import_refpose_armature(autoIk, this_data):
     bpy.ops.pose.armature_apply()
     
     bpy.ops.object.mode_set(mode='OBJECT')
-    a.data.use_auto_ik = autoIk
+    # a.data.use_auto_ik = autoIk
     return a
 
 def importMeshes(armature):
