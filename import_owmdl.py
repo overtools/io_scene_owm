@@ -104,10 +104,10 @@ def importArmature(autoIk):
             bone.tail = bone.head + (bone.tail - bone.head).normalized() * length # Resize loose bone tails based on armature size
             armature.pose.bones[bone.name].custom_shape = bone_vis # apply bone shape    
     bpy.ops.object.mode_set(mode='OBJECT')
-    armData.use_auto_ik = autoIk
+    # armData.use_auto_ik = autoIk
 
     bpy.ops.object.mode_set(mode='OBJECT')
-    armature.data.use_auto_ik = autoIk
+    # armature.data.use_auto_ik = autoIk
     return armature
 
 def euler(rot): return Euler(rot[0:3])
