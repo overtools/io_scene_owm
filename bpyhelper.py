@@ -32,7 +32,7 @@ LOCK_UPDATE = False
 
 def scene_update():
     if LOCK_UPDATE: return
-    bpy.context.scene.update()
+    bpy.context.view_layer.update()
 def select_obj(object, value): object.select_set(value)
 def is_selected(object): return object.select_get()
 def scene_link(object): bpy.context.view_layer.active_layer_collection.collection.objects.link(object)
