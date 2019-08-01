@@ -135,13 +135,14 @@ def process_material(material, prefix, root, t):
         nodeTex = nodes.new('ShaderNodeTexImage')
         nodeTex.location = (-tile, -tile*(i))
         nodeTex.width = 250
-        nodeTex.color_space = 'NONE'
         
         tex = load_textures(texData[0], root, t)
         if tex is None:
             print('[import_owmat]: failed to load texture: {}'.format(texData[0]))
             continue
         nodeTex.image = tex.image
+        if nodeTex.image:
+             nodeTex.image.colorspace_settings.name = 'Non-Color'
 
         if len(texData) == 2:
             continue
@@ -197,6 +198,7 @@ def process_material(material, prefix, root, t):
 
     for colorNodePoint in tm['Color']:
         if colorNodePoint in scratchSocket:
-            scratchSocket[colorNodePoint].node.color_space = 'COLOR'
+            if scratchSocket[colorNodePoint].node.image:
+                scratchSocket[colorNodePoint].node.image.colorspace_settings.name = 'sRGB'
     
     return mat
