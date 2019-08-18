@@ -33,7 +33,7 @@ ALWAYS_DOWNLOAD = False
 
 LIBRARY_STATE = 0 # 0 = Uninitialized, 1 = Linked, 2 = Loaded
 LIBRARY_STATE_ENUM = ["UNINITIALIZED", "LINKED", "LOADED"]
-LIBRARY_BRANCH = "blender-2.80"
+LIBRARY_BRANCH = "blender281"
 
 def reset():
     global DefaultTextureTypes, TextureTypes, LOADED_LIBRARY_VERSION, ALWAYS_DOWNLOAD, LIBRARY_STATE, LIBRARY_STATE_ENUM, LOG_ALOT
