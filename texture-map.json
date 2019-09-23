@@ -14,7 +14,7 @@
         "Opacity": [["Opacity"], [], 1482859648],
         "Opacity2": [["Opacity"], [], 1140682086],
         "MaterialMask": [[], [], 1557393490],
-        "SubsurfaceScattering": [[], [], 3004687613],
+        "SubsurfaceScattering": [["Subsurf"], [], 3004687613],
         "Emission": [["Emission"], [], 3166598269],
         "Emission2": [["Emission"], [], 1523270506],
         "Emission3": [["Emission"], [], 4243598436],
@@ -46,17 +46,21 @@
         "PBR": "Base PBR Map",
         "PBR2": "Secondary PBR Map",
         "Opacity": "Opacity Map",
-        "Emission": "Emission Map"
+        "Emission": "Emission Map",
+        "Subsurf": "Base Subsurface Map",
+        "Subsurf2": "Secondary Subsurface Map"
     },
     "Env": {
         "Color2": "Color",
         "Normal2": "Normal",
-        "PBR2": "PBR"
+        "PBR2": "PBR",
+        "Subsurf2": "Subsurf"
     },
     "Color": ["Color", "Color2"],
     "Active": ["Color", "Color2"],
     "NodeGroups": {
         "Default": "OWM: Physically Based Shading",
+        "43": "OWM: Physically Based Skin",
         "51": "OWM: Physically Based Hair",
         "54": "OWM: Refractive Shading"
     }
