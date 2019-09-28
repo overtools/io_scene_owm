@@ -7,3 +7,6 @@ tmp
 !library.blend
 *.bak
 venv
+__data__
+__pyenv__
+*.code-workspace

@@ -56,7 +56,7 @@
         "PBR2": "PBR",
         "Subsurf2": "Subsurf"
     },
-    "Color": ["Color", "Color2"],
+    "Color": ["Color", "Color2", "Subsurf", "Subsurf2"],
     "Active": ["Color", "Color2"],
     "NodeGroups": {
         "Default": "OWM: Physically Based Shading",
