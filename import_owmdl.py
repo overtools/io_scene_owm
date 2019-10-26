@@ -208,21 +208,6 @@ def importMesh(armature, meshData):
     mesh.from_pydata(pos, [], faces)
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
     obj['owm.mesh.name'] = mesh.name
-    for i in range(meshData.uvCount):
-        bpyhelper.new_uv_layer(mesh, 'UVMap%d' % (i + 1))
-
-    if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
-        bpyhelper.new_color_layer(mesh, 'ColorMap1')
-        bpyhelper.new_color_layer(mesh, 'ColorMap1Blue')
-        bpyhelper.new_color_layer(mesh, 'ColorMap2')
-        bpyhelper.new_color_layer(mesh, 'ColorMap2Blue')
-        i = 0
-        for loop in mesh.loops: # ARGB
-            mesh.vertex_colors['ColorMap1'].data[i].color = bpyhelper.safe_color(col1[loop.vertex_index][3], col1[loop.vertex_index][0], col1[loop.vertex_index][1])
-            mesh.vertex_colors['ColorMap1Blue'].data[i].color = bpyhelper.safe_color(col1[loop.vertex_index][2], col1[loop.vertex_index][2], col1[loop.vertex_index][2])
-            mesh.vertex_colors['ColorMap2'].data[i].color = bpyhelper.safe_color(col2[loop.vertex_index][3], col2[loop.vertex_index][0], col2[loop.vertex_index][1])
-            mesh.vertex_colors['ColorMap2Blue'].data[i].color = bpyhelper.safe_color(col2[loop.vertex_index][2], col2[loop.vertex_index][2], col2[loop.vertex_index][2])
-            i += 1
 
     if armature:
         mod = obj.modifiers.new(type='ARMATURE', name='OWM Skeleton')
@@ -248,13 +233,24 @@ def importMesh(armature, meshData):
 
     bm = bmesh.new()
     bm.from_mesh(mesh)
+    if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
+        bpyhelper.new_color_layer(bm, 'ColorMap1')
+        bpyhelper.new_color_layer(bm, 'ColorMap1Blue')
+        bpyhelper.new_color_layer(bm, 'ColorMap2')
+        bpyhelper.new_color_layer(bm, 'ColorMap2Blue')
+    for i in range(meshData.uvCount):
+        bpyhelper.new_uv_layer(bm, 'UVMap%d' % (i + 1))
     for fidx, face in enumerate(bm.faces):
         fraw = faces[fidx]
         for vidx, vert in enumerate(face.loops):
             ridx = fraw[vidx]
             for idx in range(len(mesh.uv_layers)):
-                layer = bm.loops.layers.uv[idx]
-                vert[layer].uv = Vector([uvs[ridx][idx][0] + settings.uvDisplaceX, 1 + settings.uvDisplaceY - uvs[ridx][idx][1]])
+                vert[bm.loops.layers.uv[idx]].uv = Vector([uvs[ridx][idx][0] + settings.uvDisplaceX, 1 + settings.uvDisplaceY - uvs[ridx][idx][1]])
+            if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
+                vert[bm.loops.layers.color[0]] = bpyhelper.safe_color(col1[ridx][3], col1[ridx][0], col1[ridx][1])
+                vert[bm.loops.layers.color[1]] = bpyhelper.safe_color(col1[ridx][2], col1[ridx][2], col1[ridx][2])
+                vert[bm.loops.layers.color[2]] = bpyhelper.safe_color(col2[ridx][3], col2[ridx][0], col2[ridx][1])
+                vert[bm.loops.layers.color[3]] = bpyhelper.safe_color(col2[ridx][2], col2[ridx][2], col2[ridx][2])
     bm.to_mesh(mesh)
 
     mesh.update()
@@ -265,7 +261,7 @@ def importMesh(armature, meshData):
         mesh.validate(clean_customdata = False)
         mesh.update(calc_edges = True)
         mesh.normals_split_custom_set_from_vertices(norms)
-        mesh.use_auto_smooth = True
+        mesh.use_auto_smooth = False
     else:
         mesh.validate()
 
