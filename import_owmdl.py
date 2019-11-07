@@ -208,13 +208,14 @@ def importMesh(armature, meshData):
     mesh.from_pydata(pos, [], faces)
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
     obj['owm.mesh.name'] = mesh.name
+    for i in range(meshData.uvCount):
+        bpyhelper.new_uv_layer(mesh, 'UVMap%d' % (i + 1))
+        
     if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
         bpyhelper.new_color_layer(mesh, 'ColorMap1')
         bpyhelper.new_color_layer(mesh, 'ColorMap1Blue')
         bpyhelper.new_color_layer(mesh, 'ColorMap2')
         bpyhelper.new_color_layer(mesh, 'ColorMap2Blue')
-    for i in range(meshData.uvCount):
-        bpyhelper.new_uv_layer(mesh, 'UVMap%d' % (i + 1))
 
     if armature:
         mod = obj.modifiers.new(type='ARMATURE', name='OWM Skeleton')
