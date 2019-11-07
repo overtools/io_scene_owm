@@ -208,6 +208,13 @@ def importMesh(armature, meshData):
     mesh.from_pydata(pos, [], faces)
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
     obj['owm.mesh.name'] = mesh.name
+    if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
+        bpyhelper.new_color_layer(mesh, 'ColorMap1')
+        bpyhelper.new_color_layer(mesh, 'ColorMap1Blue')
+        bpyhelper.new_color_layer(mesh, 'ColorMap2')
+        bpyhelper.new_color_layer(mesh, 'ColorMap2Blue')
+    for i in range(meshData.uvCount):
+        bpyhelper.new_uv_layer(mesh, 'UVMap%d' % (i + 1))
 
     if armature:
         mod = obj.modifiers.new(type='ARMATURE', name='OWM Skeleton')
@@ -231,13 +238,6 @@ def importMesh(armature, meshData):
         for bname in vgrps:
             pbones[bname].bone_group = bgrp
 
-    if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
-        bpyhelper.new_color_layer(mesh, 'ColorMap1')
-        bpyhelper.new_color_layer(mesh, 'ColorMap1Blue')
-        bpyhelper.new_color_layer(mesh, 'ColorMap2')
-        bpyhelper.new_color_layer(mesh, 'ColorMap2Blue')
-    for i in range(meshData.uvCount):
-        bpyhelper.new_uv_layer(mesh, 'UVMap%d' % (i + 1))
     bm = bmesh.new()
     bm.from_mesh(mesh)
     for fidx, face in enumerate(bm.faces):
@@ -245,7 +245,7 @@ def importMesh(armature, meshData):
         for vidx, vert in enumerate(face.loops):
             ridx = fraw[vidx]
             for idx in range(len(mesh.uv_layers)):
-                layer = bm.loops.layers.uv[idx]]
+                layer = bm.loops.layers.uv[idx]
                 vert[layer].uv = Vector([uvs[ridx][idx][0] + settings.uvDisplaceX, 1 + settings.uvDisplaceY - uvs[ridx][idx][1]])
             if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
                 vert[bm.loops.layers.color[0]] = bpyhelper.safe_color(col1[ridx][3], col1[ridx][0], col1[ridx][1])
