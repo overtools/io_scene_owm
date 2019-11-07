@@ -40,7 +40,7 @@ def scene_unlink(object): bpy.context.view_layer.active_layer_collection.collect
 def scene_active(): return bpy.context.view_layer.objects.active
 def scene_active_set(object): bpy.context.view_layer.objects.active = object
 def get_objects(): return bpy.context.scene_layer.objects
-def new_uv_layer(mesh, name): return mesh.loops.layers.uv.new(name)
-def new_color_layer(mesh, name): return mesh.loops.layers.color.new(name)
+def new_uv_layer(mesh, name): return mesh.uv_layers.new(name = name)
+def new_color_layer(mesh, name): return mesh.vertex_colors.new(name = name)
 def normpath(path): return os.path.normpath(path.replace('\\', os.path.sep).replace('/', os.path.sep))
 def safe_color(r, g, b): return (r, g, b, 1.0)

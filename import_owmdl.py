@@ -231,21 +231,22 @@ def importMesh(armature, meshData):
         for bname in vgrps:
             pbones[bname].bone_group = bgrp
 
+    if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
+        bpyhelper.new_color_layer(mesh, 'ColorMap1')
+        bpyhelper.new_color_layer(mesh, 'ColorMap1Blue')
+        bpyhelper.new_color_layer(mesh, 'ColorMap2')
+        bpyhelper.new_color_layer(mesh, 'ColorMap2Blue')
+    for i in range(meshData.uvCount):
+        bpyhelper.new_uv_layer(mesh, 'UVMap%d' % (i + 1))
     bm = bmesh.new()
     bm.from_mesh(mesh)
-    if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
-        bpyhelper.new_color_layer(bm, 'ColorMap1')
-        bpyhelper.new_color_layer(bm, 'ColorMap1Blue')
-        bpyhelper.new_color_layer(bm, 'ColorMap2')
-        bpyhelper.new_color_layer(bm, 'ColorMap2Blue')
-    for i in range(meshData.uvCount):
-        bpyhelper.new_uv_layer(bm, 'UVMap%d' % (i + 1))
     for fidx, face in enumerate(bm.faces):
         fraw = faces[fidx]
         for vidx, vert in enumerate(face.loops):
             ridx = fraw[vidx]
             for idx in range(len(mesh.uv_layers)):
-                vert[bm.loops.layers.uv[idx]].uv = Vector([uvs[ridx][idx][0] + settings.uvDisplaceX, 1 + settings.uvDisplaceY - uvs[ridx][idx][1]])
+                layer = bm.loops.layers.uv[idx]]
+                vert[layer].uv = Vector([uvs[ridx][idx][0] + settings.uvDisplaceX, 1 + settings.uvDisplaceY - uvs[ridx][idx][1]])
             if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
                 vert[bm.loops.layers.color[0]] = bpyhelper.safe_color(col1[ridx][3], col1[ridx][0], col1[ridx][1])
                 vert[bm.loops.layers.color[1]] = bpyhelper.safe_color(col1[ridx][2], col1[ridx][2], col1[ridx][2])
