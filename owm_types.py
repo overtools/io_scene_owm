@@ -106,11 +106,17 @@ def create_overwatch_shader(is_editing = False):
     path = get_library_path()
     with bpy.data.libraries.load(path, link = not is_editing, relative = True) as (data_from, data_to):
         data_to.node_groups = [node_name for node_name in data_from.node_groups if not node_name in bpy.data.node_groups and node_name.startswith('OWM: ')]
+        data_to.texts = [text_name for text_name in data_from.texts if not text_name in bpy.data.texts and text_name.startswith('OWM: ') and text_name.endswith(".osl")]
         if len(data_to.node_groups) > 0:
             print('[owm] imported node groups: %s' % (', '.join(data_to.node_groups)))
-    blocks = set([node for node in bpy.data.node_groups if node.name.startswith('OWM: ')])
+        if len(data_to.texts) > 0:
+            print('[owm] imported scripts: %s' % (', '.join(data_to.texts)))
+    blocks = [node for node in bpy.data.node_groups if node.name.startswith('OWM: ')]
     for block in blocks:
         bpy.data.node_groups[block.name].use_fake_user = True
+    blocks = [text for text in bpy.data.texts if text.name.startswith('OWM: ') and text.name.endswith(".osl")]
+    for block in blocks:
+        bpy.data.texts[block.name].use_fake_user = True
 
 def create_overwatch_library():
     global LIBRARY_STATE, LIBRARY_STATE_ENUM
@@ -120,11 +126,15 @@ def create_overwatch_library():
         return
     path = get_library_path()
     print('[owm] attempting to export shaders')
-    blocks = set([node for node in bpy.data.node_groups if node.name.startswith('OWM: ')])
-    for block in blocks:
-        bpy.data.node_groups[block.name].use_fake_user = True
+    blocks_node = list([node for node in bpy.data.node_groups if node.name.startswith('OWM: ')])
+    for block_node in blocks_node:
+        bpy.data.node_groups[block_node.name].use_fake_user = True
+    blocks_text = list([text for text in bpy.data.texts if text.name.startswith('OWM: ') and text.name.endswith(".osl")])
+    for block_text in blocks_text:
+        bpy.data.texts[block_text.name].use_fake_user = True
+    blocks = set(blocks_node + blocks_text);
     if len(blocks) > 0:
-        print('[owm] exported node groups: %s' % (', '.join(map(lambda x: x.name, blocks))))
+        print('[owm] exported: %s' % (', '.join(map(lambda x: x.name, blocks))))
     bpy.data.libraries.write(path, blocks, fake_user = True, relative_remap = True, compress = True)
     print('[owm] saved %s' % (path))
 
