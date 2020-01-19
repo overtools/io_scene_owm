@@ -1,0 +1,13 @@
+// OWM: Texture Index
+
+shader OWMTextureIndex(
+        int Index = 1 [[int min = 0]], 
+        int Maximum = 1 [[int min = 0]], 
+        vector Base = vector(0, 0, 0), 
+        output vector UV = vector(0, 0, 0)) {
+        
+    float offset = 1 / (float) max(1, Maximum);
+    UV = point(Base[0], 
+               Base[1] / (float) max(1, Maximum) + offset * (float) (max(0, min(max(1, Maximum - 1), Index)) - 1), 
+               0);   
+}
