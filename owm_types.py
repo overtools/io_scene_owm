@@ -104,7 +104,7 @@ def create_overwatch_shader(is_editing = False):
     print('[owm] LIBRARY_STATE = %s' % (LIBRARY_STATE_ENUM[LIBRARY_STATE]))
     bpy.context.scene.owm_internal_settings.i_library_state = LIBRARY_STATE
     path = get_library_path()
-    with bpy.data.libraries.load(path, link = not is_editing, relative = True) as (data_from, data_to):
+    with bpy.data.libraries.load(path, link = False, relative = True) as (data_from, data_to):
         data_to.node_groups = [node_name for node_name in data_from.node_groups if not node_name in bpy.data.node_groups and node_name.startswith('OWM: ')]
         data_to.texts = [text_name for text_name in data_from.texts if not text_name in bpy.data.texts and text_name.startswith('OWM: ') and text_name.endswith(".osl")]
         if len(data_to.node_groups) > 0:
