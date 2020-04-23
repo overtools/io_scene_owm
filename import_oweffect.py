@@ -57,7 +57,7 @@ def create_refpose(model_path):
     model_data = read_owmdl.read(model_path)
     arm = import_owmdl.import_refpose_armature(False, model_data)
 
-    att = bpy.data.objects.new('Hardpoints', None)
+    att = bpy.data.objects.new('Sockets', None)
     att.parent = arm
     att.parent_type = "ARMATURE"
     att.hide_viewport = att.hide_render = True
@@ -66,7 +66,7 @@ def create_refpose(model_path):
 
     e_dict = {}
     for emp in model_data.empties:
-        bpy.ops.object.empty_add(type='CIRCLE', radius=0.05 )
+        bpy.ops.object.empty_add(type='SPHERE', radius=0.05 )
         empty = bpy.context.active_object
         empty.parent = att
         empty.parent_type = "OBJECT"
@@ -95,7 +95,7 @@ def create_refpose(model_path):
         bone = arm.pose.bones[hardpoint['owm.hardpoint.bone']].bone
         bone.select = True
         arm.data.bones.active = bone
-        bpy.ops.object.parent_set(type='ARMATURE')
+        bpy.ops.object.parent_set(type='BONE')
         bone.select = False
         bpyhelper.select_obj(hardpoint, False)
         bpy.ops.object.mode_set(mode='OBJECT')
@@ -104,19 +104,12 @@ def create_refpose(model_path):
 
 
 def attach(par, obj):
-    copy_location = obj.constraints.new('COPY_LOCATION')
-    copy_location.name = 'Hardpoint Location'
-    copy_location.target = par
+    print("attaching %s to %s" % (obj, par))
+    copy_transforms = obj.constraints.new('COPY_TRANSFORMS')
+    copy_transforms.name = 'Socket Attachment'
+    copy_transforms.target = par
 
-    copy_rotation = obj.constraints.new('COPY_ROTATION')
-    copy_rotation.name = 'Hardpoint Rotation'
-    copy_rotation.target = par
-
-    copy_scale = obj.constraints.new('COPY_SCALE')
-    copy_scale.name = 'Hardpoint Scale'
-    copy_scale.target = par
-
-    return copy_location, copy_rotation, copy_scale
+    return copy_transforms
 
 def delete(obj):
     bpy.ops.object.select_all(action='DESELECT')
@@ -196,14 +189,8 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
                     bpyhelper.scene_link(ent_obj)
                     variables[var] = 'entity_child', ent_obj, c
 
-                    if 'ChildEntity Location' in c.constraints:
-                        c.constraints['ChildEntity Location'].target = ent_obj
-
-                    if 'ChildEntity Rotation' in c.constraints:
-                        c.constraints['ChildEntity Rotation'].target = ent_obj
-
-                    if 'ChildEntity Scale' in c.constraints:
-                        c.constraints['ChildEntity Scale'].target = ent_obj
+                    if 'Socket Attachment' in c.constraints:
+                        c.constraints['Socket Attachment'].target = ent_obj
         
         process(settings, data.data, pool, this_obj, target_framerate, hardpoints, variables)
 
@@ -453,10 +440,8 @@ def read(settings, existing_parent=None):
             bpy.ops.object.add(type='CAMERA')
             cam = bpy.context.active_object
             cam.name = 'AnimationCamera {}'.format(os.path.splitext(os.path.basename(data.anim_path))[0])
-            loc, rot, scale = attach(ret[1], cam)
-            loc.subtarget = 'bone_007D'
-            rot.subtarget = 'bone_007D'
-            rot.use_offset = True
+            transform = attach(ret[1], cam)
+            transform.subtarget = 'bone_007D'
             cam.rotation_euler = (0, math.radians(180), 0)
             cam.parent = ret[0]
             # this value looks close?

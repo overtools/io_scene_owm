@@ -2,6 +2,7 @@ import os
 
 from . import read_owentity
 from . import import_owmdl
+from . import import_oweffect as oweffect
 from . import bpyhelper
 from mathutils import *
 import math
@@ -44,17 +45,7 @@ def read(settings, import_children=False, is_child=False):
 
             if child.attachment != 'null' and child.attachment in base_model[3][1]: # eww
                 bpyhelper.select_obj(child_object, True)
-                copy_location = child_object.constraints.new('COPY_LOCATION')
-                copy_location.name = 'ChildEntity Location'
-                copy_location.target = base_model[3][1][child.attachment]
-
-                copy_rotation = child_object.constraints.new('COPY_ROTATION')
-                copy_rotation.name = 'ChildEntity Rotation'
-                copy_rotation.target = base_model[3][1][child.attachment]
-
-                copy_scale = child_object.constraints.new('COPY_SCALE')
-                copy_scale.name = 'ChildEntity Scale'
-                copy_scale.target = base_model[3][1][child.attachment]
+                oweffect.attach(base_model[3][1][child.attachment], child_object)
     bpyhelper.scene_link(root_object)
 
     if base_model is not None:

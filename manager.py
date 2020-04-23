@@ -55,8 +55,8 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
     )
 
     importEmpties : BoolProperty(
-        name='Import Hardpoints',
-        description='Import Hardpoints (attachment points)',
+        name='Import Sockets',
+        description='Import Sockets (attachment points)',
         default=False,
     )
 
@@ -595,8 +595,8 @@ class ImportOWEFFECT(bpy.types.Operator, ImportHelper):
     )
 
     cleanup_hardpoints : BoolProperty(
-        name='Cleanup Hardpoints',
-        description='Remove unused hardpoints',
+        name='Cleanup Sockets',
+        description='Remove unused sockets',
         default=True,
     )
 

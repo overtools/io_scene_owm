@@ -345,7 +345,7 @@ def importEmpties(armature = None):
     if not settings.importEmpties:
         return None, {}
 
-    att = bpy.data.objects.new('Hardpoints', None)
+    att = bpy.data.objects.new('Sockets', None)
     att.parent = rootObject
     att.hide_viewport = att.hide_render = True
     att['owm.hardpoint_container'] = True
@@ -353,7 +353,7 @@ def importEmpties(armature = None):
 
     e_dict = {}
     for emp in data.empties:
-        bpy.ops.object.empty_add(type='CIRCLE', radius=0.05 )
+        bpy.ops.object.empty_add(type='SPHERE', radius=0.05 )
         empty = bpy.context.active_object
         empty.parent = att
         empty.name = emp.name
@@ -382,7 +382,7 @@ def importEmpties(armature = None):
             bone = armature.pose.bones[hardpoint['owm.hardpoint.bone']].bone
             bone.select = True
             armature.data.bones.active = bone
-            bpy.ops.object.parent_set(type='ARMATURE')
+            bpy.ops.object.parent_set(type='BONE')
             bone.select = False
             bpyhelper.select_obj(hardpoint, False)
             bpy.ops.object.mode_set(mode='OBJECT')
