@@ -200,5 +200,11 @@ def process_material(material, prefix, root, t):
         if colorNodePoint in scratchSocket:
             if scratchSocket[colorNodePoint].node.image:
                 scratchSocket[colorNodePoint].node.image.colorspace_settings.name = 'sRGB'
+
+    for blendNodePoint in tm['Blend']:
+        if blendNodePoint in scratchSocket:
+            if scratchSocket[blendNodePoint].node.image:
+                mat.blend_method = 'BLEND'
+                mat.shadow_method = 'HASHED'
     
     return mat

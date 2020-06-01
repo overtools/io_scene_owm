@@ -13,13 +13,17 @@ OWMATTypes = {
     'SHADER': 0x02
 }
 
+MATLIB_VERSION = 2
+
 DefaultTextureTypesById = {}
 DefaultTextureTypes = {
+    'Version': MATLIB_VERSION,
     'Mapping': {},
     'Alias': {},
     'Env': {},
     'Color': [],
     'Active': [],
+    'Blend': [],
     'NodeGroups': {
         'Default': 'OWM: Physically Based Shading'
     }
@@ -31,17 +35,16 @@ LOG_ALOT = False
 LOADED_LIBRARY_VERSION = 0
 ALWAYS_DOWNLOAD = False
 
-LIBRARY_STATE = 0 # 0 = Uninitialized, 1 = Linked, 2 = Loaded
-LIBRARY_STATE_ENUM = ["UNINITIALIZED", "LINKED", "LOADED"]
-LIBRARY_BRANCH = "blender281"
+LIBRARY_STATE = 0 # 0 = Uninitialized, 1 = Loaded
+LIBRARY_BRANCH = "blender282"
 
 def reset():
-    global DefaultTextureTypes, TextureTypes, LOADED_LIBRARY_VERSION, ALWAYS_DOWNLOAD, LIBRARY_STATE, LIBRARY_STATE_ENUM, LOG_ALOT
+    global DefaultTextureTypes, TextureTypes, LOADED_LIBRARY_VERSION, ALWAYS_DOWNLOAD, LIBRARY_STATE, LOG_ALOT
     print('[owm] resetting settings')
     TextureTypes = DefaultTextureTypes
     LOADED_LIBRARY_VERSION = 0
     LIBRARY_STATE = bpy.context.scene.owm_internal_settings.i_library_state
-    print("[owm] LIBRARY_STATE: %s" % (LIBRARY_STATE_ENUM[LIBRARY_STATE]))
+    print("[owm] LIBRARY_STATE: %s" % ("UNLOADED" if LIBRARY_STATE == 0 else "LOADED"))
     ALWAYS_DOWNLOAD = bpy.context.scene.owm_internal_settings.b_download
     print("[owm] ALWAYS_DOWNLOAD: %d" % (ALWAYS_DOWNLOAD))
     LOG_ALOT = bpy.context.scene.owm_internal_settings.b_logsalot
@@ -60,8 +63,12 @@ def download(src, dst):
     except BaseException as e:
         print('[owm] failed to download %s: %s' % (src, bpyhelper.format_exc(e)))
 
-def update_data(is_editing = False):
+def update_data():
     print('[owm] trying to update library file')
+    if bpy.context.scene.owm_internal_settings.b_allow_download == False:
+        print('[owm] download not enabled, skipping')
+        load_data()
+        return
     global LOADED_LIBRARY_VERSION, LIBRARY_BRANCH
     v = LOADED_LIBRARY_VERSION
     try:
@@ -79,7 +86,7 @@ def update_data(is_editing = False):
     except BaseException as e:
         print('[owm] failed to update: %s' % (bpyhelper.format_exc(e)))
 
-    load_data(is_editing)
+    load_data()
     if v > LOADED_LIBRARY_VERSION or ALWAYS_DOWNLOAD:
         LOADED_LIBRARY_VERSION = v
         download('https://raw.githubusercontent.com/overtools/io_scene_owm/%s/LIBRARY_VERSION' % LIBRARY_BRANCH, get_library_version_path())
@@ -93,15 +100,11 @@ def get_library_version_path():
 def get_texture_type_path():
     return os.path.join(os.path.dirname(__file__), 'texture-map.json')
     
-def create_overwatch_shader(is_editing = False):
-    global LIBRARY_STATE, LIBRARY_STATE_ENUM
-    print('[owm] attempting to import shaders (link = %d)' % (is_editing))
-    if LIBRARY_STATE == 0:
-        LIBRARY_STATE = int(is_editing) + 1
-    if LIBRARY_STATE == 2:
-        is_editing = True
-        print('[owm] library state is LOADED, loading files directly')
-    print('[owm] LIBRARY_STATE = %s' % (LIBRARY_STATE_ENUM[LIBRARY_STATE]))
+def create_overwatch_shader():
+    global LIBRARY_STATE
+    print('[owm] attempting to import shaders')
+    LIBRARY_STATE = 1
+    print("[owm] LIBRARY_STATE: %s" % ("UNLOADED" if LIBRARY_STATE == 0 else "LOADED"))
     bpy.context.scene.owm_internal_settings.i_library_state = LIBRARY_STATE
     path = get_library_path()
     with bpy.data.libraries.load(path, link = False, relative = True) as (data_from, data_to):
@@ -119,10 +122,10 @@ def create_overwatch_shader(is_editing = False):
         bpy.data.texts[block.name].use_fake_user = True
 
 def create_overwatch_library():
-    global LIBRARY_STATE, LIBRARY_STATE_ENUM
-    print('[owm] LIBRARY_STATE = %s' % (LIBRARY_STATE_ENUM[LIBRARY_STATE]))
-    if LIBRARY_STATE != 2:
-        print('[owm] library is locked; %s' % ("load library first" if LIBRARY_STATE == 0 else "blend file is tainted"))
+    global LIBRARY_STATE
+    print("[owm] LIBRARY_STATE: %s" % ("UNLOADED" if LIBRARY_STATE == 0 else "LOADED"))
+    if LIBRARY_STATE == 0:
+        print("[owm] load library first")
         return
     path = get_library_path()
     print('[owm] attempting to export shaders')
@@ -138,12 +141,17 @@ def create_overwatch_library():
     bpy.data.libraries.write(path, blocks, fake_user = True, relative_remap = True, compress = True)
     print('[owm] saved %s' % (path))
 
-def load_data(is_editing = False):
-    global TextureTypesById, TextureTypes
+def load_data():
+    global TextureTypesById, TextureTypes, MATLIB_VERSION
     print('[owm] attempting to load texture info')
     try:
         with open(get_texture_type_path()) as f:
             TextureTypes = json.load(f)
+            if 'Version' not in TextureTypes:
+                TextureTypes['Version'] = 1
+            if TextureTypes['Version'] < MATLIB_VERSION:
+                print('[owm] old texture map! trying to update')
+                TextureTypes['Blend'] = ['Opacity', 'Alpha']
             TextureTypesById = {}
             for fname, tdata in TextureTypes['Mapping'].items():
                 TextureTypesById[tdata[2]] = fname
@@ -151,18 +159,19 @@ def load_data(is_editing = False):
         for node in [node for node in bpy.data.node_groups if node.users == 0 and node.name.startswith('OWM: ')]:
             print('[owm] removing unused node group: %s' % (node.name))
             bpy.data.node_groups.remove(node)
-        create_overwatch_shader(is_editing)
+        create_overwatch_shader()
     except BaseException as e:
         print('[owm] failed to load texture types: %s' % (bpyhelper.format_exc(e)))
 
 class OWSettings:
     def __init__(self, filename, uvDisplaceX, uvDisplaceY, autoIk, importNormals, importEmpties, importMaterial,
-                 importSkeleton, importColor):
+                 importSkeleton, importColor, autoSmooth):
         self.filename = bpyhelper.normpath(filename)
         self.uvDisplaceX = uvDisplaceX
         self.uvDisplaceY = uvDisplaceY
         self.autoIk = autoIk
         self.importNormals = importNormals
+        self.autoSmoothNormals = autoSmooth
         self.importEmpties = importEmpties
         self.importMaterial = importMaterial
         self.importSkeleton = importSkeleton
@@ -170,7 +179,8 @@ class OWSettings:
 
     def mutate(self, filename):
         return OWSettings(filename, self.uvDisplaceX, self.uvDisplaceY, self.autoIk, self.importNormals,
-                          self.importEmpties, self.importMaterial, self.importSkeleton, self.importColor)
+                          self.importEmpties, self.importMaterial, self.importSkeleton, self.importColor,
+                          self.autoSmoothNormals)
 
 class OWLightSettings:
     def __init__(self, enabled = False, multipleImportance = False, enabledTypes = [False, False, False], adjustValues = [1.0, 1.0], useStrength = False, bias = 0.5, indices = [25, 26, 12]):

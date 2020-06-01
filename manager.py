@@ -48,6 +48,12 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
+    autoSmoothNormals : BoolProperty(
+        name='Auto Smooth Normals',
+        description='Auto Smooth Normals around soft edges',
+        default=True,
+    )
+
     importColor : BoolProperty(
         name='Import Color',
         description='Import Custom Colors',
@@ -92,7 +98,8 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
             self.importEmpties,
             self.importMaterial,
             self.importSkeleton,
-            self.importColor
+            self.importColor,
+            self.autoSmoothNormals
         )
         owm_types.update_data()
         t = datetime.now()
@@ -110,6 +117,7 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label(text = 'Mesh')
         col.prop(self, 'importNormals')
+        col.prop(self, 'autoSmoothNormals')
         col.prop(self, 'importEmpties')
         col.prop(self, 'importColor')
         col.prop(self, 'importMaterial')
@@ -195,6 +203,12 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
     importNormals : BoolProperty(
         name='Import Normals',
         description='Import Custom Normals',
+        default=True,
+    )
+
+    autoSmoothNormals : BoolProperty(
+        name='Auto Smooth Normals',
+        description='Auto Smooth Normals around soft edges',
         default=True,
     )
 
@@ -350,7 +364,8 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
             False,
             self.importMaterial,
             False,
-            self.importColor
+            self.importColor,
+            self.autoSmoothNormals
         )
         light_settings = owm_types.OWLightSettings(
             self.importLights,
@@ -377,6 +392,7 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label(text = 'Mesh')
         col.prop(self, 'importNormals')
+        col.prop(self, 'autoSmoothNormals')
         col.prop(self, 'importColor')
         col.prop(self, 'importMaterial')
 
@@ -461,6 +477,12 @@ class ImportOWENTITY(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
+    autoSmoothNormals : BoolProperty(
+        name='Auto Smooth Normals',
+        description='Auto Smooth Normals around soft edges',
+        default=True,
+    )
+
     importColor : BoolProperty(
         name='Import Color',
         description='Import Custom Colors',
@@ -505,7 +527,8 @@ class ImportOWENTITY(bpy.types.Operator, ImportHelper):
             True,  # self.importEmpties
             self.importMaterial,
             True,  # self.importSkeleton
-            self.importColor
+            self.importColor,
+            self.autoSmoothNormals
         )
         owm_types.update_data()
         t = datetime.now()
@@ -527,6 +550,7 @@ class ImportOWENTITY(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label(text = 'Mesh')
         col.prop(self, 'importNormals')
+        col.prop(self, 'autoSmoothNormals')
         col.prop(self, 'importColor')
         col.prop(self, 'importMaterial')
         sub = col.row()
@@ -639,6 +663,7 @@ class ImportOWEFFECT(bpy.types.Operator, ImportHelper):
             True,
             True,
             True,
+            True,
             True
         )
 
@@ -717,7 +742,7 @@ def effect_import(self, context):
 
 
 class OWMUtilityPanel(bpy.types.Panel):
-    bl_idname = 'OBJECT_PT_select'
+    bl_idname = 'OBJECT_PT_owm_panel'
     bl_label = 'OWM Tools'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -733,26 +758,31 @@ class OWMUtilityPanel(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row()
-        row.operator(OWMLoadOp.bl_idname, text='Load OWM Library', icon='LINK_BLEND')
-        row.operator(OWMSaveOp.bl_idname, text='Save OWM Library', icon='APPEND_BLEND')
+        row.operator(OWMLoadOp.bl_idname, text='Import OWM Library', icon='LINK_BLEND')
+        row.operator(OWMSaveOp.bl_idname, text='Export OWM Library', icon='APPEND_BLEND')
         row = layout.row()
         row.prop(bpy.context.scene.owm_internal_settings, 'b_logsalot', text='Log Map Progress')
-        row.prop(bpy.context.scene.owm_internal_settings, 'b_download', text='Always Download Library')
+        row = layout.row()
+        row.prop(bpy.context.scene.owm_internal_settings, 'b_download', text='Download Library')
+        split = row.split()
+        split.prop(bpy.context.scene.owm_internal_settings, 'b_allow_download', text='Always')
+        split.enabled = bpy.context.scene.owm_internal_settings.b_download
 
         box = layout.box()
         box.label(text = 'Cleanup')
         row = box.row()
-        row.operator(OWMCleanupOp.bl_idname, text='Unused Empties', icon='OBJECT_DATA')
+        row.operator(OWMCleanupOp.bl_idname, text='Unused Empty Objects', icon='OBJECT_DATA')
         row = box.row()
         row.operator(OWMCleanupTexOp.bl_idname, text='Unused Materials', icon='MATERIAL')
 
 
 class OWMLoadOp(bpy.types.Operator):
+    """Load OWM Material Library"""
     bl_idname = 'owm.load_library'
-    bl_label = 'Load OWM Library'
+    bl_label = 'Import OWM Library'
 
     def execute(self, context):
-        owm_types.update_data(True)
+        owm_types.update_data()
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -760,8 +790,9 @@ class OWMLoadOp(bpy.types.Operator):
 
 
 class OWMSaveOp(bpy.types.Operator):
+    """Export OWM Material Library"""
     bl_idname = 'owm.save_library'
-    bl_label = 'Save OWM Library'
+    bl_label = 'Export OWM Library'
 
     def execute(self, context):
         owm_types.create_overwatch_library()
@@ -772,6 +803,7 @@ class OWMSaveOp(bpy.types.Operator):
 
 
 class OWMCleanupOp(bpy.types.Operator):
+    """Deletes empty objects with no sub objects"""
     bl_idname = 'owm.delete_unused_empties'
     bl_label = 'Delete Unused Empties'
 
@@ -784,6 +816,7 @@ class OWMCleanupOp(bpy.types.Operator):
 
 
 class OWMCleanupTexOp(bpy.types.Operator):
+    """Deletes materials with no owners"""
     bl_idname = 'owm.delete_unused_materials'
     bl_label = 'Delete Unused Materials'
 
@@ -796,8 +829,12 @@ class OWMCleanupTexOp(bpy.types.Operator):
 
 
 class OWMInternalSettings(bpy.types.PropertyGroup):
-    b_logsalot : bpy.props.BoolProperty(update=lambda self, context: self.update_logs_alot(context))
-    b_download : bpy.props.BoolProperty(update=lambda self, context: self.update_download(context))
+    b_logsalot : bpy.props.BoolProperty(name="Log alot", description="Verbose logging", 
+        default=False, update=lambda self, context: self.update_logs_alot(context))
+    b_allow_download : bpy.props.BoolProperty(name="Allow Library Download", description="Allow the addon to download updated material libraries from Github", 
+        default=False, update=lambda self, context: self.update_allow_download(context))
+    b_download : bpy.props.BoolProperty(name="Always Download Library", description="Always download the material library, even if it is up to date", 
+        update=lambda self, context: self.update_download(context))
     i_library_state : IntProperty(update=lambda self, context: self.dummy(context))
 
     def update_logs_alot(self, context):
@@ -805,6 +842,9 @@ class OWMInternalSettings(bpy.types.PropertyGroup):
 
     def update_download(self, context):
         owm_types.ALWAYS_DOWNLOAD = self.b_download
+
+    def update_allow_download(self, context):
+        owm_types.SHOULD_DOWNLOAD = self.b_allow_download
 
     def dummy(self, context): pass
 
@@ -842,7 +882,7 @@ def register():
 
 
 def unregister():
-    owm_reset()
+    owm_reset(None)
 
     for cls in classes:
         bpy.utils.unregister_class(cls)

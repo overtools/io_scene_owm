@@ -35,6 +35,7 @@ owentity_settings = io_scene_owm.owm_types.OWSettings(
     False, # self.importMaterial,
     True,  # self.importSkeleton
     True, # self.importColor
+    True, # self.autoSmoothNormals
 )
 
 light1_data = bpy.data.lights.new("Light A", "AREA")

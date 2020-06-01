@@ -258,12 +258,12 @@ def importMesh(armature, meshData):
     mesh.update()
 
     bpyhelper.select_obj(obj, True)
+    mesh.use_auto_smooth = settings.autoSmoothNormals
     if settings.importNormals:
         mesh.create_normals_split()
         mesh.validate(clean_customdata = False)
         mesh.update(calc_edges = True)
         mesh.normals_split_custom_set_from_vertices(norms)
-        mesh.use_auto_smooth = False
     else:
         mesh.validate()
 
