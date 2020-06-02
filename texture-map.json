@@ -1,13 +1,16 @@
 {
     "Version": 2,
     "Mapping": {
+        "Lightmap": [["Lightmap"], [], 3335614873, 3],
         "Decal AO": [["AO"], [], 3761386704],
         "Shader AO": [["AO"], [], 1007310079],
         "Albedo + AO": [["Color"], ["AO"], 2903569922],
+        "Map Albedo": [["Color2"], [], 682378068, 2],
         "Shader Albedo": [["Color"], [], 996643046],
         "Shader Albedo 2": [["Color"], [], 1281400944],
         "Shader Albedo 3": [["Color"], [], 1119561794],
         "Decal Albedo": [["Color"], [], 1716930793],
+        "Decal Albedo + Alpha + Emission": [["Color", "Alpha", "Emission"], [], 3989656707],
         "Hair Albedo + Alpha": [["Color"], ["Alpha"], 1239794147],
         "Glass Albedo + Alpha": [["Color"], ["Alpha"], 67369114],
         "Subsurface": [["Subsurf"], [], 3004687613],
@@ -23,14 +26,17 @@
         "Alpha": [["Alpha"], [], 1482859648],
         "Decal Alpha": [["Alpha"], [], 1140682086],
         "Normal": [["Normal"], [], 378934698],
+        "Map Normal": [["Normal2"], [], 571210053, 2],
         "Decal Normal": [["Normal"], [], 562391268],
         "Glass Normal": [["Normal"], [], 229655782],
         "Shader Normal": [["Normal"], [], 3580490186],
         "Hair Tangent": [["Tangent"], [], 2337956496],
+        "Map Blend": [["Blend"], [], 1724830523],
         "Material": [[], [], 1557393490],
         "Shader Param": [[], [], 1360535661],
         "Shader Param 2": [[], [], 3135519717],
-        "Shader Param 3": [[], [], 612412998]
+        "Shader Param 3": [[], [], 612412998],
+        "Shader Param 4": [[], [], 1259168873]
     },
     "Alias": {
         "Color": "Color",
@@ -52,18 +58,27 @@
         "PBR2": "PBR",
         "Alpha2": "Alpha",
         "Emission2": "Emission",
-        "Subsurf2": "Subsurf"
+        "Subsurf2": "Subsurf",
+        "Color": "Color2",
+        "Normal": "Normal2",
+        "PBR": "PBR2",
+        "Alpha": "Alpha2",
+        "Emission": "Emission2",
+        "Subsurf": "Subsurf2"
     },
     "Color": ["Color", "Color2", "Subsurf", "Subsurf2"],
     "Active": ["Color", "Color2"],
     "Blend": ["Alpha"],
     "NodeGroups": {
         "Default": "OWM: Metallic",
+        "33": "OWM: Editor",
         "34": "OWM: Decal",
+        "36": "OWM: Map",
         "38": "OWM: Glass",
         "43": "OWM: Skin",
         "50": "OWM: Complex",
         "51": "OWM: Hair",
-        "54": "OWM: Refractive"
+        "54": "OWM: Refractive",
+        "56": "OWM: Decal"
     }
 }

@@ -93,7 +93,8 @@ def process_material(material, prefix, root, t):
     # print('Processing material: ' + mat.name)
     mat.use_nodes = True
    
-    tile = 300
+    tile_x = 400
+    tile_y = 300
     nodes = mat.node_tree.nodes
     links = mat.node_tree.links
        
@@ -107,7 +108,7 @@ def process_material(material, prefix, root, t):
         material_output = [node for node in nodes if node.type == 'OUTPUT_MATERIAL'][0]
     except:
         material_output = nodes.new('ShaderNodeOutputMaterial')
-    material_output.location = (tile, 0)
+    material_output.location = (tile_x, 0)
  
     # Create Overwatch NodeGroup Instance
     nodeOverwatch = nodes.new('ShaderNodeGroup')
@@ -118,13 +119,10 @@ def process_material(material, prefix, root, t):
     if str(material.shader) in owm_types.TextureTypes['NodeGroups'] and owm_types.TextureTypes['NodeGroups'][str(material.shader)] in bpy.data.node_groups:
         nodeOverwatch.node_tree = bpy.data.node_groups[owm_types.TextureTypes['NodeGroups'][str(material.shader)]]
     else:
-        # print('[import_owmat]: could not find node group for shader %s, using default' % (material.shader))
         if owm_types.TextureTypes['NodeGroups']['Default'] in bpy.data.node_groups:
             nodeOverwatch.node_tree = bpy.data.node_groups[owm_types.TextureTypes['NodeGroups']['Default']]
-        # else:
-        #     print('[import_owmat]: could not find fallback shader %s' % (owm_types.TextureTypes['NodeGroups']['Default']))
     nodeOverwatch.location = (0, 0)
-    nodeOverwatch.width = 250
+    nodeOverwatch.width = 300
     if nodeOverwatch.node_tree is not None:
         links.new(nodeOverwatch.outputs[0], material_output.inputs[0])
 
@@ -133,7 +131,7 @@ def process_material(material, prefix, root, t):
     scratchSocket = {}
     for i, texData in enumerate(material.textures):
         nodeTex = nodes.new('ShaderNodeTexImage')
-        nodeTex.location = (-tile, -tile*(i))
+        nodeTex.location = (-tile_x, -(tile_y * i))
         nodeTex.width = 250
         
         tex = load_textures(texData[0], root, t)
@@ -178,6 +176,13 @@ def process_material(material, prefix, root, t):
                         scratchSocket[alphaSocketPoint] = nodeTex.outputs['Alpha']
                     else:
                         print('[import_owmat] could not find node %s on shader group' % (nodeSocketName))
+            if len(bfTyp) > 3:
+                uvMap = bfTyp[3]
+                if uvMap > 1:
+                    nodeUV = nodes.new('ShaderNodeUVMap')
+                    nodeUV.location = (-(tile_x * 2), -(tile_y * i))
+                    nodeUV.uv_map = "UVMap%d" % (uvMap)
+                    links.new(nodeUV.outputs[0], nodeTex.inputs[0])
 
     if nodeOverwatch.node_tree is None:
         return mat
@@ -206,5 +211,6 @@ def process_material(material, prefix, root, t):
             if scratchSocket[blendNodePoint].node.image:
                 mat.blend_method = 'BLEND'
                 mat.shadow_method = 'HASHED'
+
     
     return mat
