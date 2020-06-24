@@ -140,7 +140,8 @@ def process_material(material, prefix, root, t):
             continue
         nodeTex.image = tex.image
         if nodeTex.image:
-             nodeTex.image.colorspace_settings.name = 'Non-Color'
+            nodeTex.image.colorspace_settings.name = 'Raw'
+            nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
 
         if len(texData) == 2:
             continue
