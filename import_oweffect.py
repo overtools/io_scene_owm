@@ -108,6 +108,7 @@ def attach(par, obj):
     copy_transforms = obj.constraints.new('COPY_TRANSFORMS')
     copy_transforms.name = 'Socket Attachment'
     copy_transforms.target = par
+    copy_transforms.mix_mode = 'BEFORE'
 
     return copy_transforms
 
