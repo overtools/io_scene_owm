@@ -30,10 +30,22 @@ def clean_materials():
 
 LOCK_UPDATE = False
 
+VISIBLE_SELECTION = []
+
 def scene_update():
     if LOCK_UPDATE: return
     bpy.context.view_layer.update()
-def select_obj(object, value): object.select_set(value)
+def select_obj(object, value, track=True):
+     object.select_set(value)
+     if value is True and object.hide_viewport is False and track is True:
+         VISIBLE_SELECTION.append(object)
+
+def deselect_all():
+    global VISIBLE_SELECTION
+    for object in VISIBLE_SELECTION:
+        object.select_set(False)
+    VISIBLE_SELECTION = []
+
 def is_selected(object): return object.select_get()
 def scene_link(object): bpy.context.view_layer.active_layer_collection.collection.objects.link(object)
 def scene_unlink(object): bpy.context.view_layer.active_layer_collection.collection.objects.unlink(object)
