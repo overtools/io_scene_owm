@@ -55,4 +55,5 @@ def read(settings, import_children=False, is_child=False):
         if base_model[1] is not None:
             bpy.context.view_layer.objects.active = base_model[1]
     
+    bpyhelper.deselect_all()
     return root_object, data, base_model
