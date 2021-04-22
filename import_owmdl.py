@@ -455,7 +455,8 @@ def readmdl(materials = None, rotate=True):
 
     if len(data.cloths) > 0:
         for cloth in data.cloths:
-            bpy.ops.object.select_all(action='DESELECT')
+            bpyhelper.deselect_all()
+            #bpy.ops.object.select_all(action='DESELECT')
             i = 0
             for clothSubmesh in cloth.meshes:
                 submesh = meshes[clothSubmesh.id]
@@ -477,7 +478,7 @@ def readmdl(materials = None, rotate=True):
             # bpy.ops.mesh.remove_doubles()
             # bpy.ops.object.editmode_toggle()
 
-    bpy.ops.object.select_all(action='DESELECT')
+    bpyhelper.deselect_all()
     select_all(rootObject)
 
     return (rootObject, armature, meshes, empties, data)
