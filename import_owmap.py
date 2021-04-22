@@ -333,6 +333,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             progress_update(total, prog, "Sound")
 
     wm.progress_end()
+    bpyhelper.deselect_all()
     print('Finished loading map')
     bpyhelper.LOCK_UPDATE = False
     bpyhelper.scene_update()

@@ -24,15 +24,26 @@ fmtSz = {
   'f': 4,
   'd': 8,
   's': 1,
-  'p': 1
-}
+  'p': 1,
+  'C': 1,
+  'B': 1,
+  '?': 1,
+  'H': 2,
+  'I': 4,
+  'L': 4,
+  'Q': 8,
+  'F': 4,
+  'D': 8,
+  'S': 1,
+  'P': 1
+} # lets not run .lower millions of times during map imports
 
 def read(file, fmt):
     size = 0
     for char in fmt:
         if char == '<': continue
-        if char.lower() in fmtSz:
-            size += fmtSz[char.lower()]
+        if char in fmtSz:
+            size += fmtSz[char]
         else:
             print('unrecognized fmt char %s' % (char))
     if size == 0:

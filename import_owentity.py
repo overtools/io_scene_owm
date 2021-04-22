@@ -50,9 +50,10 @@ def read(settings, import_children=False, is_child=False):
 
     if base_model is not None:
         bpy.context.view_layer.objects.active = None
-        bpy.ops.object.select_all(action='DESELECT')
+        bpyhelper.deselect_all()
         import_owmdl.select_all(base_model[0])
         if base_model[1] is not None:
             bpy.context.view_layer.objects.active = base_model[1]
     
+    bpyhelper.deselect_all()
     return root_object, data, base_model
