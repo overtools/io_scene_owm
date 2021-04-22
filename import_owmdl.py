@@ -353,44 +353,35 @@ def importEmpties(armature = None):
 
     e_dict = {}
     for emp in data.empties:
-        bpy.ops.object.empty_add(type='SPHERE', radius=0.05 )
-        empty = bpy.context.active_object
+        empty = bpy.data.objects.new( emp.name, None )
+        bpyhelper.scene_link(empty)
+        empty.empty_display_size  = .05
+        empty.empty_display_type = "SPHERE"
         empty.parent = att
-        empty.name = emp.name
         empty.location = xzy(emp.position)
         empty.rotation_mode = 'QUATERNION'
         empty.rotation_quaternion = wxzy(emp.rotation)
         empty['owm.hardpoint.bone'] = emp.hardpoint
         bpyhelper.select_obj(empty, True)
         e_dict[emp.name] = empty
-    bpy.ops.object.select_all(action='DESELECT')
+
+    bpyhelper.deselect_all()
+    bpyhelper.scene_update() #ugh
 
     if armature is not None:
         for pbone in armature.pose.bones:
             pbone.bone.select = False
         for name, hardpoint in e_dict.items():
             # erm
-            bpy.ops.object.select_all(action='DESELECT')
-            bpyhelper.select_obj(hardpoint, True)
-            bpy.context.view_layer.objects.active = armature
-            bpy.ops.object.mode_set(mode='POSE')
-
+            bpyhelper.deselect_all()
             if hardpoint['owm.hardpoint.bone'] not in armature.pose.bones:
-                bpy.ops.object.mode_set(mode='OBJECT') # fixes 'context is incorrect'
                 continue  # todo: why
-
-            bone = armature.pose.bones[hardpoint['owm.hardpoint.bone']].bone
-            bone.select = True
-            armature.data.bones.active = bone
-            bpy.ops.object.parent_set(type='BONE')
-            bone.select = False
-            bpyhelper.select_obj(hardpoint, False)
-            bpy.ops.object.mode_set(mode='OBJECT')
-        bpy.ops.object.select_all(action='DESELECT')
-    
-    try:
-        bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-    except: pass
+            hardpoint_wm = hardpoint.matrix_basis.copy()
+            hardpoint.parent = armature
+            hardpoint.parent_bone = hardpoint['owm.hardpoint.bone']
+            hardpoint.parent_type = "BONE"
+            hardpoint.matrix_world = hardpoint_wm #good luck blender
+        bpyhelper.deselect_all()
 
     return att, e_dict
 
