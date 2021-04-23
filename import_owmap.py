@@ -22,13 +22,15 @@ def pos_matrix(pos):
     return mtx.to_translation()
 
 
+link_queue = []
+
 def copy(obj, parent):
     if obj is None: return None
     new_obj = obj.copy()
     if obj.data is not None:
         new_obj.data = obj.data.copy()
     new_obj.parent = parent
-    bpyhelper.scene_link(new_obj)
+    link_queue.append(new_obj)
     for child in obj.children:
         copy(child, new_obj)
     return new_obj
@@ -97,7 +99,7 @@ def import_mat(path, prefix):
 
 
 def read(settings, importObjects=False, importDetails=True, importPhysics=False, light_settings=owm_types.OWLightSettings(), removeCollision=True, importSound=True):
-    global sets
+    global sets, link_queue
     bpyhelper.LOCK_UPDATE = True
     sets = settings
 
@@ -272,6 +274,10 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             prog += 1
             remove(objCache[ob])
             progress_update(total, prog, ob)
+
+    for obj in link_queue:
+        bpyhelper.scene_link(obj)
+    link_queue = []
 
     LIGHT_MAP = ['SUN', 'SPOT', 'POINT']
 
