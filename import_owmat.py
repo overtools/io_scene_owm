@@ -30,21 +30,15 @@ def mutate_texture_path(file, new_ext):
     return os.path.splitext(file)[0] + new_ext
 
 def load_textures(texture, root, t):
-    ''' Loads an overwatch texture.
- 
-    Priority (high to low): TIFF, TGA, DDS (doesn't work properly)
-    '''
+    ''' Loads an overwatch texture.'''
     realpath = bpyhelper.normpath(texture)
     if not os.path.isabs(realpath):
         realpath = bpyhelper.normpath('%s/%s' % (root, realpath))
-
-    tga_file = mutate_texture_path(realpath, '.tga')
-    if os.path.exists(tga_file):
-        realpath = tga_file
     
-    tif_file = mutate_texture_path(realpath, '.tif')
-    if os.path.exists(tif_file):
-        realpath = tif_file
+    ''' If the specified file doesn't exist, try the dds variant '''
+    dds_file = mutate_texture_path(realpath, '.dds')
+    if not os.path.exists(realpath) and os.path.exists(dds_file):
+        realpath = dds_file
 
     fn = os.path.splitext(os.path.basename(realpath))[0]
     
