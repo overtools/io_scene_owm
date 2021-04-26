@@ -149,19 +149,26 @@ def detach(faces):
     return f
 
 def makeVertexGroups(mesh, boneData):
-    for vidx in range(len(boneData)):
-        indices, weights = boneData[vidx]
-        for idx in range(len(indices)):
-            i = indices[idx]
+    boneMap = {}
+    for vidx,v in enumerate(boneData):
+        indices, weights = v
+        for idx,ind in enumerate(indices):
             w = weights[idx]
 
             if w != 0:
-                name = getBoneName(i)
+                name = getBoneName(ind)
                 if name != None:
-                    vgrp = mesh.vertex_groups.get(name)
-                    if vgrp == None:
-                        vgrp = mesh.vertex_groups.new(name = name)
-                    vgrp.add([vidx], w, 'REPLACE')
+                    if name not in boneMap:
+                        boneMap[name] = {}
+                    if w not in boneMap[name]:
+                        boneMap[name][w] = []
+                    boneMap[name][w].append(vidx)
+    for bone in boneMap:
+        vgrp = mesh.vertex_groups.get(bone)
+        if vgrp is None:
+            vgrp = mesh.vertex_groups.new(name = bone)
+        for weight in boneMap[bone]:
+            vgrp.add(boneMap[bone][weight], weight, 'REPLACE')
 
 def randomColor():
     randomR = random.random()
