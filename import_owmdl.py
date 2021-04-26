@@ -204,6 +204,8 @@ def importMesh(armature, meshData):
     bpyhelper.scene_link(obj)
 
     pos, norms, uvs, boneData, col1, col2 = segregate(meshData.vertices)
+    len_col1_0 = len(col1[0])
+    len_col1 = len(col1)
     faces = detach(meshData.indices)
     mesh.from_pydata(pos, [], faces)
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
@@ -211,7 +213,7 @@ def importMesh(armature, meshData):
     for i in range(meshData.uvCount):
         bpyhelper.new_uv_layer(mesh, 'UVMap%d' % (i + 1))
         
-    if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
+    if settings.importColor and len_col1 > 0 and len_col1_0 > 0:
         bpyhelper.new_color_layer(mesh, 'ColorMap1')
         bpyhelper.new_color_layer(mesh, 'ColorMap1Blue')
         bpyhelper.new_color_layer(mesh, 'ColorMap2')
@@ -241,18 +243,19 @@ def importMesh(armature, meshData):
 
     bm = bmesh.new()
     bm.from_mesh(mesh)
+    uv_layers_count = len(mesh.uv_layers)
     for fidx, face in enumerate(bm.faces):
         fraw = faces[fidx]
         for vidx, vert in enumerate(face.loops):
             ridx = fraw[vidx]
-            for idx in range(len(mesh.uv_layers)):
+            for idx in range(uv_layers_count):
                 layer = bm.loops.layers.uv[idx]
                 vert[layer].uv = Vector([uvs[ridx][idx][0] + settings.uvDisplaceX, 1 + settings.uvDisplaceY - uvs[ridx][idx][1]])
-            if settings.importColor and len(col1) > 0 and len(col1[0]) > 0:
-                vert[bm.loops.layers.color[0]] = bpyhelper.safe_color(col1[ridx][3], col1[ridx][0], col1[ridx][1])
-                vert[bm.loops.layers.color[1]] = bpyhelper.safe_color(col1[ridx][2], col1[ridx][2], col1[ridx][2])
-                vert[bm.loops.layers.color[2]] = bpyhelper.safe_color(col2[ridx][3], col2[ridx][0], col2[ridx][1])
-                vert[bm.loops.layers.color[3]] = bpyhelper.safe_color(col2[ridx][2], col2[ridx][2], col2[ridx][2])
+            if settings.importColor and len_col1 > 0 and len_col1_0 > 0: # python sucks at calling functions millions of times so lets just do it right here
+                vert[bm.loops.layers.color[0]] = (col1[ridx][3], col1[ridx][0], col1[ridx][1], 1.0)
+                vert[bm.loops.layers.color[1]] = (col1[ridx][2], col1[ridx][2], col1[ridx][2], 1.0)
+                vert[bm.loops.layers.color[2]] = (col2[ridx][3], col2[ridx][0], col2[ridx][1], 1.0)
+                vert[bm.loops.layers.color[3]] = (col2[ridx][2], col2[ridx][2], col2[ridx][2], 1.0)
     bm.to_mesh(mesh)
 
     mesh.update()
