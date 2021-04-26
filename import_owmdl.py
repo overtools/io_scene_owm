@@ -470,7 +470,7 @@ def readmdl(materials = None, rotate=True):
             # bpy.ops.object.editmode_toggle()
 
     bpyhelper.deselect_all()
-    select_all(rootObject)
+    # select_all(rootObject) why
 
     return (rootObject, armature, meshes, empties, data)
 
