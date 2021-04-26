@@ -26,6 +26,7 @@ def read(filename):
     meshes = []
     for i in range(meshCount):
         name, materialKey, uvCount, vertexCount, indexCount = bin_ops.readFmtFlat(stream, owm_types.OWMDLMesh.structFormat)
+
         verts = []
         for j in range(vertexCount):
             position, normal = bin_ops.readFmt(stream, owm_types.OWMDLVertex.structFormat)
@@ -37,10 +38,9 @@ def read(filename):
             boneIndices = []
             boneWeights = []
             if boneDataCount > 0:
-                for k in range(boneDataCount):
-                    boneIndices += [bin_ops.readFmtFlat(stream, owm_types.OWMDLVertex.exFormat[2])]
-                for k in range(boneDataCount):
-                    boneWeights += [bin_ops.readFmtFlat(stream, owm_types.OWMDLVertex.exFormat[3])]
+                boneIndices += bin_ops.readFmtFlatArray(stream, owm_types.OWMDLVertex.exFormat[2],boneDataCount)
+                boneWeights += bin_ops.readFmtFlatArray(stream, owm_types.OWMDLVertex.exFormat[3],boneDataCount)
+
             col1 = []
             col2 = []
 
@@ -50,11 +50,11 @@ def read(filename):
 
             verts += [owm_types.OWMDLVertex(position, normal, uvs, boneDataCount, boneIndices, boneWeights, col1, col2)]
         faces = []
+
         for j in range(indexCount):
             pointCount = bin_ops.readFmt(stream, owm_types.OWMDLIndex.structFormat)[0]
             points = []
-            for k in range(pointCount):
-                points += [bin_ops.readFmtFlat(stream, owm_types.OWMDLIndex.exFormat[0])]
+            points += bin_ops.readFmtFlatArray(stream, owm_types.OWMDLIndex.exFormat[0],pointCount)
             faces += [owm_types.OWMDLIndex(pointCount, points)]
         meshes += [owm_types.OWMDLMesh(name, materialKey, uvCount, vertexCount, indexCount, verts, faces)]
 

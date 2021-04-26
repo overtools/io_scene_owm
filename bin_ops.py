@@ -72,3 +72,18 @@ def readFmtFlat(file, fmts):
     if len(a) == 1:
         return a[0]
     return a
+
+def readFmtFlatArray(file, fmt, count):
+    size = 0
+    for char in fmt:
+        if char is '<': continue
+        if char in fmtSz:
+            size += fmtSz[char]
+        else:
+            print('unrecognized fmt char %s' % (char))
+    size*=count
+    if fmt[0] is '<': 
+        fmt="<"+(fmt[1:]*count)
+    else:
+        fmt*=count
+    return list(struct.unpack(fmt, file.read(size)))
