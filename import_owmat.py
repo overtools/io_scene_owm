@@ -125,6 +125,7 @@ def process_material(material, prefix, root, t):
     tm = owm_types.TextureTypes
 
     nodeMapping = None
+    uvNodes = {}
     for inputId in tm['Scale']:
         if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
             nodeMapping = nodes.new('ShaderNodeMapping')
@@ -137,8 +138,9 @@ def process_material(material, prefix, root, t):
 
             nodeUV1 = nodes.new('ShaderNodeUVMap')
             nodeUV1.location = (-(tile_x * 4), -(tile_y))
-            nodeUV1.uv_map = "UVMap%d" % (uvMap)
+            nodeUV1.uv_map = "UVMap1"
             links.new(nodeUV1.outputs[0], nodeMapping.inputs[0])
+            uvNodes[1] = nodeMapping
             break
 
     scratchSocket = {}
@@ -190,25 +192,29 @@ def process_material(material, prefix, root, t):
                         scratchSocket[alphaSocketPoint] = nodeTex.outputs['Alpha']
                     else:
                         print('[import_owmat] could not find node %s on shader group' % (nodeSocketName))
-            if len(bfTyp) > 3:
-                uvMap = bfTyp[3]
-                if uvMap != 0:
-                    if uvMap < 0:
-                        static_input_hash = bfTyp[4]
-                        static_input_offset = bfTyp[5]
-                        static_input_mod = bfTyp[6]
-                        uvMap = abs(uvMap)
-                        if static_input_hash in material.static_inputs:
-                            input_chunk = material.static_inputs[static_input_hash][static_input_offset:]
-                            if len(input_chunk) > 1:
-                                uvMap = int(input_chunk[0])
-                                uvMap += static_input_mod
+            uvMap = bfTyp[3] if len(bfTyp) > 3 else 0
+            if uvMap != 0:
+                if uvMap < 0:
+                    static_input_hash = bfTyp[4]
+                    static_input_offset = bfTyp[5]
+                    static_input_mod = bfTyp[6]
+                    uvMap = abs(uvMap)
+                    if static_input_hash in material.static_inputs:
+                        input_chunk = material.static_inputs[static_input_hash][static_input_offset:]
+                        if len(input_chunk) > 1:
+                            uvMap = int(input_chunk[0])
+                            uvMap += static_input_mod
+                nodeUV = None
+                if uvMap in uvNodes:
+                    nodeUV = uvNodes[uvMap]
+                else:
                     nodeUV = nodes.new('ShaderNodeUVMap')
                     nodeUV.location = (-(tile_x * 2), -(tile_y * i))
                     nodeUV.uv_map = "UVMap%d" % (uvMap)
-                    links.new(nodeUV.outputs[0], nodeTex.inputs[0])
-                elif nodeMapping != None:
-                    links.new(nodeMapping.outputs[0], nodeTex.inputs[0])
+                    uvNodes[uvMap] = nodeUV
+                links.new(nodeUV.outputs[0], nodeTex.inputs[0])
+            elif nodeMapping != None:
+                links.new(nodeMapping.outputs[0], nodeTex.inputs[0])
 
     if nodeOverwatch.node_tree is None:
         return mat
