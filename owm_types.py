@@ -530,6 +530,7 @@ class OWMatType(Enum):
 class OWMATHeader:
     structFormat = ['<HHQ']
     new_format = ['<I']
+    new_format_21 = ['<Q']
     new_material_header_format = ['<Ii']
     new_id_format = ['<Q']
 
@@ -545,12 +546,15 @@ class OWMATMaterial:
     typeFormat = ['<I']
     new_material_format = [str, '<I']
     new_modellook_format = [str]
+    static_input_format = ['<II']
+    static_input_data_format = ['<B']
 
-    def __init__(self, key, textureCount, textures, shader=0):
+    def __init__(self, key, textureCount, textures, shader=0, static_inputs={}):
         self.key = key
         self.textureCount = textureCount
         self.textures = textures
         self.shader = shader
+        self.static_inputs = static_inputs
 
 
 class OWMAPHeader:

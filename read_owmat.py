@@ -18,7 +18,10 @@ def read(filename, sub=False):
     major, minor, materialCount = bin_ops.readFmtFlat(stream, owm_types.OWMATHeader.structFormat)
     header = owm_types.OWMATHeader(major, minor, materialCount)
 
-    if major >= 2 and minor >= 0:        
+    if major >= 2 and minor >= 0:  
+        staticInputCount = 00
+        if (major == 2 and minor >= 1) or major >= 3:
+            staticInputCount = bin_ops.readFmtFlat(stream, owm_types.OWMATHeader.new_format_21)
         mat_type = owm_types.OWMatType(bin_ops.readFmtFlat(stream, owm_types.OWMATHeader.new_format))
         if mat_type == owm_types.OWMatType.Material:
             shader, id_count = bin_ops.readFmtFlat(stream, owm_types.OWMATHeader.new_material_header_format)
@@ -29,20 +32,25 @@ def read(filename, sub=False):
             for i in range(materialCount):
                 texture, texture_type = bin_ops.readFmtFlat(stream, owm_types.OWMATMaterial.new_material_format)
                 textures += [(bpyhelper.normpath(texture), 0, texture_type)]
+            static_inputs = {}
+            for i in range(staticInputCount):
+                input_hash, input_data_length = bin_ops.readFmtFlat(stream, owm_types.OWMATMaterial.static_input_format)
+                input_data = bin_ops.readFmtFlatArray(stream, input_data_length, owm_types.OWMATMaterial.static_input_data_format)
+                static_inputs[input_hash] = input_data
             if sub:
-                return textures, shader, ids
+                return textures, shader, ids, static_inputs
             else:
                 materials = []
                 for mat_id in ids:
-                    materials.append(owm_types.OWMATMaterial(mat_id, len(textures), textures, shader))
+                    materials.append(owm_types.OWMATMaterial(mat_id, len(textures), textures, shader, static_inputs))
                 return owm_types.OWMATFile(header, materials)
         elif mat_type == owm_types.OWMatType.ModelLook:
             materials = []
             for i in range(materialCount):
                 material_file = bin_ops.readFmtFlat(stream, owm_types.OWMATMaterial.new_modellook_format)
-                textures, shader, ids = read(os.path.join(filename, bpyhelper.normpath(material_file)), True)
+                textures, shader, ids, static_inputs = read(os.path.join(filename, bpyhelper.normpath(material_file)), True)
                 for mat_id in ids:
-                    materials += [owm_types.OWMATMaterial(mat_id, len(textures), textures, shader)]
+                    materials += [owm_types.OWMATMaterial(mat_id, len(textures), textures, shader, static_inputs)]
             return owm_types.OWMATFile(header, materials)
     else:
         materials = []
