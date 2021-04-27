@@ -2,8 +2,9 @@
     "Version": 2,
     "_help_how_does_this_work": {
         "Mapping": {
-            "Readalbe Name": [["Color Nodes"], ["Alpha Nodes"], "Shader Input Hash Id", "UV Index", "UV Input Id", "UV Input Data Offset", "UV Iput Data Modifier"],
-            "if UV Index is negative, it will try to look up UV Input Data Id in Static Inputs, and decode a single byte at the specified offset": ""
+            "Readable Name": [["Color Nodes"], ["Alpha Nodes"], "Shader Input Hash Id", "UV Index", "UV Input Id", "UV Input Data Offset", "UV Input Data Modifier"],
+            "if UV Index is negative, it will try to look up UV Input Data Id in Static Inputs, and decode a single byte at the specified offset": 
+            "UV Input Data Modifier adds this value to the resulting UV value."
         },
         "Alias": "List of texture name rewrites, used for convenience",
         "Env": "Environment Remapping for when nodes are left open",
