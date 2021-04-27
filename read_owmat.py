@@ -35,8 +35,7 @@ def read(filename, sub=False):
             static_inputs = {}
             for i in range(staticInputCount):
                 input_hash, input_data_length = bin_ops.readFmtFlat(stream, owm_types.OWMATMaterial.static_input_format)
-                input_data = bin_ops.readFmtFlatArray(stream, input_data_length, owm_types.OWMATMaterial.static_input_data_format)
-                static_inputs[input_hash] = input_data
+                static_inputs[input_hash] = stream.read(input_data_length)
             if sub:
                 return textures, shader, ids, static_inputs
             else:
