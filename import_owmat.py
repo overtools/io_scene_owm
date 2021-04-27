@@ -108,7 +108,7 @@ def process_material(material, prefix, root, t):
     # Create Overwatch NodeGroup Instance
     nodeOverwatch = nodes.new('ShaderNodeGroup')
     if material.shader != 0:
-        print('[import_owmat]: {} uses shader {}'.format(mat.name, material.shader))
+        # print('[import_owmat]: {} uses shader {}'.format(mat.name, material.shader))
         nodeOverwatch.label = 'OWM Shader %d' % (material.shader)
     
     if str(material.shader) in owm_types.TextureTypes['NodeGroups'] and owm_types.TextureTypes['NodeGroups'][str(material.shader)] in bpy.data.node_groups:
@@ -169,7 +169,7 @@ def process_material(material, prefix, root, t):
         nodeTex.label = str(typ)
         if typ in tt:
             bfTyp = tm['Mapping'][tt[typ]]
-            print('[import_owmat]: {} is {}'.format(os.path.basename(texData[0]), tt[typ]))
+            # print('[import_owmat]: {} is {}'.format(os.path.basename(texData[0]), tt[typ]))
             nodeTex.label = str(tt[typ])
             nodeTex.name = str(tt[typ])
             for colorSocketPoint in bfTyp[0]:
