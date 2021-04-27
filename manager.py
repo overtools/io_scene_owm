@@ -341,7 +341,7 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
     importSounds : BoolProperty(
         name='Import Sounds',
         description='Imports sound nodes',
-        default=True,
+        default=False,
     )
 
     def menu_func(self, context):
