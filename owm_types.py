@@ -25,8 +25,9 @@ DefaultTextureTypes = {
     'Active': [],
     'Blend': [],
     'NodeGroups': {
-        'Default': 'OWM: Physically Based Shading'
-    }
+        'Default': 'OWM: Metallic'
+    },
+    "Scale": []
 }
 TextureTypes = DefaultTextureTypes
 

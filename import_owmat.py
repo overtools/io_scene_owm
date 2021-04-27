@@ -123,6 +123,24 @@ def process_material(material, prefix, root, t):
 
     tt = owm_types.TextureTypesById
     tm = owm_types.TextureTypes
+
+    nodeMapping = None
+    for inputId in tm['Scale']:
+        if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
+            nodeMapping = nodes.new('ShaderNodeMapping')
+            nodeMapping.vector_type = 'TEXTURE'
+            nodeMapping.location = (-(tile_x * 3), -(tile_y))
+
+            scale_data = struct.unpack('<ff', material.static_inputs[inputId][0:8])
+            nodeMapping.inputs[2].default_value[0] = scale_data[0]
+            nodeMapping.inputs[2].default_value[1] = scale_data[1]
+
+            nodeUV1 = nodes.new('ShaderNodeUVMap')
+            nodeUV1.location = (-(tile_x * 4), -(tile_y))
+            nodeUV1.uv_map = "UVMap%d" % (uvMap)
+            links.new(nodeUV1.outputs[0], nodeMapping.inputs[0])
+            break
+
     scratchSocket = {}
     for i, texData in enumerate(material.textures):
         nodeTex = nodes.new('ShaderNodeTexImage')
@@ -189,6 +207,8 @@ def process_material(material, prefix, root, t):
                     nodeUV.location = (-(tile_x * 2), -(tile_y * i))
                     nodeUV.uv_map = "UVMap%d" % (uvMap)
                     links.new(nodeUV.outputs[0], nodeTex.inputs[0])
+                elif nodeMapping != None:
+                    links.new(nodeMapping.outputs[0], nodeTex.inputs[0])
 
     if nodeOverwatch.node_tree is None:
         return mat
