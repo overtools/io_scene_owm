@@ -43,7 +43,9 @@ def select_obj(object, value, track=True):
 def deselect_all():
     global VISIBLE_SELECTION
     for object in VISIBLE_SELECTION:
-        object.select_set(False)
+        try:
+            object.select_set(False)
+        except: pass
     VISIBLE_SELECTION = []
 
 def is_selected(object): return object.select_get()
