@@ -1,7 +1,7 @@
 {
     "Version": 2,
     "Mapping": {
-        "Lightmap": [["Lightmap", "AO"], [], 3335614873, 3],
+        "Lightmap": [["Lightmap", "AO"], [], 3335614873, -2, 1644699581, 0, 0],
         "Decal AO": [["AO"], [], 3761386704],
         "Shader AO": [["AO"], [], 1007310079],
         "Albedo + AO": [["Color"], ["AO"], 2903569922],

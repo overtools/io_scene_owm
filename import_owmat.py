@@ -2,6 +2,7 @@ import os
 from . import bpyhelper
 from . import read_owmat
 from . import owm_types
+import struct
 import bpy
 
 def cleanUnusedMaterials(materials):
@@ -173,7 +174,17 @@ def process_material(material, prefix, root, t):
                         print('[import_owmat] could not find node %s on shader group' % (nodeSocketName))
             if len(bfTyp) > 3:
                 uvMap = bfTyp[3]
-                if uvMap > 1:
+                if uvMap != 0:
+                    if uvMap < 0:
+                        static_input_hash = bfTyp[4]
+                        static_input_offset = bfTyp[5]
+                        static_input_mod = bfTyp[6]
+                        uvMap = abs(uvMap)
+                        if static_input_hash in material.static_inputs:
+                            input_chunk = material.static_inputs[static_input_hash][static_input_offset:]
+                            if len(input_chunk) > 1:
+                                uvMap = int(input_chunk[0])
+                                uvMap += static_input_mod
                     nodeUV = nodes.new('ShaderNodeUVMap')
                     nodeUV.location = (-(tile_x * 2), -(tile_y * i))
                     nodeUV.uv_map = "UVMap%d" % (uvMap)
