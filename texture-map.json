@@ -1,5 +1,18 @@
 {
     "Version": 2,
+    "_help_how_does_this_work": {
+        "Mapping": {
+            "Readalbe Name": [["Color Nodes"], ["Alpha Nodes"], "Shader Input Hash Id", "UV Index", "UV Input Id", "UV Input Data Offset", "UV Iput Data Modifier"],
+            "if UV Index is negative, it will try to look up UV Input Data Id in Static Inputs, and decode a single byte at the specified offset": ""
+        },
+        "Alias": "List of texture name rewrites, used for convenience",
+        "Env": "Environment Remapping for when nodes are left open",
+        "Color": "List of names to import as sRGB",
+        "Active": "Active texture to display in the viewport",
+        "Blend": "Unused, used to set alpha blend a certain way if this node is used in eevee-- it's always set now",
+        "NodeGroups": "OWM Shader remaps for shader ids",
+        "Scale": "List of static input ids for texture scaling"
+    },
     "Mapping": {
         "Lightmap": [["Lightmap", "AO"], [], 3335614873, -2, 1644699581, 0, 0],
         "Decal AO": [["AO"], [], 3761386704],
@@ -99,5 +112,6 @@
         "51": "OWM: Hair",
         "54": "OWM: Refractive",
         "56": "OWM: Decal"
-    }
+    },
+    "Scale": [2166182138]
 }
