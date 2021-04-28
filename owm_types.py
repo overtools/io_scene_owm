@@ -37,7 +37,7 @@ LOADED_LIBRARY_VERSION = 0
 ALWAYS_DOWNLOAD = False
 
 LIBRARY_STATE = 0 # 0 = Uninitialized, 1 = Loaded
-LIBRARY_BRANCH = "blender282"
+LIBRARY_BRANCH = "develop"
 
 def reset():
     global DefaultTextureTypes, TextureTypes, LOADED_LIBRARY_VERSION, ALWAYS_DOWNLOAD, LIBRARY_STATE, LOG_ALOT
