@@ -59,6 +59,13 @@ def create_collection(name, parent):
     return collection
 
 
+def instance_collection(collection, name, parent_collection):
+    instance = bpy.data.objects.new(name, object_data=None)
+    instance.instance_collection = collection
+    instance.instance_type = 'COLLECTION'
+    parent_collection.objects.link(instance)
+
+
 def is_selected(object): return object.select_get()
 def scene_link(object, collection=None):
     if collection is None:
