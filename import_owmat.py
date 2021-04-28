@@ -133,8 +133,8 @@ def process_material(material, prefix, root, t):
             nodeMapping.location = (-(tile_x * 3), -(tile_y))
 
             scale_data = struct.unpack('<ff', material.static_inputs[inputId][0:8])
-            nodeMapping.inputs[2].default_value[0] = scale_data[0]
-            nodeMapping.inputs[2].default_value[1] = scale_data[1]
+            nodeMapping.inputs[3].default_value[0] = scale_data[0]
+            nodeMapping.inputs[3].default_value[1] = scale_data[1]
 
             nodeUV1 = nodes.new('ShaderNodeUVMap')
             nodeUV1.location = (-(tile_x * 4), -(tile_y))
