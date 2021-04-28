@@ -35,10 +35,13 @@ VISIBLE_SELECTION = []
 def scene_update():
     if LOCK_UPDATE: return
     bpy.context.view_layer.update()
+
+
 def select_obj(object, value, track=True):
      object.select_set(value)
      if value is True and object.hide_viewport is False and track is True:
          VISIBLE_SELECTION.append(object)
+
 
 def deselect_all():
     global VISIBLE_SELECTION
@@ -48,12 +51,25 @@ def deselect_all():
         except: pass
     VISIBLE_SELECTION = []
 
+def create_collection(name, parent):
+    if parent is None:
+        parent = bpy.context.view_layer.active_layer_collection.collection
+    collection = bpy.data.collections.new(name)
+    parent.children.link(collection)
+    return collection
+
+
 def is_selected(object): return object.select_get()
-def scene_link(object): bpy.context.view_layer.active_layer_collection.collection.objects.link(object)
-def scene_unlink(object): bpy.context.view_layer.active_layer_collection.collection.objects.unlink(object)
+def scene_link(object, collection=None):
+    if collection is None:
+        collection = bpy.context.view_layer.active_layer_collection.collection
+    collection.objects.link(object)
+def scene_unlink(object, collection=None):
+    if collection is None:
+        collection = bpy.context.view_layer.active_layer_collection.collection
+    collection.objects.unlink(object)
 def scene_active(): return bpy.context.view_layer.objects.active
 def scene_active_set(object): bpy.context.view_layer.objects.active = object
-def get_objects(): return bpy.context.scene_layer.objects
 def new_uv_layer(mesh, name): return mesh.uv_layers.new(name = name)
 def new_color_layer(mesh, name): return mesh.vertex_colors.new(name = name)
 def normpath(path): return os.path.normpath(path.replace('\\', os.path.sep).replace('/', os.path.sep))
