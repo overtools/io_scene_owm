@@ -129,14 +129,16 @@ def process_material(material, prefix, root, t):
     for inputId in tm['Scale']:
         if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
             scale_data = struct.unpack('<ff', material.static_inputs[inputId][0:8])
-            if scale_data[0] < 0.01: scale_data[0] = 1
-            if scale_data[1] < 0.01: scale_data[1] = 1
+            scale_x = scale_data[0]
+            scale_y = scale_data[1]
+            if scale_x < 0.01: scale_x = 1
+            if scale_y < 0.01: scale_y = 1
             nodeMapping = nodes.new('ShaderNodeMapping')
             nodeMapping.vector_type = 'TEXTURE'
             nodeMapping.location = (-(tile_x * 3), -(tile_y))
 
-            nodeMapping.inputs[3].default_value[0] = scale_data[0]
-            nodeMapping.inputs[3].default_value[1] = scale_data[1]
+            nodeMapping.inputs[3].default_value[0] = scale_x
+            nodeMapping.inputs[3].default_value[1] = scale_y
 
             nodeUV1 = nodes.new('ShaderNodeUVMap')
             nodeUV1.location = (-(tile_x * 4), -(tile_y))
