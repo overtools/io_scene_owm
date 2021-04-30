@@ -190,10 +190,13 @@ def clone_material(material, prefix, root, t, key):
         else: 
             nodeTex = nodes[str(typ)]
             isColor = nodeTex['owm.material.color']
-            nodeTex.image = tex.image
-            if nodeTex.image and isColor is False:
-                nodeTex.image.colorspace_settings.name = 'Raw'
-                nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
+            if tex is None:
+                nodeTex.image = None
+            else:
+                nodeTex.image = tex.image
+                if isColor is False:
+                    nodeTex.image.colorspace_settings.name = 'Raw'
+                    nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
     return mat
 
 def create_material(material, prefix, root, t):
