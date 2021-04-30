@@ -24,21 +24,47 @@ def pos_matrix(pos):
 
 link_queue = []
 
+parents = {}
+children = {}
+
+def buildRelationships():
+    for obj in bpy.context.scene.objects:
+        if obj.name not in parents:
+            if obj.parent is None: continue
+            parents[obj.name] = obj.parent.name
+    for obj in parents:
+        if parents[obj] not in children:
+            children[parents[obj]] = []
+        children[parents[obj]].append(obj)
+
+def destroyRelationships():
+    global parents, children
+    parents = {}
+    children = {}
+
 def copy(obj, parent):
     if obj is None: return None
     new_obj = obj.copy()
     if obj.data is not None:
         new_obj.data = obj.data.copy()
+        if 'OWM Skeleton' in new_obj.modifiers:
+            mod = new_obj.modifiers['OWM Skeleton']
+            mod.object = parent
     new_obj.parent = parent
     link_queue.append(new_obj)
-    for child in obj.children:
-        copy(child, new_obj)
+    try:
+        for child in children[obj.name]:
+            copy(bpy.data.objects[child], new_obj)
+    except KeyError:
+        pass # screw that
     return new_obj
 
 
 def remove(obj):
-    for child in obj.children:
-        remove(child)
+    if obj.name in children:
+        for child in children[obj.name]:
+            remove(bpy.data.objects[child])
+        del children[obj.name]
     try:
         bpyhelper.scene_unlink(obj)
     except Exception as e:
@@ -159,6 +185,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             obnObj.hide_viewport = True
             obnObj.parent = globObj
             bpyhelper.scene_link(obnObj)
+            buildRelationships()
 
             for idx, ent in enumerate(ob.entities):
                 matpath = ent.material
@@ -252,7 +279,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             import_owmdl.bindMaterialsUniq(internal_obj[2], internal_obj[4], mat)
 
             objCache[cacheKey] = mdl
-
+        buildRelationships()
         for ob in data.details:
             obpath = ob.model
             prog += 1
@@ -278,7 +305,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
     for obj in link_queue:
         bpyhelper.scene_link(obj)
     link_queue = []
-
+    destroyRelationships()
     LIGHT_MAP = ['SUN', 'SPOT', 'POINT']
 
     if light_settings.enabled:

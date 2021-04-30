@@ -82,7 +82,124 @@ def read(filename, prefix = ''):
 
     return (t, m)
 
-def process_material(material, prefix, root, t):
+material_cache = {}
+def cleanup():
+    global material_cache
+    material_cache = {}
+
+def generateTexList(material):
+    tt = owm_types.TextureTypesById
+    tm = owm_types.TextureTypes
+    textures = [texData[2] for texData in material.textures]
+    textures.sort()
+    textures.append(material.shader)
+    return tuple(textures)
+
+def getScaling(material, inputId):
+    scale_data = struct.unpack('<ff', material.static_inputs[inputId][0:8])
+    scale_x = scale_data[0]
+    scale_y = scale_data[1]
+    if scale_x < 0.01: scale_x = 1
+    if scale_y < 0.01: scale_y = 1
+    return scale_x,scale_y
+
+def getUVMap(uvMap,material,bfTyp):
+    static_input_hash = bfTyp[4]
+    static_input_offset = bfTyp[5]
+    static_input_mod = bfTyp[6]
+    uvMap = abs(uvMap)
+    if static_input_hash in material.static_inputs:
+        input_chunk = material.static_inputs[static_input_hash][static_input_offset:]
+        if len(input_chunk) > 1:
+            uvMap = int(input_chunk[0])
+            uvMap += static_input_mod
+    return uvMap
+
+def process_material(material,prefix,root,t):
+    global material_cache
+    key = generateTexList(material)
+    if key not in material_cache:
+        mat = create_material(material, prefix, root, t)
+        material_cache[key] = mat
+    else:
+        mat = clone_material(material, prefix, root, t, key)
+    return mat
+
+def clone_material(material, prefix, root, t, key):
+    mat = material_cache[key].copy()
+    mat.name = '%s%016X' % (prefix, material.key)
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+    tile_x = 400
+    tile_y = 300
+    tt = owm_types.TextureTypesById
+    tm = owm_types.TextureTypes
+    for inputId in tm['Scale']:
+        if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
+            scale_x,scale_y = getScaling(material, inputId)
+            nodeMapping=nodes["Mapping"]
+            nodeMapping.inputs[3].default_value[0] = scale_x
+            nodeMapping.inputs[3].default_value[1] = scale_y
+            break
+    
+    uvNodes = {}
+    for node in nodes:
+        if node.type == "UVMAP":
+            if int(node.uv_map[-1]) not in uvNodes:
+                uvNodes[int(node.uv_map[-1])] = node
+        elif node.type == "MAPPING":
+            uvNodes[1] = node
+
+    uvLinks = {}
+    for link in links:
+        if link.to_node.type == "TEX_IMAGE":
+            uvLinks[link.to_node.name] = 1 if link.from_node.type == "MAPPING" else int(link.from_node.uv_map[-1])
+
+    for i, texData in enumerate(material.textures):
+        typ = texData[2]
+        tex = load_textures(texData[0], root, t)
+        if tex is None:
+            print('[import_owmat]: failed to load texture: {}'.format(texData[0]))
+            #continue
+        
+        if typ in tt:
+            bfTyp = tm['Mapping'][tt[typ]]
+            nodeTex = nodes[str(tt[typ])]
+            isColor = nodeTex['owm.material.color']
+            if tex is None:
+                nodeTex.image = None
+            else:
+                nodeTex.image = tex.image
+            if nodeTex.image and isColor is False:
+                nodeTex.image.colorspace_settings.name = 'Raw'
+                nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
+            uvMap = bfTyp[3] if len(bfTyp) > 3 else 0
+            if uvMap != 0:
+                if uvMap < 0:
+                    uvMap = getUVMap(uvMap,material, bfTyp)
+                nodeUV = None
+                if uvMap in uvNodes:
+                    nodeUV = uvNodes[uvMap]
+                else:
+                    nodeUV = nodes.new('ShaderNodeUVMap')
+                    nodeUV.location = (-(tile_x * 2), -(tile_y * i))
+                    nodeUV.uv_map = "UVMap%d" % (uvMap)
+                    uvNodes[uvMap] = nodeUV
+                if int(uvLinks[nodeTex.name]) != uvMap:
+                    links.new(nodeUV.outputs[0], nodeTex.inputs[0])
+        else: 
+            nodeTex = nodes[str(typ)]
+            isColor = nodeTex['owm.material.color']
+            if tex is None:
+                nodeTex.image = None
+            else:
+                nodeTex.image = tex.image
+                if isColor is False:
+                    nodeTex.image.colorspace_settings.name = 'Raw'
+                    nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
+    return mat
+
+def create_material(material, prefix, root, t):
     mat = bpy.data.materials.new(name = '%s%016X' % (prefix, material.key))
 
     # print('Processing material: ' + mat.name)
@@ -128,11 +245,7 @@ def process_material(material, prefix, root, t):
     uvNodes = {}
     for inputId in tm['Scale']:
         if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
-            scale_data = struct.unpack('<ff', material.static_inputs[inputId][0:8])
-            scale_x = scale_data[0]
-            scale_y = scale_data[1]
-            if scale_x < 0.01: scale_x = 1
-            if scale_y < 0.01: scale_y = 1
+            scale_x,scale_y = getScaling(material, inputId)
             nodeMapping = nodes.new('ShaderNodeMapping')
             nodeMapping.vector_type = 'TEXTURE'
             nodeMapping.location = (-(tile_x * 3), -(tile_y))
@@ -156,11 +269,12 @@ def process_material(material, prefix, root, t):
         tex = load_textures(texData[0], root, t)
         if tex is None:
             print('[import_owmat]: failed to load texture: {}'.format(texData[0]))
-            continue
-        nodeTex.image = tex.image
-        if nodeTex.image:
-            nodeTex.image.colorspace_settings.name = 'Raw'
-            nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
+            #continue can't do that. we need everything linked
+        else:
+            nodeTex.image = tex.image
+            if nodeTex.image:
+                nodeTex.image.colorspace_settings.name = 'Raw'
+                nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
 
         if len(texData) == 2:
             continue
@@ -170,12 +284,13 @@ def process_material(material, prefix, root, t):
 
         typ = texData[2]
         nodeTex['owm.material.typeid'] = str(typ)
+        nodeTex['owm.material.color'] = False
         nodeTex.label = str(typ)
         if typ in tt:
             bfTyp = tm['Mapping'][tt[typ]]
             # print('[import_owmat]: {} is {}'.format(os.path.basename(texData[0]), tt[typ]))
             nodeTex.label = str(tt[typ])
-            #nodeTex.name = str(tt[typ]) causes a chain of internal changes we dont want
+            nodeTex.name = str(tt[typ]) #not that bad now and we're using it
             for colorSocketPoint in bfTyp[0]:
                 nodeSocketName = colorSocketPoint
                 if colorSocketPoint in tm['Alias']:
@@ -199,15 +314,7 @@ def process_material(material, prefix, root, t):
             uvMap = bfTyp[3] if len(bfTyp) > 3 else 0
             if uvMap != 0:
                 if uvMap < 0:
-                    static_input_hash = bfTyp[4]
-                    static_input_offset = bfTyp[5]
-                    static_input_mod = bfTyp[6]
-                    uvMap = abs(uvMap)
-                    if static_input_hash in material.static_inputs:
-                        input_chunk = material.static_inputs[static_input_hash][static_input_offset:]
-                        if len(input_chunk) > 1:
-                            uvMap = int(input_chunk[0])
-                            uvMap += static_input_mod
+                    uvMap=getUVMap(uvMap, material, bfTyp)
                 nodeUV = None
                 if uvMap in uvNodes:
                     nodeUV = uvNodes[uvMap]
@@ -219,6 +326,8 @@ def process_material(material, prefix, root, t):
                 links.new(nodeUV.outputs[0], nodeTex.inputs[0])
             elif nodeMapping != None:
                 links.new(nodeMapping.outputs[0], nodeTex.inputs[0])
+        else:
+            nodeTex.name = str(typ)
 
     if nodeOverwatch.node_tree is None:
         return mat
@@ -241,6 +350,7 @@ def process_material(material, prefix, root, t):
         if colorNodePoint in scratchSocket:
             if scratchSocket[colorNodePoint].node.image:
                 scratchSocket[colorNodePoint].node.image.colorspace_settings.name = 'sRGB'
+            scratchSocket[colorNodePoint].node['owm.material.color'] = True
 
     mat.blend_method = 'HASHED'
     mat.shadow_method = 'HASHED'
