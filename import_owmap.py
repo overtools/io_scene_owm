@@ -306,8 +306,8 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
     for obj in link_queue:
         bpyhelper.scene_link(obj)
-    destroyRelationships()
     link_queue = []
+    destroyRelationships()
     LIGHT_MAP = ['SUN', 'SPOT', 'POINT']
 
     if light_settings.enabled:
