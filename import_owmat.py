@@ -175,7 +175,7 @@ def process_material(material, prefix, root, t):
             bfTyp = tm['Mapping'][tt[typ]]
             # print('[import_owmat]: {} is {}'.format(os.path.basename(texData[0]), tt[typ]))
             nodeTex.label = str(tt[typ])
-            nodeTex.name = str(tt[typ])
+            #nodeTex.name = str(tt[typ]) causes a chain of internal changes we dont want
             for colorSocketPoint in bfTyp[0]:
                 nodeSocketName = colorSocketPoint
                 if colorSocketPoint in tm['Alias']:
