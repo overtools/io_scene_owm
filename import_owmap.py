@@ -167,7 +167,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
                 mat = None
                 hideModel = False
-                if settings.importMaterial and len(ent.material) > 3:
+                if settings.importMaterial and bpyhelper.valid_path(ent.material):
                     if matpath not in matCache:
                         mat = import_owmat.read(matpath, '%s:%X_' % (name, idx))
                         matCache[matpath] = mat
@@ -214,7 +214,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 continue
             progress_update(total, prog, obpath)
             cacheKey = obpath
-            if settings.importMaterial and len(ob.material) > 3:
+            if settings.importMaterial and bpyhelper.valid_path(ob.material):
                 cacheKey = cacheKey + ob.material
             if cacheKey in objCache:
                 continue
@@ -236,7 +236,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
             mat = None
             hideModel = False
-            if settings.importMaterial and len(ob.material) > 3:
+            if settings.importMaterial and bpyhelper.valid_path(ob.material):
                 if matpath not in matCache:
                     mat = import_owmat.read(matpath, '%s:%X_' % (name, idx))
                     matCache[matpath] = mat
@@ -260,7 +260,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 obpath = bpyhelper.normpath('%s/%s' % (root, obpath))
             cacheKey = obpath
             progress_update(total, prog, obpath)
-            if settings.importMaterial and len(ob.material) > 3:
+            if settings.importMaterial and bpyhelper.valid_path(ob.material):
                 cacheKey = cacheKey + ob.material
             if cacheKey not in objCache or objCache[cacheKey] is None:
                 continue

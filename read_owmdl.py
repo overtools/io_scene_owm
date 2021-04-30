@@ -67,30 +67,33 @@ def read(filename):
             for i in range(emptyCount): empties[i].hardpoint = bin_ops.readFmt(stream, owm_types.OWMDLEmpty.exFormat)
 
     cloths = []
-    if minor >= 3 and major >= 1:
-        count = bin_ops.readFmt(stream, owm_types.OWMDLCloth.beforeFmt)[0]
-        for i in range(count):
-            name, meshCount = bin_ops.readFmtFlat(stream, owm_types.OWMDLCloth.structFormat)
-            clothMeshes = []
-            for j in range(meshCount):
-                id, vertCount, subname = bin_ops.readFmtFlat(stream, owm_types.OWMDLClothMesh.structFormat)
-                pinnedVerts = []
-
-                for k in range(vertCount):
-                    pinnedVerts.append(bin_ops.readFmtFlat(stream, owm_types.OWMDLClothMesh.pinnedVertFmt))
-
-                clothMeshes.append(owm_types.OWMDLClothMesh(subname, id, pinnedVerts))
-
-            cloths.append(owm_types.OWMDLCloth(name, clothMeshes))
-
     refpose_bones = []
-    if boneCount > 0 and minor >= 4 and major >= 1:
-        for i in range(boneCount):
-            name, parent, pos, scale, rot = bin_ops.readFmt(stream, owm_types.OWMDLRefposeBone.structFormat)
-            refpose_bones += [owm_types.OWMDLRefposeBone(name, parent[0], pos, scale, rot)]
-
     guid = 0
-    if minor >= 5 and major >= 1:
-        guid = bin_ops.readFmtFlat(stream, owm_types.OWMDLHeader.guidFormat)
+
+    try:
+        if minor >= 3 and major >= 1:
+            count = bin_ops.readFmt(stream, owm_types.OWMDLCloth.beforeFmt)[0]
+            for i in range(count):
+                name, meshCount = bin_ops.readFmtFlat(stream, owm_types.OWMDLCloth.structFormat)
+                clothMeshes = []
+                for j in range(meshCount):
+                    id, vertCount, subname = bin_ops.readFmtFlat(stream, owm_types.OWMDLClothMesh.structFormat)
+                    pinnedVerts = []
+
+                    for k in range(vertCount):
+                        pinnedVerts.append(bin_ops.readFmtFlat(stream, owm_types.OWMDLClothMesh.pinnedVertFmt))
+
+                    clothMeshes.append(owm_types.OWMDLClothMesh(subname, id, pinnedVerts))
+
+                cloths.append(owm_types.OWMDLCloth(name, clothMeshes))
+
+        if boneCount > 0 and minor >= 4 and major >= 1:
+            for i in range(boneCount):
+                name, parent, pos, scale, rot = bin_ops.readFmt(stream, owm_types.OWMDLRefposeBone.structFormat)
+                refpose_bones += [owm_types.OWMDLRefposeBone(name, parent[0], pos, scale, rot)]
+
+        if minor >= 5 and major >= 1:
+            guid = bin_ops.readFmtFlat(stream, owm_types.OWMDLHeader.guidFormat)
+    except: pass
 
     return owm_types.OWMDLFile(header, bones, refpose_bones, meshes, empties, cloths, guid)

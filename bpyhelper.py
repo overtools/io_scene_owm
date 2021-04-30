@@ -80,4 +80,5 @@ def scene_active_set(object): bpy.context.view_layer.objects.active = object
 def new_uv_layer(mesh, name): return mesh.uv_layers.new(name = name)
 def new_color_layer(mesh, name): return mesh.vertex_colors.new(name = name)
 def normpath(path): return os.path.normpath(path.replace('\\', os.path.sep).replace('/', os.path.sep))
+def valid_path(path): return path is not None and len(path) > 4
 def safe_color(r, g, b): return (r, g, b, 1.0)

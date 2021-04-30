@@ -434,7 +434,7 @@ def readmdl(materials = None, rotate=True):
 
     impMat = False
     materials = None
-    if materials == None and settings.importMaterial and len(data.header.material) > 3:
+    if materials == None and settings.importMaterial and bpyhelper.valid_path(data.header.material):
         impMat = True
         matpath = data.header.material
 
