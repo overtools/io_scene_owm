@@ -33,11 +33,9 @@ def buildRelationships():
             if obj.parent is None: continue
             parents[obj.name] = obj.parent.name
     for obj in parents:
-        #if parents[obj] is None or obj is None: continue
         if parents[obj] not in children:
             children[parents[obj]] = []
         children[parents[obj]].append(obj)
-    #print(children)
 
 def destroyRelationships():
     global parents, children
