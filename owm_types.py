@@ -139,7 +139,7 @@ def create_overwatch_library():
     blocks = set(blocks_node + blocks_text);
     if len(blocks) > 0:
         print('[owm] exported: %s' % (', '.join(map(lambda x: x.name, blocks))))
-    bpy.data.libraries.write(path, blocks, fake_user = True, relative_remap = True, compress = True)
+    bpy.data.libraries.write(path, blocks, fake_user = True, path_remap = 'RELATIVE_ALL', compress = False)
     print('[owm] saved %s' % (path))
 
 def load_data():

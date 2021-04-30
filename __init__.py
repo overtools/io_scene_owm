@@ -24,7 +24,7 @@ bl_info = {
     'name': 'OWM Import',
     'author': 'Overtools Community',
     'version': (2, 3, 1),
-    'blender': (2, 91, 0),
+    'blender': (2, 92, 0),
     'location': 'File > Import > OWM',
     'description': 'Import TankLib/DataTool OWM files',
     'warning': 'May optionally download files',
