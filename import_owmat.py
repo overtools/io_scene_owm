@@ -4,7 +4,6 @@ from . import read_owmat
 from . import owm_types
 import struct
 import bpy
-import time
 
 def cleanUnusedMaterials(materials):
     if materials is None:
