@@ -108,6 +108,7 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
             import_owmdl.read(settings)
         except KeyboardInterrupt:
             bpyhelper.LOCK_UPDATE = False
+        import_owmat.cleanup()
         print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
@@ -167,6 +168,7 @@ class ImportOWMAT(bpy.types.Operator, ImportHelper):
             import_owmat.read(self.filepath, '')
         except KeyboardInterrupt:
             bpyhelper.LOCK_UPDATE = False
+        import_owmat.cleanup()
         print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
@@ -383,6 +385,7 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
             import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision, self.importSounds)
         except KeyboardInterrupt:
             bpyhelper.LOCK_UPDATE = False
+        import_owmat.cleanup()
         print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
@@ -537,6 +540,7 @@ class ImportOWENTITY(bpy.types.Operator, ImportHelper):
             import_owentity.read(settings, self.import_children)
         except KeyboardInterrupt:
             bpyhelper.LOCK_UPDATE = False
+        import_owmat.cleanup()
         print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
@@ -680,6 +684,7 @@ class ImportOWEFFECT(bpy.types.Operator, ImportHelper):
             import_oweffect.read(efct_settings)
         except KeyboardInterrupt:
             bpyhelper.LOCK_UPDATE = False
+        import_owmat.cleanup()
         print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
