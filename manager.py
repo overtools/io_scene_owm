@@ -211,7 +211,7 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
     autoSmoothNormals : BoolProperty(
         name='Auto Smooth Normals',
         description='Auto Smooth Normals around soft edges',
-        default=True,
+        default=False,
     )
 
     importColor : BoolProperty(

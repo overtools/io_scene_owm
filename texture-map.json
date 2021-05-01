@@ -1,5 +1,5 @@
 {
-    "Version": 2,
+    "Version": 5,
     "_help_how_does_this_work": {
         "Mapping": {
             "Readable Name": [["Color Nodes"], ["Alpha Nodes"], "Shader Input Hash Id", "UV Index", "UV Input Id", "UV Input Data Offset", "UV Input Data Modifier"],
@@ -12,10 +12,11 @@
         "Active": "Active texture to display in the viewport",
         "Blend": "Unused, used to set alpha blend a certain way if this node is used in eevee-- it's always set now",
         "NodeGroups": "OWM Shader remaps for shader ids",
-        "Scale": "List of static input ids for texture scaling"
+        "Scale": "List of static input ids for texture scaling",
+        "Static": "todo"
     },
     "Mapping": {
-        "Lightmap": [["Lightmap", "AO"], [], 3335614873, -2, 1644699581, 0, 0],
+        "Map AO": [["AO"], [], 3335614873, -2, 1644699581, 0, 0],
         "Decal AO": [["AO"], [], 3761386704],
         "Shader AO": [["AO"], [], 1007310079],
         "Albedo + AO": [["Color"], ["AO"], 2903569922],
@@ -55,7 +56,11 @@
         "Shader Param": [[], [], 1360535661],
         "Shader Param 2": [[], [], 3135519717],
         "Shader Param 3": [[], [], 612412998],
-        "Shader Param 4": [[], [], 1259168873]
+        "Shader Param 4": [[], [], 1259168873],
+        "Grass Color + Param": [["Color"], [], 3093211343],
+        "Grass Noise": [[], [], 1435463780],
+        "Grass PBR": [["PBR"], [], 763550166],
+        "Grass Emission": [["Emission"], [], 165438316]
     },
     "Alias": {
         "Color": "Color",
@@ -114,5 +119,6 @@
         "54": "OWM: Refractive",
         "56": "OWM: Decal"
     },
-    "Scale": [2166182138]
+    "Scale": [2166182138],
+    "Static": {}
 }
