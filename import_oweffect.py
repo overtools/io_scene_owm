@@ -38,6 +38,9 @@ def get_skeleton(is_entity, obj, model):
     else:
         model_container = obj
 
+    if model_container is None: 
+        return None
+
     skeleton = None
     for o in model_container.children:
         if 'owm.skeleton.model' in o:
@@ -144,6 +147,9 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
             this_obj.parent = parent
         
         skeleton = get_skeleton(is_entity, obj, model)
+
+        if skeleton is None: 
+            return this_obj, None
         
         bpy.ops.object.select_all(action='DESELECT')
 
@@ -437,7 +443,7 @@ def read(settings, existing_parent=None):
             t = settings.target_fps
         ret = process(settings, data, pool, existing_parent, t, None, {})
         
-        if existing_parent is None and settings.create_camera:
+        if existing_parent is None and settings.create_camera and ret[1] is not None:
             bpy.ops.object.add(type='CAMERA')
             cam = bpy.context.active_object
             cam.name = 'AnimationCamera {}'.format(os.path.splitext(os.path.basename(data.anim_path))[0])
