@@ -768,9 +768,9 @@ class OWMUtilityPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(bpy.context.scene.owm_internal_settings, 'b_logsalot', text='Log Map Progress')
         row = layout.row()
-        row.prop(bpy.context.scene.owm_internal_settings, 'b_download', text='Download Library')
+        row.prop(bpy.context.scene.owm_internal_settings, 'b_allow_download', text='Download Library')
         split = row.split()
-        split.prop(bpy.context.scene.owm_internal_settings, 'b_allow_download', text='Always')
+        split.prop(bpy.context.scene.owm_internal_settings, 'b_download', text='Always')
         split.enabled = bpy.context.scene.owm_internal_settings.b_download
 
         box = layout.box()
