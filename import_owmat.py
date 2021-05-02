@@ -118,11 +118,15 @@ def getUVMap(uvMap,material,bfTyp):
 def process_material(material,prefix,root,t):
     global material_cache
     key = generateTexList(material)
-    if key not in material_cache:
-        mat = create_material(material, prefix, root, t)
-        material_cache[key] = mat
-    else:
-        mat = clone_material(material, prefix, root, t, key)
+    if key in material_cache:
+        try:
+            mat = clone_material(material, prefix, root, t, key)
+            return mat
+        except ReferenceError:
+            pass # gotta find a way to test for removed stuff or make remove unused clear the cache entry. this works for now
+        
+    mat = create_material(material, prefix, root, t)
+    material_cache[key] = mat
     return mat
 
 def clone_material(material, prefix, root, t, key):
