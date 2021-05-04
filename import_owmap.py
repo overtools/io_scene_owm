@@ -200,7 +200,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 hideModel = False
                 if settings.importMaterial and len(ent.material) > 3:
                     if matpath not in matCache:
-                        mat = import_owmat.read(matpath, '%s:%X_' % (name, idx), "00000000A8F2" in obn)
+                        mat = import_owmat.read(matpath, '%s:%X_' % (name, idx))
                         matCache[matpath] = mat
                     else:
                         mat = matCache[matpath]

@@ -58,12 +58,20 @@ def create_collection(name, parent):
     parent.children.link(collection)
     return collection
 
+def exclude_collections(list, collection=None):
+    if collection is None:
+        collection = bpy.context.view_layer.active_layer_collection
+    for child_collection in collection.children:
+        exclude_collections(list,child_collection)
+    if collection.name in list:
+        collection.exclude = True
 
 def instance_collection(collection, name, parent_collection):
     instance = bpy.data.objects.new(name, object_data=None)
     instance.instance_collection = collection
     instance.instance_type = 'COLLECTION'
     parent_collection.objects.link(instance)
+    return instance
 
 
 def is_selected(object): return object.select_get()
