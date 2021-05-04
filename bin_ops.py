@@ -38,6 +38,14 @@ fmtSz = {
   'P': 1
 } # lets not run .lower millions of times during map imports
 
+def getSize(fmt):
+    size = 0
+    for char in fmt:
+        if char == '<': continue
+        if char in fmtSz:
+            size += fmtSz[char]
+    return size
+
 def read(file, fmt):
     size = 0
     for char in fmt:
