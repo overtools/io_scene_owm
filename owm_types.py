@@ -549,8 +549,9 @@ class OWMATMaterial:
     new_modellook_format = [str]
     static_input_format = ['<II']
 
-    def __init__(self, key, textureCount, textures, shader=0, static_inputs={}):
+    def __init__(self, key, guid, textureCount, textures, shader=0, static_inputs={}):
         self.key = key
+        self.guid = guid
         self.textureCount = textureCount
         self.textures = textures
         self.shader = shader
