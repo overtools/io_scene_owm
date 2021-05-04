@@ -42,21 +42,24 @@ def destroyRelationships():
     parents = {}
     children = {}
 
-def copy(obj, parent):
+def copy(obj, parent,original=True,col=None):
     if obj is None: return None
     new_obj = obj.copy()
     if obj.data is not None:
-        new_obj.data = obj.data.copy()
-        if 'OWM Skeleton' in new_obj.modifiers:
+        if original is True:
+            new_obj.data = obj.data.copy()
+        
+        if obj.get('owm.mesh.armature',0) is 1:
             mod = new_obj.modifiers['OWM Skeleton']
             mod.object = parent
     new_obj.parent = parent
-    link_queue.append(new_obj)
-    try:
-        for child in children[obj.name]:
-            copy(bpy.data.objects[child], new_obj)
-    except KeyError:
-        pass # screw that
+    col.objects.link(new_obj)
+    if original:
+        children[new_obj.name] = []
+    for child in children.get(obj.name,[]):
+        new_child = copy(bpy.data.objects[child], new_obj,original,col)
+        if original:
+            children[new_obj.name].append(new_child.name)
     return new_obj
 
 
@@ -102,7 +105,8 @@ def import_mdl(mdls):
             if obj[1] is None:
                 obj[0].rotation_euler = (math.radians(90), 0, 0) # reeee
                 if len(obj[3]) > 0 and obj[3][0] is not None:
-                    obj[3][0].rotation_euler = (0, 0, 0) # :ahh:
+                    obj[3][0].rotation_euler = (0, 0, 0) # :ahh: TODO check if this causes boat crosses
+            return obj
         else:
             obj = import_owmdl.read(mdls, None)
             obj[0].rotation_euler = (math.radians(90), 0, 0)
@@ -160,11 +164,12 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
     matCache = {}
 
+    instancecols = True # TODO option checkbox
+
     if importObjects:
-        globObj = bpy.data.objects.new(name + '_OBJECTS', None)
-        globObj.hide_viewport = True
-        globObj.parent = rootObj
-        bpyhelper.scene_link(globObj)
+        globObj = bpy.data.collections.new(name + '_OBJECTS')
+        cols = []
+        to_exclude = []
         for ob in data.objects:
             obpath = ob.model
             if not os.path.isabs(obpath):
@@ -181,10 +186,8 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             if obj is None:
                 continue
 
-            obnObj = bpy.data.objects.new(obn + '_COLLECTION', None)
-            obnObj.hide_viewport = True
-            obnObj.parent = globObj
-            bpyhelper.scene_link(obnObj)
+            obnObj = bpy.data.collections.new(obn + '_COLLECTION')
+            cols.append(obnObj)
             buildRelationships()
 
             for idx, ent in enumerate(ob.entities):
@@ -192,46 +195,59 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 if not os.path.isabs(matpath):
                     matpath = bpyhelper.normpath('%s/%s' % (root, matpath))
 
+                
                 mat = None
                 hideModel = False
-                if settings.importMaterial and bpyhelper.valid_path(ent.material):
+                if settings.importMaterial and len(ent.material) > 3:
                     if matpath not in matCache:
-                        mat = import_owmat.read(matpath, '%s:%X_' % (name, idx))
+                        mat = import_owmat.read(matpath, '%s:%X_' % (name, idx), "00000000A8F2" in obn)
                         matCache[matpath] = mat
                     else:
                         mat = matCache[matpath]
                 if mat != None and removeCollision:
                     for tex_name, tex in mat[0].items():
-                        if tex_name == '000000001B8D' or tex_name == '000000001BA4':
+                        if tex_name == '000000001B8D' or tex_name == '000000001BA4': # Is this broken?
                             hideModel = True
 
                 prog += 1
 
-                matObj = bpy.data.objects.new(os.path.splitext(os.path.basename(matpath))[0], None)
-                matObj.hide_viewport = True
-                matObj.parent = obnObj
-                bpyhelper.scene_link(matObj)
-
+                if instancecols:
+                    matObj = bpy.data.collections.new(os.path.splitext(os.path.basename(matpath))[0])
+                    to_exclude.append(matObj.name)
+                    obnObj.children.link(matObj)
+                else:
+                    matObj = bpy.data.objects.new(os.path.splitext(os.path.basename(matpath))[0], None)
+                    matObj.hide_viewport = True
+                    bpyhelper.scene_link(matObj,obnObj)
+                
                 import_owmdl.bindMaterialsUniq(internal_obj[2], internal_obj[4], mat)
                 # eobj = copy(obj, None)
 
+                is_orig=True
+                cobj = obj
                 for idx2, rec in enumerate(ent.records):
                     progress_update(total, prog, obpath)
-                    nobj = copy(obj, matObj)
+                    if instancecols:
+                        if is_orig:
+                            cobj = copy(cobj,None,True,matObj)
+                        nobj = bpyhelper.instance_collection(matObj, matObj.name,obnObj)
+                    else:
+                        nobj = copy(cobj, matObj,is_orig,obnObj)
                     nobj.location = pos_matrix(rec.position)
                     nobj.rotation_euler = Quaternion(wxzy(rec.rotation)).to_euler('XYZ')
                     nobj.scale = xpzy(rec.scale)
+                    if is_orig:
+                        cobj=nobj
                     if hideModel:
                         hide_recursive(nobj)
+                    is_orig=False
                     prog += 1
             remove(obj)
 
     if importDetails:
-        globDet = bpy.data.objects.new(name + '_DETAILS', None)
-        globDet.hide_viewport = True
-        globDet.parent = rootObj
-        bpyhelper.scene_link(globDet)
+        globDet = bpy.data.collections.new(name + '_DETAILS')
         objCache = {}
+        origObjs = []
         for idx, ob in enumerate(data.details):
             obpath = ob.model
             prog += 1
@@ -240,9 +256,11 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             if not os.path.isfile(obpath):
                 continue
             progress_update(total, prog, obpath)
-            cacheKey = obpath
+            cacheKey = os.path.splitext(os.path.basename(obpath))[0]
+            matpath = ob.material
+            matkey = os.path.splitext(os.path.basename(matpath))[0]
             if settings.importMaterial and bpyhelper.valid_path(ob.material):
-                cacheKey = cacheKey + ob.material
+                cacheKey = cacheKey + matkey
             if cacheKey in objCache:
                 continue
 
@@ -253,62 +271,88 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             mutated = settings.mutate(obpath)
             mutated.importMaterial = False
 
-            mdl, internal_obj = import_mdl(mutated)
-            if mdl is None:
-                continue
+            internal_obj = import_mdl(mutated)
 
-            matpath = ob.material
             if not os.path.isabs(matpath):
                 matpath = bpyhelper.normpath('%s/%s' % (root, matpath))
 
             mat = None
             hideModel = False
             if settings.importMaterial and bpyhelper.valid_path(ob.material):
-                if matpath not in matCache:
+                if matkey not in matCache:
                     mat = import_owmat.read(matpath, '%s:%X_' % (name, idx))
-                    matCache[matpath] = mat
+                    matCache[matkey] = mat
                 else:
-                    mat = matCache[matpath]
+                    mat = matCache[matkey]
                 if removeCollision:
                     for tex_name, tex in mat[0].items():
                         if tex_name == '000000001B8D' or tex_name == '000000001BA4':
                             hideModel = True
             if hideModel:
-                hide_recursive(mdl)
+                hide_recursive(internal_obj[0])
 
             import_owmdl.bindMaterialsUniq(internal_obj[2], internal_obj[4], mat)
 
-            objCache[cacheKey] = mdl
+            if instancecols:
+                col = bpy.data.collections.new(internal_obj[0].name + '_COLLECTION')
+                objwrap = bpy.data.collections.new(internal_obj[0].name + '_WRAP')
+                objCache[cacheKey] = [internal_obj[0], col, objwrap, True,internal_obj[0]]
+                col.children.link(objwrap)
+                to_exclude.append(objwrap.name)
+            else:
+                objCache[cacheKey] = [internal_obj[0],bpy.data.collections.new(internal_obj[0].name + '_COLLECTION')]
+            origObjs.append(internal_obj[0])
         buildRelationships()
+
         for ob in data.details:
             obpath = ob.model
             prog += 1
             if not os.path.isabs(obpath):
                 obpath = bpyhelper.normpath('%s/%s' % (root, obpath))
-            cacheKey = obpath
+            cacheKey = os.path.splitext(os.path.basename(obpath))[0]
             progress_update(total, prog, obpath)
             if settings.importMaterial and bpyhelper.valid_path(ob.material):
-                cacheKey = cacheKey + ob.material
+                cacheKey = cacheKey + os.path.splitext(os.path.basename(ob.material))[0]
+            #print(cacheKey)
             if cacheKey not in objCache or objCache[cacheKey] is None:
                 continue
 
-            objnode = copy(objCache[cacheKey], globDet)
+            if instancecols:
+                cached = objCache[cacheKey]
+                if cached[3]:
+                    cached[3] = False
+                    cached[0] = copy(cached[0], None, True, cached[2])
+                objnode = bpyhelper.instance_collection(cached[2], cached[0].name,cached[1])
+            else:
+                objnode = copy(objCache[cacheKey][0], None, False, objCache[cacheKey][1])
             objnode.location = pos_matrix(ob.position)
-            objnode.rotation_euler = Quaternion(wxzy(ob.rotation)).to_euler('XYZ')
+            rot = Quaternion(wxzy(ob.rotation)).to_euler('XYZ')
+            objnode.rotation_euler.rotate(rot)
             objnode.scale = xpzy(ob.scale)
+            is_orig=False
 
-        for ob in objCache:
+        for ob in origObjs:
             prog += 1
-            remove(objCache[ob])
-            progress_update(total, prog, ob)
+            remove(ob)
+            progress_update(total, prog, "")
 
-    for obj in link_queue:
+
+    for ob in cols:
+        bpy.data.collections[name + '_OBJECTS'].children.link(ob)
+    if importDetails:
+        for ob in objCache:
+            bpy.data.collections[name + '_DETAILS'].children.link(objCache[ob][1])
+        bpy.data.collections["Collection"].children.link(bpy.data.collections[name + '_DETAILS']) # TODO get active collection or something
+    bpy.data.collections["Collection"].children.link(bpy.data.collections[name + '_OBJECTS'])
+
+    for obj in link_queue: # still needed?
         bpyhelper.scene_link(obj)
     link_queue = []
+    bpyhelper.exclude_collections(to_exclude)
     destroyRelationships()
     LIGHT_MAP = ['SUN', 'SPOT', 'POINT']
 
-    if light_settings.enabled:
+    if light_settings.enabled: #TODO make collections for these
         globLight = bpy.data.objects.new(name + '_LIGHTS', None)
         globLight.hide_viewport = True
         globLight.parent = rootObj

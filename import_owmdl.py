@@ -106,7 +106,7 @@ def importArmature(autoIk):
     bpy.ops.object.mode_set(mode='OBJECT')
     # armData.use_auto_ik = autoIk
 
-    bpy.ops.object.mode_set(mode='OBJECT')
+    #bpy.ops.object.mode_set(mode='OBJECT')
     # armature.data.use_auto_ik = autoIk
     return armature
 
@@ -196,7 +196,7 @@ def bindMaterialsUniq(meshes, data, materials):
         meshData = data.meshes[i]
         if meshData.materialKey in materials[1]:
             mesh.materials.clear()
-            mesh.materials.append(None)
+            mesh.materials.append(materials[1][meshData.materialKey])
             obj.material_slots[0].link = 'OBJECT'
             obj.material_slots[0].material = materials[1][meshData.materialKey]
         else:
@@ -217,6 +217,7 @@ def importMesh(armature, meshData):
     mesh.from_pydata(pos, [], faces)
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
     obj['owm.mesh.name'] = mesh.name
+    obj['owm.mesh.armature'] = True if armature else False
     for i in range(meshData.uvCount):
         bpyhelper.new_uv_layer(mesh, 'UVMap%d' % (i + 1))
         
