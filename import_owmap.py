@@ -141,8 +141,6 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
     scene_col = bpy.context.view_layer.active_layer_collection.collection
     rootObj = bpy.data.collections.new(name)
     scene_col.children.link(rootObj)
-    #rootObj.hide_viewport = True
-    #bpyhelper.scene_link(rootObj)
 
     wm = bpy.context.window_manager
     prog = 0
@@ -343,7 +341,7 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
     if importDetails:
         for ob in objCache:
             bpy.data.collections[name + '_DETAILS'].children.link(objCache[ob][1])
-        rootObj.children.link(bpy.data.collections[name + '_DETAILS']) # TODO get active collection or something
+        rootObj.children.link(bpy.data.collections[name + '_DETAILS'])
         
     bpyhelper.exclude_collections(to_exclude)
     destroyRelationships()
