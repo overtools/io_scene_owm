@@ -346,9 +346,8 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
     destroyRelationships()
     LIGHT_MAP = ['SUN', 'SPOT', 'POINT']
 
-    if light_settings.enabled: #TODO make collections for these
+    if light_settings.enabled:
         globLight = bpy.data.collections.new(name + '_LIGHTS')
-        #bpyhelper.scene_link(globLight)
         for light in data.lights:
             prog += 1
             if not light_settings.enabledTypes[light.type]:
@@ -375,19 +374,14 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
             enode = lamp_data.node_tree.nodes.get('Emission')
             enode.inputs.get('Color').default_value = (lamp_col.r, lamp_col.g, lamp_col.b, 1.0)
             enode.inputs.get('Strength').default_value = lamp_str
-            #lamp_ob.parent = globLight
             progress_update(total, prog, "Lamp")
         rootObj.children.link(globLight)
     
     if importSound:
         globSound = bpy.data.collections.new(name + '_SOUNDS')
-        #globSound.hide_viewport = True
-        #globSound.parent = rootObj
-        #bpyhelper.scene_link(globSound)
         for sound in data.sounds:
             prog += 1
             soundWrap = bpy.data.objects.new(name = '%s_SPEAKER_WRAP' % (name), object_data = None)
-            #soundWrap.parent = globSound
             soundWrap.hide_viewport = True
             soundWrap.location = pos_matrix(sound.position)
             bpyhelper.scene_link(soundWrap,globSound)
