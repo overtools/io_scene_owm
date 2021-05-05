@@ -256,6 +256,12 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         default=False,
     )
 
+    hideAxis : BoolProperty(
+        name='Hide Object Axes',
+        description='Easier for selection and exporting',
+        default=True,
+    )
+
     importLampSun : BoolProperty(
         name='Import Sun lamps',
         description='Import lamps of type Sun',
@@ -388,7 +394,7 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
         try:
-            import_owmap.read(settings, self.importInstanced, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision, self.importSounds)
+            import_owmap.read(settings, self.importInstanced, self.hideAxis, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision, self.importSounds)
         except KeyboardInterrupt:
             bpyhelper.LOCK_UPDATE = False
         import_owmat.cleanup()
@@ -423,6 +429,7 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         col.prop(self, 'importLights')
         col.prop(self, 'importRemoveCollision')
         col.prop(self, 'importInstanced')
+        col.prop(self, 'hideAxis')
 
         # col = layout.column(align=True)
         # col.label(text = 'Material')

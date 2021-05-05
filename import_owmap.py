@@ -89,7 +89,7 @@ def hide_recursive(obj):
     for child in obj.children:
         hide_recursive(child)
 
-def import_mdl(mdls):
+def import_mdl(mdls,hideAxis=True):
     try:
         obj = None
         if mdls.filename.endswith(".owentity"):
@@ -108,7 +108,7 @@ def import_mdl(mdls):
             obj = import_owmdl.read(mdls, None)
             obj[0].rotation_euler = (math.radians(90), 0, 0)
         wrapObj = bpy.data.objects.new(obj[0].name + '_WRAP', None)
-        wrapObj.hide_viewport = True
+        wrapObj.hide_viewport = hideAxis
         obj[0].parent = wrapObj
         bpyhelper.scene_link(wrapObj)
         return wrapObj, obj
@@ -125,7 +125,7 @@ def import_mat(path, prefix):
         return None
 
 
-def read(settings, instancecols=False, importObjects=False, importDetails=True, importPhysics=False, light_settings=owm_types.OWLightSettings(), removeCollision=True, importSound=True):
+def read(settings, instancecols=False, hideAxis=False, importObjects=False, importDetails=True, importPhysics=False, light_settings=owm_types.OWLightSettings(), removeCollision=True, importSound=True):
     global sets, link_queue
     bpyhelper.LOCK_UPDATE = True
     sets = settings
@@ -162,7 +162,7 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
     matCache = {}
     to_exclude = []
 
-    collision_materials = ["000000000794", "0000000048EF", "0000000034A3","000000000797","0000000007A2","0000000007A0","0000000007C0"]#blozzord pls
+    collision_materials = ["000000000794", "0000000048EF", "0000000034A3","000000000797","0000000007A2","0000000007A0","0000000007C0","0000000007A1"]#blozzord pls
 
     if importObjects:
         globObj = bpy.data.collections.new(name + '_OBJECTS')
@@ -179,7 +179,7 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
             mutated = settings.mutate(obpath)
             mutated.importMaterial = False
 
-            obj, internal_obj = import_mdl(mutated)
+            obj, internal_obj = import_mdl(mutated,hideAxis)
             if obj is None:
                 continue
 
@@ -288,6 +288,7 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
                     if len(ids) > 0:
                         hideModel=True
             if hideModel:
+                origObjs.append(internal_obj[0])
                 continue
 
             import_owmdl.bindMaterialsUniq(internal_obj[2], internal_obj[4], mat)
