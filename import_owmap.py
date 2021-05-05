@@ -164,6 +164,8 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
     matCache = {}
     to_exclude = []
 
+    collision_materials = ["000000000794", "0000000048EF", "0000000034A3","000000000797","0000000007A2","0000000007A0","0000000007C0"]#blozzord pls
+
     if importObjects:
         globObj = bpy.data.collections.new(name + '_OBJECTS')
         cols = []
@@ -202,11 +204,14 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
                     else:
                         mat = matCache[matpath]
                 if mat != None and removeCollision:
-                    for tex_name, tex in mat[0].items():
-                        if tex_name == '000000001B8D' or tex_name == '000000001BA4': # Is this broken?
-                            hideModel = True
-
+                    ids = [True for mat in mat[1].values() if mat.name in collision_materials]
+                    if len(ids) > 0:
+                        hideModel=True
                 prog += 1
+
+                
+                if hideModel:
+                    continue
 
                 if instancecols:
                     matObj = bpy.data.collections.new(os.path.splitext(os.path.basename(matpath))[0])
@@ -235,8 +240,6 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
                     nobj.scale = xpzy(rec.scale)
                     if is_orig:
                         cobj=nobj
-                    if hideModel:
-                        hide_recursive(nobj)
                     is_orig=False
                     prog += 1
             remove(obj)
@@ -283,11 +286,11 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
                 else:
                     mat = matCache[matkey]
                 if removeCollision:
-                    for tex_name, tex in mat[0].items():
-                        if tex_name == '000000001B8D' or tex_name == '000000001BA4':
-                            hideModel = True
+                    ids = [True for mat in mat[1].values() if mat.name in collision_materials]
+                    if len(ids) > 0:
+                        hideModel=True
             if hideModel:
-                hide_recursive(internal_obj[0])
+                continue
 
             import_owmdl.bindMaterialsUniq(internal_obj[2], internal_obj[4], mat)
 
