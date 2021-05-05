@@ -164,8 +164,6 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
 
     matCache = {}
 
-    #instancecols = True # TODO option checkbox
-
     if importObjects:
         globObj = bpy.data.collections.new(name + '_OBJECTS')
         cols = []
@@ -336,15 +334,16 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
             remove(ob)
             progress_update(total, prog, "")
 
-
-    for ob in cols:
-        bpy.data.collections[name + '_OBJECTS'].children.link(ob)
+    if importObjects:
+        for ob in cols:
+            bpy.data.collections[name + '_OBJECTS'].children.link(ob)
     if importDetails:
         for ob in objCache:
             bpy.data.collections[name + '_DETAILS'].children.link(objCache[ob][1])
         bpy.data.collections["Collection"].children.link(bpy.data.collections[name + '_DETAILS']) # TODO get active collection or something
+        
     bpy.data.collections["Collection"].children.link(bpy.data.collections[name + '_OBJECTS'])
-
+    print(link_queue)
     for obj in link_queue: # still needed?
         bpyhelper.scene_link(obj)
     link_queue = []
