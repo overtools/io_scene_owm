@@ -21,9 +21,6 @@ def pos_matrix(pos):
     mtx = acm @ posMtx
     return mtx.to_translation()
 
-
-link_queue = []
-
 parents = {}
 children = {}
 
@@ -141,9 +138,11 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
     name = data.header.name
     if len(name) == 0:
         name = os.path.splitext(file)[0]
-    rootObj = bpy.data.objects.new(name, None)
-    rootObj.hide_viewport = True
-    bpyhelper.scene_link(rootObj)
+    scene_col = bpy.context.view_layer.active_layer_collection.collection
+    rootObj = bpy.data.collections.new(name)
+    scene_col.children.link(rootObj)
+    #rootObj.hide_viewport = True
+    #bpyhelper.scene_link(rootObj)
 
     wm = bpy.context.window_manager
     prog = 0
@@ -163,11 +162,11 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
     wm.progress_begin(prog, total)
 
     matCache = {}
+    to_exclude = []
 
     if importObjects:
         globObj = bpy.data.collections.new(name + '_OBJECTS')
         cols = []
-        to_exclude = []
         for ob in data.objects:
             obpath = ob.model
             if not os.path.isabs(obpath):
@@ -241,6 +240,7 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
                     is_orig=False
                     prog += 1
             remove(obj)
+        
 
     if importDetails:
         globDet = bpy.data.collections.new(name + '_DETAILS')
@@ -311,7 +311,6 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
             progress_update(total, prog, obpath)
             if settings.importMaterial and bpyhelper.valid_path(ob.material):
                 cacheKey = cacheKey + os.path.splitext(os.path.basename(ob.material))[0]
-            #print(cacheKey)
             if cacheKey not in objCache or objCache[cacheKey] is None:
                 continue
 
@@ -337,25 +336,19 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
     if importObjects:
         for ob in cols:
             bpy.data.collections[name + '_OBJECTS'].children.link(ob)
+        rootObj.children.link(bpy.data.collections[name + '_OBJECTS'])
     if importDetails:
         for ob in objCache:
             bpy.data.collections[name + '_DETAILS'].children.link(objCache[ob][1])
-        bpy.data.collections["Collection"].children.link(bpy.data.collections[name + '_DETAILS']) # TODO get active collection or something
+        rootObj.children.link(bpy.data.collections[name + '_DETAILS']) # TODO get active collection or something
         
-    bpy.data.collections["Collection"].children.link(bpy.data.collections[name + '_OBJECTS'])
-    print(link_queue)
-    for obj in link_queue: # still needed?
-        bpyhelper.scene_link(obj)
-    link_queue = []
     bpyhelper.exclude_collections(to_exclude)
     destroyRelationships()
     LIGHT_MAP = ['SUN', 'SPOT', 'POINT']
 
     if light_settings.enabled: #TODO make collections for these
-        globLight = bpy.data.objects.new(name + '_LIGHTS', None)
-        globLight.hide_viewport = True
-        globLight.parent = rootObj
-        bpyhelper.scene_link(globLight)
+        globLight = bpy.data.collections.new(name + '_LIGHTS')
+        #bpyhelper.scene_link(globLight)
         for light in data.lights:
             prog += 1
             if not light_settings.enabledTypes[light.type]:
@@ -363,7 +356,7 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
             # print('light, fov: %s, type: %s (%d%%)' % (light.fov, light.type, (total_C/total) * 100))
             lamp_data = bpy.data.lights.new(name='%s_%s' % (name, LIGHT_MAP[light.type]), type=LIGHT_MAP[light.type])
             lamp_ob = bpy.data.objects.new(name='%s_%s' % (name, LIGHT_MAP[light.type]), object_data=lamp_data)
-            bpyhelper.scene_link(lamp_ob)
+            bpyhelper.scene_link(lamp_ob,globLight)
             lamp_ob.location = pos_matrix(light.position)
             lamp_ob.rotation_euler = Quaternion(wxzy(light.rotation)).to_euler('XYZ')
             light_scale = light.ex[light_settings.sizeIndex % len(light.ex)]
@@ -382,21 +375,22 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
             enode = lamp_data.node_tree.nodes.get('Emission')
             enode.inputs.get('Color').default_value = (lamp_col.r, lamp_col.g, lamp_col.b, 1.0)
             enode.inputs.get('Strength').default_value = lamp_str
-            lamp_ob.parent = globLight
+            #lamp_ob.parent = globLight
             progress_update(total, prog, "Lamp")
+        rootObj.children.link(globLight)
     
     if importSound:
-        globSound = bpy.data.objects.new(name + '_SOUNDS', None)
-        globSound.hide_viewport = True
-        globSound.parent = rootObj
-        bpyhelper.scene_link(globSound)
+        globSound = bpy.data.collections.new(name + '_SOUNDS')
+        #globSound.hide_viewport = True
+        #globSound.parent = rootObj
+        #bpyhelper.scene_link(globSound)
         for sound in data.sounds:
             prog += 1
             soundWrap = bpy.data.objects.new(name = '%s_SPEAKER_WRAP' % (name), object_data = None)
-            soundWrap.parent = globSound
+            #soundWrap.parent = globSound
             soundWrap.hide_viewport = True
             soundWrap.location = pos_matrix(sound.position)
-            bpyhelper.scene_link(soundWrap)
+            bpyhelper.scene_link(soundWrap,globSound)
             for soundFile in sound.sounds:
                 print("[import_owmap] %s" % (soundFile))
                 speaker_data = bpy.data.speakers.new(name = '%s_SPEAKER' % (name))
@@ -405,8 +399,9 @@ def read(settings, instancecols=False, importObjects=False, importDetails=True, 
                 speaker_data.sound = bpy.data.sounds.load(soundFile, check_existing=True)
                 speaker_data.volume = 0.7
                 speaker_data.attenuation = 0.3
-                bpyhelper.scene_link(speaker_ob)
+                bpyhelper.scene_link(speaker_ob,globSound)
             progress_update(total, prog, "Sound")
+        rootObj.children.link(globSound)
 
     wm.progress_end()
     bpyhelper.deselect_all()
