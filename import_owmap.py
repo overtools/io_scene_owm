@@ -128,7 +128,7 @@ def import_mat(path, prefix):
         return None
 
 
-def read(settings, importObjects=False, importDetails=True, importPhysics=False, light_settings=owm_types.OWLightSettings(), removeCollision=True, importSound=True):
+def read(settings, instancecols=False, importObjects=False, importDetails=True, importPhysics=False, light_settings=owm_types.OWLightSettings(), removeCollision=True, importSound=True):
     global sets, link_queue
     bpyhelper.LOCK_UPDATE = True
     sets = settings
@@ -164,7 +164,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
     matCache = {}
 
-    instancecols = True # TODO option checkbox
+    #instancecols = True # TODO option checkbox
 
     if importObjects:
         globObj = bpy.data.collections.new(name + '_OBJECTS')
