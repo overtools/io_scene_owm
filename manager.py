@@ -250,24 +250,6 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         default=True,
     )
 
-    importLampSun : BoolProperty(
-        name='Import Sun lamps',
-        description='Import lamps of type Sun',
-        default=False,
-    )
-
-    importLampSpot : BoolProperty(
-        name='Import Spot lamps',
-        description='Import lamps of type Spot',
-        default=True,
-    )
-
-    importLampPoint : BoolProperty(
-        name='Import Point lamps',
-        description='Import lamps of type Point',
-        default=True,
-    )
-
     multipleImportance : BoolProperty(
         name='Multiple Importance',
         default=False,
@@ -372,7 +354,6 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         light_settings = owm_types.OWLightSettings(
             self.importLights,
             self.multipleImportance,
-            [self.importLampSun, self.importLampSpot, self.importLampPoint],
             [self.adjustLightValue, self.adjustLightStrength],
             self.useLightStrength,
             self.shadowSoftBias,
@@ -424,9 +405,6 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label(text = 'Lights')
         col.enabled = self.importLights
-        col.prop(self, 'importLampSun')
-        col.prop(self, 'importLampSpot')
-        col.prop(self, 'importLampPoint')
         col.prop(self, 'multipleImportance')
         col.prop(self, 'useLightStrength')
         col.prop(self, 'shadowSoftBias')
@@ -434,9 +412,9 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         col2 = col.column(align=True)
         col2.enabled = self.useLightStrength
         col2.prop(self, 'adjustLightStrength')
-        col2.prop(self, 'lightIndex')
-        col.prop(self, 'edgeIndex')
-        col.prop(self, 'sizeIndex')
+        # col2.prop(self, 'lightIndex')
+        # col.prop(self, 'edgeIndex')
+        # col.prop(self, 'sizeIndex')
 
 
 class ImportOWENTITY(bpy.types.Operator, ImportHelper):

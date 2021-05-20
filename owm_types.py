@@ -184,10 +184,9 @@ class OWSettings:
                           self.autoSmoothNormals)
 
 class OWLightSettings:
-    def __init__(self, enabled = False, multipleImportance = False, enabledTypes = [False, False, False], adjustValues = [1.0, 1.0], useStrength = False, bias = 0.5, indices = [25, 26, 12]):
+    def __init__(self, enabled = False, multipleImportance = False, adjustValues = [1.0, 1.0], useStrength = False, bias = 0.5, indices = [25, 26, 12]):
         self.enabled = enabled
         self.multipleImportance = multipleImportance
-        self.enabledTypes = enabledTypes
         self.adjuistValues = {
             'VALUE': adjustValues[0],
             'STRENGTH': adjustValues[1]

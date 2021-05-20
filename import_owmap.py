@@ -306,7 +306,8 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
         bpyhelper.scene_link(obj)
     link_queue = []
     destroyRelationships()
-    LIGHT_MAP = ['SUN', 'SPOT', 'POINT']
+    
+    LIGHT_MAP = ['POINT', 'FRUSTUM', 'NONE']
 
     if light_settings.enabled:
         globLight = bpy.data.objects.new(name + '_LIGHTS', None)
@@ -315,13 +316,15 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
         bpyhelper.scene_link(globLight)
         for light in data.lights:
             prog += 1
-            if not light_settings.enabledTypes[light.type]:
-                continue
-            # print('light, fov: %s, type: %s (%d%%)' % (light.fov, light.type, (total_C/total) * 100))
-            lamp_data = bpy.data.lights.new(name='%s_%s' % (name, LIGHT_MAP[light.type]), type=LIGHT_MAP[light.type])
-            lamp_ob = bpy.data.objects.new(name='%s_%s' % (name, LIGHT_MAP[light.type]), object_data=lamp_data)
+            is_spot = light.fov > 0
+            if light.ex[6] >= 2:
+                print("[owmap] Light is type NONE!?")
+            lamp_data = bpy.data.lights.new(name='%s_%s' % (name, min([2, light.ex[6]])), type='SPOT' if is_spot else 'POINT')
+            lamp_ob = bpy.data.objects.new(name=name, object_data=lamp_data)
             bpyhelper.scene_link(lamp_ob)
             lamp_ob.location = pos_matrix(light.position)
+            if light.ex[6] == 1:
+                print("[owmap] warning: importing frustum light at X: %f, Y: %f, Z: %f" % (lamp_ob.location.x, lamp_ob.location.y, lamp_ob.location.z))
             lamp_ob.rotation_euler = Quaternion(wxzy(light.rotation)).to_euler('XYZ')
             light_scale = light.ex[light_settings.sizeIndex % len(light.ex)]
             lamp_ob.scale = (light_scale, light_scale, light_scale)
@@ -329,7 +332,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             lamp_col.v *= light_settings.adjuistValues['VALUE']
             lamp_data.cycles.use_multiple_importance_sampling = light_settings.multipleImportance
             lamp_str = light_settings.adjuistValues['STRENGTH']
-            if lamp_data.type == 'SPOT':
+            if is_spot:
                 lamp_data.spot_size = math.radians(light.fov)
                 lamp_data.spot_blend = light.ex[light_settings.spotIndex % len(light.ex)]
             if light_settings.useStrength:
