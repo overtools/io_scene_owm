@@ -326,6 +326,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             if light.ex[6] == 1:
                 print("[owmap] warning: importing frustum light at X: %f, Y: %f, Z: %f" % (lamp_ob.location.x, lamp_ob.location.y, lamp_ob.location.z))
             lamp_ob.rotation_euler = Quaternion(wxzy(light.rotation)).to_euler('XYZ')
+            lamp_ob.rotation_euler.x -= 1.5708
             light_scale = light.ex[light_settings.sizeIndex % len(light.ex)]
             lamp_ob.scale = (light_scale, light_scale, light_scale)
             lamp_col = Color(light.color)

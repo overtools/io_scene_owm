@@ -317,8 +317,8 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
     )
 
     importRemoveCollision : BoolProperty(
-        name='Remove Collision Models',
-        description='Remove the collision models',
+        name='Remove Engine Hit Tests',
+        description='Remove the meshes used by the engine to calculate hit layers',
         default=True,
     )
 
@@ -393,10 +393,10 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
 
         sub = col.row()
         sub.prop(self, 'importPhysics')
+        sub.prop(self, 'importRemoveCollision')
         sub.enabled = self.importDetails
 
         col.prop(self, 'importLights')
-        col.prop(self, 'importRemoveCollision')
 
         # col = layout.column(align=True)
         # col.label(text = 'Material')
