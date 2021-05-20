@@ -319,7 +319,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             is_spot = light.fov > 0
             if light.ex[6] >= 2:
                 print("[owmap] Light is type NONE!?")
-            lamp_data = bpy.data.lights.new(name='%s_%s' % (name, min([2, light.ex[6]])), type='SPOT' if is_spot else 'POINT')
+            lamp_data = bpy.data.lights.new(name='%s_%s' % (name, LIGHT_MAP[min([2, light.ex[6]])]), type='SPOT' if is_spot else 'POINT')
             lamp_ob = bpy.data.objects.new(name=name, object_data=lamp_data)
             bpyhelper.scene_link(lamp_ob)
             lamp_ob.location = pos_matrix(light.position)
