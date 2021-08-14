@@ -2,6 +2,7 @@ import os
 from . import bpyhelper
 from . import read_owmat
 from . import owm_types
+from . import texture_map
 import struct
 import bpy
 
@@ -89,7 +90,7 @@ def cleanup():
 
 def generateTexList(material):
     tt = owm_types.TextureTypesById
-    tm = owm_types.TextureTypes
+    tm = texture_map.TextureTypes
     textures = [texData[2] for texData in material.textures]
     textures.sort()
     textures.append(material.shader)
@@ -137,7 +138,7 @@ def clone_material(material, prefix, root, t, key):
     tile_x = 400
     tile_y = 300
     tt = owm_types.TextureTypesById
-    tm = owm_types.TextureTypes
+    tm = texture_map.TextureTypes
     for inputId in tm['Scale']:
         if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
             scale_x,scale_y = getScaling(material, inputId)
@@ -232,18 +233,18 @@ def create_material(material, prefix, root, t):
         # print('[import_owmat]: {} uses shader {}'.format(mat.name, material.shader))
         nodeOverwatch.label = 'OWM Shader %d' % (material.shader)
     
-    if str(material.shader) in owm_types.TextureTypes['NodeGroups'] and owm_types.TextureTypes['NodeGroups'][str(material.shader)] in bpy.data.node_groups:
-        nodeOverwatch.node_tree = bpy.data.node_groups[owm_types.TextureTypes['NodeGroups'][str(material.shader)]]
+    tt = owm_types.TextureTypesById
+    tm = texture_map.TextureTypes
+
+    if str(material.shader) in tm['NodeGroups'] and tm['NodeGroups'][str(material.shader)] in bpy.data.node_groups:
+        nodeOverwatch.node_tree = bpy.data.node_groups[tm['NodeGroups'][str(material.shader)]]
     else:
-        if owm_types.TextureTypes['NodeGroups']['Default'] in bpy.data.node_groups:
-            nodeOverwatch.node_tree = bpy.data.node_groups[owm_types.TextureTypes['NodeGroups']['Default']]
+        if tm['NodeGroups']['Default'] in bpy.data.node_groups:
+            nodeOverwatch.node_tree = bpy.data.node_groups[tm['NodeGroups']['Default']]
     nodeOverwatch.location = (0, 0)
     nodeOverwatch.width = 300
     if nodeOverwatch.node_tree is not None:
         links.new(nodeOverwatch.outputs[0], material_output.inputs[0])
-
-    tt = owm_types.TextureTypesById
-    tm = owm_types.TextureTypes
 
     nodeMapping = None
     uvNodes = {}

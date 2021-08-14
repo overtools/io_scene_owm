@@ -101,7 +101,7 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
             self.importColor,
             self.autoSmoothNormals
         )
-        owm_types.update_data()
+        owm_types.load_data()
         t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
         try:
@@ -161,7 +161,7 @@ class ImportOWMAT(bpy.types.Operator, ImportHelper):
         return True
 
     def execute(self, context):
-        owm_types.update_data()
+        owm_types.load_data()
         t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
         try:
@@ -359,7 +359,7 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
             self.shadowSoftBias,
             [self.lightIndex, self.edgeIndex, self.sizeIndex]
         )
-        owm_types.update_data()
+        owm_types.load_data()
         t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
         try:
@@ -511,7 +511,7 @@ class ImportOWENTITY(bpy.types.Operator, ImportHelper):
             self.importColor,
             self.autoSmoothNormals
         )
-        owm_types.update_data()
+        owm_types.load_data()
         t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
         try:
@@ -655,7 +655,7 @@ class ImportOWEFFECT(bpy.types.Operator, ImportHelper):
                                                    self.import_svce, self.svce_line_seed, self.svce_sound_seed,
                                                    self.import_camera,
                                                    self.cleanup_hardpoints)
-        owm_types.update_data()
+        owm_types.load_data()
         t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
         try:
@@ -745,11 +745,6 @@ class OWMUtilityPanel(bpy.types.Panel):
         row.operator(OWMSaveOp.bl_idname, text='Export OWM Library', icon='APPEND_BLEND')
         row = layout.row()
         row.prop(bpy.context.scene.owm_internal_settings, 'b_logsalot', text='Log Map Progress')
-        row = layout.row()
-        row.prop(bpy.context.scene.owm_internal_settings, 'b_allow_download', text='Download Library')
-        split = row.split()
-        split.prop(bpy.context.scene.owm_internal_settings, 'b_download', text='Always')
-        split.enabled = bpy.context.scene.owm_internal_settings.b_download
 
         box = layout.box()
         box.label(text = 'Cleanup')
@@ -765,7 +760,7 @@ class OWMLoadOp(bpy.types.Operator):
     bl_label = 'Import OWM Library'
 
     def execute(self, context):
-        owm_types.update_data()
+        owm_types.load_data()
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -814,20 +809,9 @@ class OWMCleanupTexOp(bpy.types.Operator):
 class OWMInternalSettings(bpy.types.PropertyGroup):
     b_logsalot : bpy.props.BoolProperty(name="Log alot", description="Verbose logging", 
         default=False, update=lambda self, context: self.update_logs_alot(context))
-    b_allow_download : bpy.props.BoolProperty(name="Allow Library Download", description="Allow the addon to download updated material libraries from Github", 
-        default=False, update=lambda self, context: self.update_allow_download(context))
-    b_download : bpy.props.BoolProperty(name="Always Download Library", description="Always download the material library, even if it is up to date", 
-        update=lambda self, context: self.update_download(context))
-    i_library_state : IntProperty(update=lambda self, context: self.dummy(context))
 
     def update_logs_alot(self, context):
         owm_types.LOG_ALOT = self.b_logsalot
-
-    def update_download(self, context):
-        owm_types.ALWAYS_DOWNLOAD = self.b_download
-
-    def update_allow_download(self, context):
-        owm_types.SHOULD_DOWNLOAD = self.b_allow_download
 
     def dummy(self, context): pass
 

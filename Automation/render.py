@@ -45,7 +45,6 @@ light2_data = bpy.data.lights.new("Light B", "AREA")
 light2 = bpy.data.objects.new("Light B", light2_data)
 objects.link(light2)
 
-io_scene_owm.owm_types.update_data()
 (entity_root, entity_data, model) = io_scene_owm.import_owentity.read(owentity_settings, False)
 if material_path != "null":
     material = io_scene_owm.import_owmat.read(material_path, '')

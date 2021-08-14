@@ -1,21 +1,9 @@
-{
-    "Version": 5,
-    "_help_how_does_this_work": {
-        "Mapping": {
-            "Readable Name": [["Color Nodes"], ["Alpha Nodes"], "Shader Input Hash Id", "UV Index", "UV Input Id", "UV Input Data Offset", "UV Input Data Modifier"],
-            "if UV Index is negative, it will try to look up UV Input Data Id in Static Inputs, and decode a single byte at the specified offset": 
-            "UV Input Data Modifier adds this value to the resulting UV value."
-        },
-        "Alias": "List of texture name rewrites, used for convenience",
-        "Env": "Environment Remapping for when nodes are left open",
-        "Color": "List of names to import as sRGB",
-        "Active": "Active texture to display in the viewport",
-        "Blend": "Unused, used to set alpha blend a certain way if this node is used in eevee-- it's always set now",
-        "NodeGroups": "OWM Shader remaps for shader ids",
-        "Scale": "List of static input ids for texture scaling",
-        "Static": "todo"
-    },
+TextureTypes = {
     "Mapping": {
+        # "Readable Name": [["Color Nodes"], ["Alpha Nodes"], "Shader Input Hash Id", "UV Index", "UV Input Id", "UV Input Data Offset", "UV Input Data Modifier"]
+        # if UV Index is negative, it will try to look up UV Input Data Id in Static Inputs
+        # and decode a single byte at the specified offset
+        # UV Input Data Modifier adds this value to the resulting UV value
         "Map AO": [["AO"], [], 3335614873, -2, 1644699581, 0, 0],
         "Decal AO": [["AO"], [], 3761386704],
         "Shader AO": [["AO"], [], 1007310079],
@@ -62,7 +50,7 @@
         "Grass PBR": [["PBR"], [], 763550166],
         "Grass Emission": [["Emission"], [], 165438316]
     },
-    "Alias": {
+    "Alias": { # List of texture name rewrites, used for convenience
         "Color": "Color",
         "Normal": "Normal",
         "PBR": "Packed PBR",
@@ -84,7 +72,7 @@
         "Dirt": "Dirt",
         "DirtColor": "Dirt Color"
     },
-    "Env": {
+    "Env": { # Environment Remapping for when nodes are left open
         "Color2": "Color",
         "Normal2": "Normal",
         "PBR2": "PBR",
@@ -104,9 +92,11 @@
         "Emission3": "Emission2",
         "Subsurf3": "Subsurf2"
     },
+    # List of names to import as sRGB
     "Color": ["Color", "DirtColor", "Color2", "Color3", "Subsurf", "Subsurf2", "Subsurf3"],
+    # Active texture to display in the viewport
     "Active": ["Color", "Color2"],
-    "Blend": ["Alpha"],
+    # OWM Shader remaps for shader ids
     "NodeGroups": {
         "Default": "OWM: Metallic",
         "34": "OWM: Decal",
@@ -119,6 +109,8 @@
         "54": "OWM: Refractive",
         "56": "OWM: Decal"
     },
+    # List of static input ids for texture scaling
     "Scale": [2166182138],
+    # TODO
     "Static": {}
 }

@@ -23,11 +23,10 @@ from . import manager
 bl_info = {
     'name': 'OWM Import',
     'author': 'overtools',
-    'version': (2, 3, 6),
+    'version': (2, 4, 0),
     'blender': (2, 92, 0),
     'location': 'File > Import > OWM',
     'description': 'Import exported assets from TankLib or DataTool',
-    'warning': 'May optionally download files',
     'wiki_url': '',
     'tracker_url': 'https://github.com/overtools/io_scene_owm/issues',
     "support": "COMMUNITY",

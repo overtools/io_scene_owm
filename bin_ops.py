@@ -76,13 +76,13 @@ def readFmtFlat(file, fmts):
 def readFmtFlatArray(file, fmt, count):
     size = 0
     for char in fmt:
-        if char is '<': continue
+        if char == '<': continue
         if char in fmtSz:
             size += fmtSz[char]
         else:
             print('unrecognized fmt char %s' % (char))
     size*=count
-    if fmt[0] is '<': 
+    if fmt[0] == '<': 
         fmt="<"+(fmt[1:]*count)
     else:
         fmt*=count
