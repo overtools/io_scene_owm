@@ -139,13 +139,13 @@ def clone_material(material, prefix, root, t, key):
     tile_y = 300
     tt = owm_types.TextureTypesById
     tm = texture_map.TextureTypes
-    for inputId in tm['Scale']:
-        if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
-            scale_x,scale_y = getScaling(material, inputId)
-            nodeMapping=nodes["Mapping"]
-            nodeMapping.inputs[3].default_value[0] = scale_x
-            nodeMapping.inputs[3].default_value[1] = scale_y
-            break
+#     for inputId in tm['Scale']:
+#         if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
+#             scale_x,scale_y = getScaling(material, inputId)
+#             nodeMapping=nodes["Mapping"]
+#             nodeMapping.inputs[3].default_value[0] = scale_x
+#             nodeMapping.inputs[3].default_value[1] = scale_y
+#             break
     
     uvNodes = {}
     for node in nodes:
