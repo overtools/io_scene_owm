@@ -61,6 +61,13 @@ def readFmt(file, fmts):
         return a[0]
     return a
 
+def getSize(fmt):
+    size = 0
+    for char in fmt:
+        if char == '<': continue
+        if char in fmtSz:
+            size += fmtSz[char]
+    return size
 
 def readFmtFlat(file, fmts):
     a = []

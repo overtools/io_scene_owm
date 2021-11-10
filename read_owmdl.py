@@ -1,3 +1,5 @@
+import struct
+
 from . import bin_ops
 from . import owm_types
 from . import bpyhelper
@@ -27,39 +29,61 @@ def read(filename):
     for i in range(meshCount):
         name, materialKey, uvCount, vertexCount, indexCount = bin_ops.readFmtFlat(stream, owm_types.OWMDLMesh.structFormat)
 
+        vertex_format = [*owm_types.OWMDLVertex.structFormat]
+        vertex_format = "".join(vertex_format)
+        for k in range(uvCount):
+            vertex_format += owm_types.OWMDLVertex.exFormat[0]
+        vertex_size = bin_ops.getSize(vertex_format)
+        stream.seek(vertex_size,1)
+        boneDataCount = bin_ops.read(stream, owm_types.OWMDLVertex.exFormat[1])[0]
+        stream.seek(-(vertex_size+bin_ops.getSize(owm_types.OWMDLVertex.exFormat[1])),1)
+        vertex_format += owm_types.OWMDLVertex.exFormat[1]
+        if boneDataCount > 0:
+            for k in range(boneDataCount):
+                vertex_format+=owm_types.OWMDLVertex.exFormat[2]
+            for k in range(boneDataCount):
+                vertex_format+=owm_types.OWMDLVertex.exFormat[3]
+        if major >= 1 and minor >= 6:
+            vertex_format += owm_types.OWMDLVertex.exFormat[4]
+            vertex_format += owm_types.OWMDLVertex.exFormat[4]
+        vertex_size=bin_ops.getSize(vertex_format)
         verts = []
-        for j in range(vertexCount):
-            position, normal = bin_ops.readFmt(stream, owm_types.OWMDLVertex.structFormat)
-            uvs = []
+        uv_pointer = 6+(2*uvCount)+1
+        bonesI_pointer = uv_pointer+boneDataCount
+        bonesW_pointer = bonesI_pointer+boneDataCount
+        col1_pointer = bonesW_pointer+4
+        col2_pointer = col1_pointer+4
+        for vert in struct.iter_unpack("<"+vertex_format.replace("<",""),stream.read(vertex_size*vertexCount)):
+            position = vert[:3]
+            normal = vert[3:6]
+
+            uvs = []#vert[6:uv_pointer]
             if uvCount > 0:
+                pointer = 6
                 for k in range(uvCount):
-                    uvs += [bin_ops.read(stream, owm_types.OWMDLVertex.exFormat[0])]
-            boneDataCount = bin_ops.read(stream, owm_types.OWMDLVertex.exFormat[1])[0]
-            boneIndices = []
-            boneWeights = []
-            if boneDataCount > 0:
-                boneIndices += bin_ops.readFmtFlatArray(stream, owm_types.OWMDLVertex.exFormat[2],boneDataCount)
-                boneWeights += bin_ops.readFmtFlatArray(stream, owm_types.OWMDLVertex.exFormat[3],boneDataCount)
+                    uvs+=[vert[pointer:pointer+2]]
+                    pointer+=2
 
-            col1 = []
-            col2 = []
+            boneIndices = vert[uv_pointer:bonesI_pointer]
+            boneWeights = vert[bonesI_pointer:bonesW_pointer]
 
-            if major >= 1 and minor >= 6:
-                col1 = bin_ops.read(stream, owm_types.OWMDLVertex.exFormat[4])
-                col2 = bin_ops.read(stream, owm_types.OWMDLVertex.exFormat[4])
+            col1 = vert[bonesW_pointer:col1_pointer]
+            col2 = vert[col1_pointer:col2_pointer]
 
             verts += [owm_types.OWMDLVertex(position, normal, uvs, boneDataCount, boneIndices, boneWeights, col1, col2)]
         faces = []
+        face_format = [*owm_types.OWMDLIndex.structFormat]
+        face_format = "".join(face_format)
+        face_format+= owm_types.OWMDLIndex.exFormat[0]*3
+        face_size = bin_ops.getSize(face_format)
 
-        for j in range(indexCount):
-            pointCount = bin_ops.readFmt(stream, owm_types.OWMDLIndex.structFormat)[0]
-            points = []
-            points += bin_ops.readFmtFlatArray(stream, owm_types.OWMDLIndex.exFormat[0],pointCount)
-            faces += [owm_types.OWMDLIndex(pointCount, points)]
+        for face in struct.iter_unpack("<" + face_format.replace("<", ""), stream.read(face_size * indexCount)):
+            faces+=[owm_types.OWMDLIndex(3, face[1:])]
+
         meshes += [owm_types.OWMDLMesh(name, materialKey, uvCount, vertexCount, indexCount, verts, faces)]
 
     empties = []
-    if emptyCount > 0:
+    if emptyCount > 0: #whatevs
         for i in range(emptyCount):
             name, position, rotation = bin_ops.readFmt(stream, owm_types.OWMDLEmpty.structFormat)
             empties += [owm_types.OWMDLEmpty(name, position, rotation)]
