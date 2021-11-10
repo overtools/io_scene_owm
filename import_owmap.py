@@ -288,8 +288,11 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             objCache[cacheKey] = mdl
         buildRelationships()
         for obj in objCol:
-            remove(objCache[cacheKey])
-            del objCache[cacheKey]
+            try:
+                remove(objCache[cacheKey])
+                del objCache[cacheKey]
+            except:
+                pass #shrug
         objCol=set(objCol)
         for ob in data.details:
             obpath = ob.model
