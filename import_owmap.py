@@ -160,6 +160,8 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
 
     matCache = {}
 
+    collision_materials = {"000000000794", "0000000048EF", "0000000034A3","000000000797","0000000007A2","0000000007A0","0000000007C0","0000000007A1"}#blozzord pls
+
     if importObjects:
         globObj = bpy.data.objects.new(name + '_OBJECTS', None)
         globObj.hide_viewport = True
@@ -201,11 +203,14 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                     else:
                         mat = matCache[matpath]
                 if mat != None and removeCollision:
-                    for tex_name, tex in mat[0].items():
-                        if tex_name == '000000001B8D' or tex_name == '000000001BA4':
-                            hideModel = True
+                    ids = [True for mat in mat[1].values() if mat.name in collision_materials]
+                    if len(ids) > 0:
+                        hideModel=True
 
                 prog += 1
+
+                if hideModel:
+                    continue
 
                 matObj = bpy.data.objects.new(os.path.splitext(os.path.basename(matpath))[0], None)
                 matObj.hide_viewport = True
@@ -270,11 +275,11 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 else:
                     mat = matCache[matpath]
                 if removeCollision:
-                    for tex_name, tex in mat[0].items():
-                        if tex_name == '000000001B8D' or tex_name == '000000001BA4':
-                            hideModel = True
+                    ids = [True for mat in mat[1].values() if mat.name in collision_materials]
+                    if len(ids) > 0:
+                        hideModel=True
             if hideModel:
-                hide_recursive(mdl)
+                continue
 
             import_owmdl.bindMaterialsUniq(internal_obj[2], internal_obj[4], mat)
 
