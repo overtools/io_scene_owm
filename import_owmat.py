@@ -177,7 +177,7 @@ def clone_material(material, prefix, root, t, key):
                 nodeTex.image = None
             else:
                 nodeTex.image = tex
-            if nodeTex.image and isColor is False:
+            if nodeTex.image and isColor == False:
                 nodeTex.image.colorspace_settings.name = 'Raw'
                 nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
             uvMap = bfTyp[3] if len(bfTyp) > 3 else 0
