@@ -237,6 +237,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
         globDet.parent = rootObj
         bpyhelper.scene_link(globDet)
         objCache = {}
+        objCol = []
         for idx, ob in enumerate(data.details):
             obpath = ob.model
             prog += 1
@@ -279,12 +280,17 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                     if len(ids) > 0:
                         hideModel=True
             if hideModel:
-                continue
+                objCol.append(cacheKey)
+                #continue
 
             import_owmdl.bindMaterialsUniq(internal_obj[2], internal_obj[4], mat)
 
             objCache[cacheKey] = mdl
         buildRelationships()
+        for obj in objCol:
+            remove(objCache[cacheKey])
+            del objCache[cacheKey]
+        objCol=set(objCol)
         for ob in data.details:
             obpath = ob.model
             prog += 1
@@ -294,7 +300,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             progress_update(total, prog, obpath)
             if settings.importMaterial and bpyhelper.valid_path(ob.material):
                 cacheKey = cacheKey + ob.material
-            if cacheKey not in objCache or objCache[cacheKey] is None:
+            if cacheKey not in objCache or objCache[cacheKey] is None or cacheKey in objCol:
                 continue
 
             objnode = copy(objCache[cacheKey], globDet)
