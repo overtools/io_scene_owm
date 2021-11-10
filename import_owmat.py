@@ -49,20 +49,13 @@ def load_textures(texture, root, t):
         if fn in t:
             tex = t[fn]
         else:
-            img = None
-            for eimg in bpy.data.images:
-                if eimg.name == fn or eimg.filepath == realpath:
-                    img = eimg
-            if img is None:
-                img = bpy.data.images.load(realpath, check_existing=True)
-                img.name = fn
             tex = None
-            for etex in bpy.data.textures:
-                if etex.name == fn:
-                    tex = etex
-            if tex == None:
-                tex = bpy.data.textures.new(name = fn, type='IMAGE')
-                tex.image = img
+            if fn in loaded_textures:
+                tex = loaded_textures[fn]
+            if tex is None:
+                tex = bpy.data.images.load(realpath, check_existing=True)
+                tex.name = fn
+                loaded_textures[tex.name] = tex
             t[fn] = tex
         return tex
     except Exception as e:
@@ -83,10 +76,14 @@ def read(filename, prefix = ''):
 
     return (t, m)
 
-material_cache = {}
+shader_cache = {}
+created_materials = {}
+loaded_textures = {}
 def cleanup():
-    global material_cache
-    material_cache = {}
+    global shader_cache, created_materials,loaded_textures
+    shader_cache = {}
+    created_materials = {}
+    loaded_textures = {}
 
 def generateTexList(material):
     tt = owm_types.TextureTypesById
@@ -117,35 +114,40 @@ def getUVMap(uvMap,material,bfTyp):
     return uvMap
 
 def process_material(material,prefix,root,t):
-    global material_cache
+    global shader_cache
+    guid = material.guid
+    if guid in created_materials:
+        return created_materials[guid]
     key = generateTexList(material)
-    if key in material_cache:
+    if key in shader_cache:
         try:
             mat = clone_material(material, prefix, root, t, key)
+            created_materials[guid] = mat
             return mat
         except ReferenceError:
             pass # gotta find a way to test for removed stuff or make remove unused clear the cache entry. this works for now
         
     mat = create_material(material, prefix, root, t)
-    material_cache[key] = mat
-    return mat
+    shader_cache[key] = mat
+    created_materials[guid] = mat
+    return mat  
 
 def clone_material(material, prefix, root, t, key):
-    mat = material_cache[key].copy()
-    mat.name = '%s%016X' % (prefix, material.key)
+    mat = shader_cache[key].copy()
+    mat.name = material.guid
     nodes = mat.node_tree.nodes
     links = mat.node_tree.links
     tile_x = 400
     tile_y = 300
     tt = owm_types.TextureTypesById
     tm = texture_map.TextureTypes
-#     for inputId in tm['Scale']:
-#         if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
-#             scale_x,scale_y = getScaling(material, inputId)
-#             nodeMapping=nodes["Mapping"]
-#             nodeMapping.inputs[3].default_value[0] = scale_x
-#             nodeMapping.inputs[3].default_value[1] = scale_y
-#             break
+    """for inputId in tm['Scale']:
+        if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
+            scale_x,scale_y = getScaling(material, inputId)
+            nodeMapping=nodes["Mapping"]
+            nodeMapping.inputs[3].default_value[0] = scale_x
+            nodeMapping.inputs[3].default_value[1] = scale_y
+            break"""
     
     uvNodes = {}
     for node in nodes:
@@ -174,7 +176,7 @@ def clone_material(material, prefix, root, t, key):
             if tex is None:
                 nodeTex.image = None
             else:
-                nodeTex.image = tex.image
+                nodeTex.image = tex
             if nodeTex.image and isColor is False:
                 nodeTex.image.colorspace_settings.name = 'Raw'
                 nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
@@ -195,17 +197,17 @@ def clone_material(material, prefix, root, t, key):
         else: 
             nodeTex = nodes[str(typ)]
             isColor = nodeTex['owm.material.color']
-            if tex is None:
+            if tex == None:
                 nodeTex.image = None
             else:
-                nodeTex.image = tex.image
-                if isColor is False:
+                nodeTex.image = tex
+                if isColor == False:
                     nodeTex.image.colorspace_settings.name = 'Raw'
                     nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
     return mat
 
 def create_material(material, prefix, root, t):
-    mat = bpy.data.materials.new(name = '%s%016X' % (prefix, material.key))
+    mat = bpy.data.materials.new(name = material.guid)
 
     # print('Processing material: ' + mat.name)
     mat.use_nodes = True
@@ -235,16 +237,17 @@ def create_material(material, prefix, root, t):
     
     tt = owm_types.TextureTypesById
     tm = texture_map.TextureTypes
-
     if str(material.shader) in tm['NodeGroups'] and tm['NodeGroups'][str(material.shader)] in bpy.data.node_groups:
         nodeOverwatch.node_tree = bpy.data.node_groups[tm['NodeGroups'][str(material.shader)]]
     else:
         if tm['NodeGroups']['Default'] in bpy.data.node_groups:
             nodeOverwatch.node_tree = bpy.data.node_groups[tm['NodeGroups']['Default']]
+
     nodeOverwatch.location = (0, 0)
     nodeOverwatch.width = 300
     if nodeOverwatch.node_tree is not None:
         links.new(nodeOverwatch.outputs[0], material_output.inputs[0])
+
 
     nodeMapping = None
     uvNodes = {}
@@ -276,10 +279,9 @@ def create_material(material, prefix, root, t):
             print('[import_owmat]: failed to load texture: {}'.format(texData[0]))
             #continue can't do that. we need everything linked
         else:
-            nodeTex.image = tex.image
-            if nodeTex.image:
-                nodeTex.image.colorspace_settings.name = 'Raw'
-                nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
+            nodeTex.image = tex
+            nodeTex.image.colorspace_settings.name = 'Raw'
+            nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
 
         if len(texData) == 2:
             continue
