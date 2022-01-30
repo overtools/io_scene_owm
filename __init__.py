@@ -23,8 +23,8 @@ from . import manager
 bl_info = {
     'name': 'OWM Import',
     'author': 'overtools',
-    'version': (2, 4, 2),
-    'blender': (2, 92, 0),
+    'version': (2, 5, 0),
+    'blender': (3, 0, 0),
     'location': 'File > Import > OWM',
     'description': 'Import exported assets from TankLib or DataTool',
     'wiki_url': '',

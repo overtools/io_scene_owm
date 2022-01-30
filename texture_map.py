@@ -24,7 +24,7 @@ TextureTypes = {
         "Decal PBR": [["PBR"], [], 3111105361],
         "Glass PBR": [["PBR"], [], 1239777102],
         "Shader PBR": [["PBR"], [], 2725167452],
-        "Hair Specular": [["Specular"], [], 1117188170],
+        "Hair Roughness": [["Roughness"], [], 1117188170],
         "Shader Emission": [["Emission2"], [], 3179937788],
         "Shader Emission 2": [["Emission2"], [], 1424644809],
         "Emission": [["Emission"], [], 3166598269],
@@ -93,7 +93,7 @@ TextureTypes = {
         "Subsurf3": "Subsurf2"
     },
     # List of names to import as sRGB
-    "Color": ["Color", "DirtColor", "Color2", "Color3", "Subsurf", "Subsurf2", "Subsurf3"],
+    "Color": ["Color", "DirtColor", "Color2", "Color3", "Subsurf", "Subsurf2", "Subsurf3", "PBR", "PBR2", "PBR3"],
     # Active texture to display in the viewport
     "Active": ["Color", "Color2"],
     # OWM Shader remaps for shader ids
@@ -110,7 +110,7 @@ TextureTypes = {
         "56": "OWM: Decal"
     },
     # List of static input ids for texture scaling
-    "Scale": [2166182138],
+    "Scale": [],
     # TODO
     "Static": {}
 }
