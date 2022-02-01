@@ -5,7 +5,7 @@ TextureTypes = {
         # and decode a single byte at the specified offset
         # UV Input Data Modifier adds this value to the resulting UV value
         "Map AO": [["AO"], [], 3335614873, -2, 1644699581, 0, 0],
-        "Decal AO": [["AO", "Opacity"], [], 3761386704],
+        "Decal Opacity": [["Opacity"], [], 3761386704],
         "Albedo + AO": [["Color"], ["AO"], 2903569922],
         "Map Albedo": [["Color2"], [], 682378068, 2],
         "Blend Albedo": [["Color2"], [], 2959599704, 2],
