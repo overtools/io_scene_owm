@@ -1,9 +1,7 @@
 import os
 from . import bpyhelper
 from . import read_owmat
-from . import owm_types
 from . import texture_map
-import struct
 import bpy
 
 def cleanUnusedMaterials(materials):
@@ -86,32 +84,10 @@ def cleanup():
     loaded_textures = {}
 
 def generateTexList(material):
-    tt = owm_types.TextureTypesById
-    tm = texture_map.TextureTypes
     textures = [texData[2] for texData in material.textures]
     textures.sort()
     textures.append(material.shader)
     return tuple(textures)
-
-def getScaling(material, inputId):
-    scale_data = struct.unpack('<ff', material.static_inputs[inputId][0:8])
-    scale_x = scale_data[0]
-    scale_y = scale_data[1]
-    if scale_x < 0.01: scale_x = 1
-    if scale_y < 0.01: scale_y = 1
-    return scale_x,scale_y
-
-def getUVMap(uvMap,material,bfTyp):
-    static_input_hash = bfTyp[4]
-    static_input_offset = bfTyp[5]
-    static_input_mod = bfTyp[6]
-    uvMap = abs(uvMap)
-    if static_input_hash in material.static_inputs:
-        input_chunk = material.static_inputs[static_input_hash][static_input_offset:]
-        if len(input_chunk) > 1:
-            uvMap = int(input_chunk[0])
-            uvMap += static_input_mod
-    return uvMap
 
 def process_material(material,prefix,root,t):
     global shader_cache
@@ -136,10 +112,6 @@ def clone_material(material, prefix, root, t, key):
     mat = shader_cache[key].copy()
     mat.name = material.guid
     nodes = mat.node_tree.nodes
-    links = mat.node_tree.links
-    tile_x = 400
-    tile_y = 300
-    tt = owm_types.TextureTypesById
     tm = texture_map.TextureTypes
 
     for i, texData in enumerate(material.textures):
@@ -149,9 +121,9 @@ def clone_material(material, prefix, root, t, key):
             print('[import_owmat]: failed to load texture: {}'.format(texData[0]))
             #continue
         
-        if typ in tt:
-            bfTyp = tm['Mapping'][tt[typ]]
-            nodeTex = nodes[str(tt[typ])]
+        if typ in tm['Mapping']:
+            bfTyp = tm['Mapping'][typ]
+            nodeTex = nodes[bfTyp[2]]
             nodeTex.interpolation = 'Cubic'
             isColor = nodeTex['owm.material.color']
             if tex is None:
@@ -202,7 +174,6 @@ def create_material(material, prefix, root, t):
         # print('[import_owmat]: {} uses shader {}'.format(mat.name, material.shader))
         nodeOverwatch.label = 'OWM Shader %d' % (material.shader)
     
-    tt = owm_types.TextureTypesById
     tm = texture_map.TextureTypes
     if str(material.shader) in tm['NodeGroups'] and tm['NodeGroups'][str(material.shader)] in bpy.data.node_groups:
         nodeOverwatch.node_tree = bpy.data.node_groups[tm['NodeGroups'][str(material.shader)]]
@@ -244,11 +215,10 @@ def create_material(material, prefix, root, t):
         nodeTex['owm.material.typeid'] = str(typ)
         nodeTex['owm.material.color'] = False
         nodeTex.label = str(typ)
-        if typ in tt:
-            bfTyp = tm['Mapping'][tt[typ]]
-            # print('[import_owmat]: {} is {}'.format(os.path.basename(texData[0]), tt[typ]))
-            nodeTex.label = str(tt[typ])
-            nodeTex.name = str(tt[typ]) #not that bad now and we're using it
+        if typ in tm['Mapping']:
+            bfTyp = tm['Mapping'][typ]
+            nodeTex.label = bfTyp[2]
+            nodeTex.name = bfTyp[2] #not that bad now and we're using it
             for colorSocketPoint in bfTyp[0]:
                 nodeSocketName = colorSocketPoint
                 if colorSocketPoint in tm['Alias']:

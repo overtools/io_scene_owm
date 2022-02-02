@@ -14,8 +14,6 @@ OWMATTypes = {
     'SHADER': 0x02
 }
 
-TextureTypesById = {}
-
 LOG_ALOT = False
 
 def reset():
@@ -60,12 +58,14 @@ def create_overwatch_library():
     print('[owm] saved %s' % (path))
 
 def load_data():
-    global TextureTypesById
     print('[owm] attempting to load texture info')
+    done = set()
     try:
-        TextureTypesById = {}
         for fname, tdata in texture_map.TextureTypes['Mapping'].items():
-            TextureTypesById[tdata[2]] = fname
+            if tdata[2] in done:
+                print('[owm] duplicate texture name for %s' % (fname))
+            else:
+                done.add(tdata[2])
             print('[owm] %s = %s' % (fname, json.dumps(tdata)))
         for node in [node for node in bpy.data.node_groups if node.users == 0 and node.name.startswith('OWM: ')]:
             print('[owm] removing unused node group: %s' % (node.name))
