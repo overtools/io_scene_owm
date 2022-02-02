@@ -141,26 +141,6 @@ def clone_material(material, prefix, root, t, key):
     tile_y = 300
     tt = owm_types.TextureTypesById
     tm = texture_map.TextureTypes
-    """for inputId in tm['Scale']:
-        if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
-            scale_x,scale_y = getScaling(material, inputId)
-            nodeMapping=nodes["Mapping"]
-            nodeMapping.inputs[3].default_value[0] = scale_x
-            nodeMapping.inputs[3].default_value[1] = scale_y
-            break"""
-    
-    uvNodes = {}
-    for node in nodes:
-        if node.type == "UVMAP":
-            if int(node.uv_map[-1]) not in uvNodes:
-                uvNodes[int(node.uv_map[-1])] = node
-        elif node.type == "MAPPING":
-            uvNodes[1] = node
-
-    uvLinks = {}
-    for link in links:
-        if link.to_node.type == "TEX_IMAGE":
-            uvLinks[link.to_node.name] = 1 if link.from_node.type == "MAPPING" else int(link.from_node.uv_map[-1])
 
     for i, texData in enumerate(material.textures):
         typ = texData[2]
@@ -172,6 +152,7 @@ def clone_material(material, prefix, root, t, key):
         if typ in tt:
             bfTyp = tm['Mapping'][tt[typ]]
             nodeTex = nodes[str(tt[typ])]
+            nodeTex.interpolation = 'Cubic'
             isColor = nodeTex['owm.material.color']
             if tex is None:
                 nodeTex.image = None
@@ -180,20 +161,6 @@ def clone_material(material, prefix, root, t, key):
             if nodeTex.image and isColor == False:
                 nodeTex.image.colorspace_settings.name = 'Raw'
                 nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
-            uvMap = bfTyp[3] if len(bfTyp) > 3 else 0
-            if uvMap != 0:
-                if uvMap < 0:
-                    uvMap = getUVMap(uvMap,material, bfTyp)
-                nodeUV = None
-                if uvMap in uvNodes:
-                    nodeUV = uvNodes[uvMap]
-                else:
-                    nodeUV = nodes.new('ShaderNodeUVMap')
-                    nodeUV.location = (-(tile_x * 2), -(tile_y * i))
-                    nodeUV.uv_map = "UVMap%d" % (uvMap)
-                    uvNodes[uvMap] = nodeUV
-                if int(uvLinks[nodeTex.name]) != uvMap:
-                    links.new(nodeUV.outputs[0], nodeTex.inputs[0])
         else: 
             nodeTex = nodes[str(typ)]
             isColor = nodeTex['owm.material.color']
@@ -250,27 +217,11 @@ def create_material(material, prefix, root, t):
 
 
     nodeMapping = None
-    uvNodes = {}
-    for inputId in tm['Scale']:
-        if inputId in material.static_inputs and len(material.static_inputs[inputId]) >= 8:
-            scale_x,scale_y = getScaling(material, inputId)
-            nodeMapping = nodes.new('ShaderNodeMapping')
-            nodeMapping.vector_type = 'TEXTURE'
-            nodeMapping.location = (-(tile_x * 3), -(tile_y))
-
-            nodeMapping.inputs[3].default_value[0] = scale_x
-            nodeMapping.inputs[3].default_value[1] = scale_y
-
-            nodeUV1 = nodes.new('ShaderNodeUVMap')
-            nodeUV1.location = (-(tile_x * 4), -(tile_y))
-            nodeUV1.uv_map = "UVMap1"
-            links.new(nodeUV1.outputs[0], nodeMapping.inputs[0])
-            uvNodes[1] = nodeMapping
-            break
 
     scratchSocket = {}
     for i, texData in enumerate(material.textures):
         nodeTex = nodes.new('ShaderNodeTexImage')
+        nodeTex.interpolation = 'Cubic'
         nodeTex.location = (-tile_x, -(tile_y * i))
         nodeTex.width = 250
         
@@ -318,21 +269,6 @@ def create_material(material, prefix, root, t):
                         scratchSocket[alphaSocketPoint] = nodeTex.outputs['Alpha']
                     else:
                         print('[import_owmat] could not find node %s on shader group' % (nodeSocketName))
-            uvMap = bfTyp[3] if len(bfTyp) > 3 else 0
-            if uvMap != 0:
-                if uvMap < 0:
-                    uvMap=getUVMap(uvMap, material, bfTyp)
-                nodeUV = None
-                if uvMap in uvNodes:
-                    nodeUV = uvNodes[uvMap]
-                else:
-                    nodeUV = nodes.new('ShaderNodeUVMap')
-                    nodeUV.location = (-(tile_x * 2), -(tile_y * i))
-                    nodeUV.uv_map = "UVMap%d" % (uvMap)
-                    uvNodes[uvMap] = nodeUV
-                links.new(nodeUV.outputs[0], nodeTex.inputs[0])
-            elif nodeMapping != None:
-                links.new(nodeMapping.outputs[0], nodeTex.inputs[0])
         else:
             nodeTex.name = str(typ)
 

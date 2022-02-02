@@ -35,7 +35,8 @@ TextureTypes = {
         "Grass Color + Param": [["Color"], [], 3093211343],
         "Grass Noise": [[], [], 1435463780],
         "Grass PBR": [["PBR"], [], 763550166],
-        "Grass Emission": [["Emission"], [], 165438316]
+        "Grass Emission": [["Emission"], [], 165438316],
+        "Skin Emission": [["Emission"], [], 1523270506]
     },
     "Alias": { # List of texture name rewrites, used for convenience
         "Color": "Color",
@@ -49,13 +50,6 @@ TextureTypes = {
         "PBR2": "Packed PBR B",
         "Alpha2": "Alpha B",
         "Emission2": "Emission B",
-        "Subsurf2": "Subsurface Color B",
-        "Color3": "Color C",
-        "Normal3": "Normal C",
-        "PBR3": "Packed PBR C",
-        "Alpha3": "Alpha C",
-        "Emission3": "Emission C",
-        "Subsurf3": "Subsurface Color C",
         "Dirt": "Dirt",
         "DirtColor": "Dirt Color"
     },
@@ -72,15 +66,9 @@ TextureTypes = {
         "Alpha": "Alpha2",
         "Emission": "Emission2",
         "Subsurf": "Subsurf2",
-        "Color3": "Color2",
-        "Normal3": "Normal2",
-        "PBR3": "PBR2",
-        "Alpha3": "Alpha2",
-        "Emission3": "Emission2",
-        "Subsurf3": "Subsurf2"
     },
     # List of names to import as sRGB
-    "Color": ["Color", "DirtColor", "Color2", "Color3", "Subsurf", "Subsurf2", "Subsurf3", "PBR", "PBR2", "PBR3"],
+    "Color": ["Color", "DirtColor", "Color2", "Color3", "Subsurf", "Subsurf2", "PBR", "PBR2"],
     # Active texture to display in the viewport
     "Active": ["Color", "Color2"],
     # OWM Shader remaps for shader ids
@@ -94,10 +82,7 @@ TextureTypes = {
         "50": "OWM: Complex",
         "51": "OWM: Hair",
         "54": "OWM: Refractive",
-        "56": "OWM: Decal"
-    },
-    # List of static input ids for texture scaling
-    "Scale": [],
-    # TODO
-    "Static": {}
+        "56": "OWM: Decal",
+        "167": "OWM: Skin"
+    }
 }
