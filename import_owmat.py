@@ -71,8 +71,12 @@ def read(filename, prefix = ''):
     t = {}
     m = {}
 
-    for i in range(len(data.materials)):
-        m[data.materials[i].key] = process_material(data.materials[i], prefix, root, t)
+    if len(data.keys):
+        for i,key in enumerate(data.keys):
+            m[key] = process_material(data.materials[i],prefix,root,t)
+    else:
+        for i in range(len(data.materials)): #not fixing old exports
+            m[data.materials[i].key] = process_material(data.materials[i], prefix, root, t)
 
     return (t, m)
 
