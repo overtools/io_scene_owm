@@ -171,7 +171,7 @@ def process(settings, data, pool, parent, target_framerate, hardpoints, variable
 
         if target_framerate != int(data.header.fps):
             scale = target_framerate / int(data.header.fps)
-            bpy.context.scene.frame_end *= scale
+            bpy.context.scene.frame_end = int(bpy.context.scene.frame_end * scale)
             bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
             bpy.ops.object.select_all(action='DESELECT')
             bpy.context.view_layer.objects.active = new_skeleton
