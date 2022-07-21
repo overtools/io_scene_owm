@@ -17,7 +17,7 @@ TextureTypes = {
         1435463780: [[], [], 'Grass Noise'],
         1482859648: [['Alpha'], [], 'Alpha'],
         1523270506: [['Emission'], [], 'Skin Emission'],
-        1557393490: [[], [], 'Material'],
+        1557393490: [['Material'], [], 'Material'],
         1716930793: [['Color'], [], 'Decal Albedo'],
         1724830523: [['Blend'], [], 'Blend'],
         1897827336: [['Normal2'], [], 'Blend Normal'],
