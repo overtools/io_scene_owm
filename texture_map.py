@@ -32,8 +32,9 @@ TextureTypes = {
         3120512190: [['Color3'], [], 'Blend Albedo 2'],
         3166598269: [['Emission'], [], 'Emission'],
         3335614873: [['AO'], [], 'Map AO'],
-        3761386704: [['Opacity'], [], 'Decal Opacity'],
+        3761386704: [['Opacity', 'AO'], [], 'Decal Opacity'],
         3989656707: [['Color', 'Alpha', 'Emission'], [], 'Decal Albedo + Alpha + Emission'],
+        1259168873: [['Factor'], [], 'Hair Factor']
     },
     "Alias": {  # List of texture name rewrites, used for convenience
         "Alpha": "Alpha",
