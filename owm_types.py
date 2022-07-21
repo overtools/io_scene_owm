@@ -140,9 +140,10 @@ class OWMDLFile:
 
 
 class OWMATFile:
-    def __init__(self, header, materials):
+    def __init__(self, header, materials,keys=None):
         self.header = header
         self.materials = materials
+        self.keys = keys
 
 
 class OWEntityFile:
@@ -454,6 +455,7 @@ class OWMATMaterial:
     structFormat = ['<QI']
     exFormat = [str]
     typeFormat = ['<I']
+    submeshKeysFormat = ['<Q']
     new_material_format = [str, '<I']
     new_modellook_format = [str]
     static_input_format = ['<II']

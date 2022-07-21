@@ -45,13 +45,21 @@ def read(filename, sub=False):
                 return owm_types.OWMATFile(header, materials)
         elif mat_type == owm_types.OWMatType.ModelLook:
             materials = []
+            keys = []
             for i in range(materialCount):
                 material_file = bin_ops.readFmtFlat(stream, owm_types.OWMATMaterial.new_modellook_format)
                 mat_guid = os.path.splitext(os.path.basename(material_file))[0]  #this totally won't cause issues
-                textures, shader, ids, static_inputs = read(os.path.join(filename, bpyhelper.normpath(material_file)), True)
-                for mat_id in ids:
-                    materials += [owm_types.OWMATMaterial(mat_id, mat_guid, len(textures), textures, shader, static_inputs)]
-            return owm_types.OWMATFile(header, materials)
+                textures, shader, ids, static_inputs = read(os.path.join(filename, bpyhelper.normpath(material_file)), True)     
+                if (major == 2 and minor >= 2) or major >= 3:
+                    materials += [owm_types.OWMATMaterial(None, mat_guid, len(textures), textures, shader, static_inputs)]
+                else:
+                    for mat_id in ids:
+                        materials += [owm_types.OWMATMaterial(mat_id, mat_guid, len(textures), textures, shader, static_inputs)]
+            if (major == 2 and minor >= 2) or major >= 3:
+                for i in range(materialCount):
+                    keys += [bin_ops.readFmtFlat(stream, owm_types.OWMATMaterial.submeshKeysFormat)]
+                    materials[i].key = keys[-1]
+            return owm_types.OWMATFile(header, materials, keys)
     else:
         materials = []
         for i in range(materialCount):
