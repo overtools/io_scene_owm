@@ -134,9 +134,9 @@ def clone_material(material, prefix, root, t, key):
                 nodeTex.image = None
             else:
                 nodeTex.image = tex
+                nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
             if nodeTex.image and isColor == False:
                 nodeTex.image.colorspace_settings.name = 'Raw'
-                nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
         else: 
             nodeTex = nodes[str(typ)]
             isColor = nodeTex['owm.material.color']
