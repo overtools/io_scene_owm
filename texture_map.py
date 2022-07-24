@@ -40,6 +40,8 @@ TextureTypes = {
         "Alpha": "Alpha",
         "Alpha2": "Alpha B",
         "Alpha3": "Alpha C",
+        "Blend": "Blend A",
+        "Blend2": "Blend B",
         "Material": "Material",
         "Material2": "Material B",
         "Material3": "Material C",
@@ -57,7 +59,7 @@ TextureTypes = {
         "PBR": "Packed PBR",
         "PBR2": "Packed PBR B",
         "PBR3": "Packed PBR C",
-        "Subsurf": "Subsurface Color",
+        "Subsurf": "Subsurface Color"
     },
     "Env": {  # Environment Remapping for when nodes are left open
         "Alpha": "Alpha2",
@@ -81,6 +83,8 @@ TextureTypes = {
         "Subsurf": "Subsurf2",
         "Subsurf2": "Subsurf",
         "Subsurf3": "Subsurf",
+        "Blend": "Blend2",
+        "Blend2": "Blend"
     },
     # List of names to import as sRGB
     "Color": ["Color", "DirtColor", "Color2", "Color3", "Subsurf", "Subsurf2"],
