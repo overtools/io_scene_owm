@@ -22,7 +22,7 @@ def cleanUnusedMaterials(materials):
     for name in materials[0]:
         tex = materials[0][name]
         if tex.users == 0:
-            bpy.data.textures.remove(tex)
+            bpy.data.images.remove(tex)
         else:
             t[name] = tex
     bpyhelper.scene_update()
