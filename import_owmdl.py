@@ -451,8 +451,8 @@ def readmdl(materials = None, rotate=True):
             if armature is not None:
                 armature.rotation_euler = (radians(90), 0, 0)
     
-    if impMat:
-        import_owmat.cleanUnusedMaterials(materials)
+    """if impMat:
+        import_owmat.cleanUnusedMaterials(materials)"""
 
     if len(data.cloths) > 0:
         for cloth in data.cloths:
