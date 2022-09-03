@@ -326,6 +326,12 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         default=False,
     )
 
+    link_objects : BoolProperty(
+        name='Link Objects',
+        description='Link objects instead of copying them',
+        default=False,
+    )
+
     def menu_func(self, context):
         self.layout.operator_context = 'INVOKE_DEFAULT'
         self.layout.operator(
@@ -361,7 +367,7 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         t = datetime.now()
         bpyhelper.LOCK_UPDATE = False
         try:
-            import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision, self.importSounds)
+            import_owmap.read(settings, self.importObjects, self.importDetails, self.importPhysics, light_settings, self.importRemoveCollision, self.importSounds, self.link_objects)
         except KeyboardInterrupt:
             bpyhelper.LOCK_UPDATE = False
         import_owmat.cleanup()
@@ -386,6 +392,7 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         col = layout.column(align=True)
         col.label(text = 'Map')
         col.prop(self, 'importObjects')
+        col.prop(self, 'link_objects')
         col.prop(self, 'importDetails')
         col.prop(self, 'importSounds')
 
