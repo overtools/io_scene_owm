@@ -805,7 +805,7 @@ class OWMCleanupTexOp(bpy.types.Operator):
 
 
 class OWMInternalSettings(bpy.types.PropertyGroup):
-    b_logsalot : bpy.props.BoolProperty(name="Log alot", description="Verbose logging", 
+    b_logsalot : bpy.props.BoolProperty(name="Log alot", description="Verbose logging",
         default=False, update=lambda self, context: self.update_logs_alot(context))
 
     def update_logs_alot(self, context):
