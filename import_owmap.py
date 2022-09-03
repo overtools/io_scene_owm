@@ -1,14 +1,13 @@
+import math
 import os
 
-from . import read_owmap
-from . import import_owmdl
-from . import import_owmat
-from . import import_owentity
-from . import bpyhelper
-from . import owm_types
+import bpy
+import bpy_extras
+import mathutils
 from mathutils import *
-import math
-import bpy, bpy_extras, mathutils
+
+from . import (bpyhelper, import_owentity, import_owmat, import_owmdl,
+               owm_types, read_owmap)
 
 sets = None
 
