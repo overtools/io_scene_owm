@@ -42,11 +42,15 @@ def destroyRelationships():
     parents = {}
     children = {}
 
-def copy(obj, parent):
+def copy(obj, parent, linked: bool = False):
     if obj is None: return None
     new_obj = obj.copy()
     if obj.data is not None:
-        new_obj.data = obj.data.copy()
+        if linked:
+            new_obj.data = obj.data
+        else:
+            new_obj.data = obj.data.copy()
+
         if 'OWM Skeleton' in new_obj.modifiers:
             mod = new_obj.modifiers['OWM Skeleton']
             mod.object = parent
@@ -54,7 +58,7 @@ def copy(obj, parent):
     link_queue.append(new_obj)
     try:
         for child in children[obj.name]:
-            copy(bpy.data.objects[child], new_obj)
+            copy(bpy.data.objects[child], new_obj, linked)
     except KeyError:
         pass # screw that
     return new_obj
@@ -124,7 +128,7 @@ def import_mat(path, prefix):
         return None
 
 
-def read(settings, importObjects=False, importDetails=True, importPhysics=False, light_settings=owm_types.OWLightSettings(), removeCollision=True, importSound=True):
+def read(settings, importObjects=False, importDetails=True, importPhysics=False, light_settings=owm_types.OWLightSettings(), removeCollision=True, importSound=True, link_objects: bool = False):
     global sets, link_queue
     bpyhelper.LOCK_UPDATE = True
     sets = settings
@@ -218,11 +222,11 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
                 bpyhelper.scene_link(matObj)
 
                 import_owmdl.bindMaterialsUniq(internal_obj[2], internal_obj[4], mat)
-                # eobj = copy(obj, None)
+                # eobj = copy(obj, None, link_objects)
 
                 for idx2, rec in enumerate(ent.records):
                     progress_update(total, prog, obpath)
-                    nobj = copy(obj, matObj)
+                    nobj = copy(obj, matObj, link_objects)
                     nobj.location = pos_matrix(rec.position)
                     nobj.rotation_euler = Quaternion(wxzy(rec.rotation)).to_euler('XYZ')
                     nobj.scale = xpzy(rec.scale)
@@ -306,7 +310,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             if cacheKey not in objCache or objCache[cacheKey] is None or cacheKey in objCol:
                 continue
 
-            objnode = copy(objCache[cacheKey], globDet)
+            objnode = copy(objCache[cacheKey], globDet, link_objects)
             objnode.location = pos_matrix(ob.position)
             objnode.rotation_euler = Quaternion(wxzy(ob.rotation)).to_euler('XYZ')
             objnode.scale = xpzy(ob.scale)
@@ -320,7 +324,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
         bpyhelper.scene_link(obj)
     link_queue = []
     destroyRelationships()
-    
+
     LIGHT_MAP = ['POINT', 'FRUSTUM', 'NONE']
 
     if light_settings.enabled:
@@ -359,7 +363,7 @@ def read(settings, importObjects=False, importDetails=True, importPhysics=False,
             enode.inputs.get('Strength').default_value = lamp_str
             lamp_ob.parent = globLight
             progress_update(total, prog, "Lamp")
-    
+
     if importSound:
         globSound = bpy.data.objects.new(name + '_SOUNDS', None)
         globSound.hide_viewport = True
