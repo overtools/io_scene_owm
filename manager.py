@@ -1,16 +1,14 @@
-from . import import_owmap
-from . import import_owentity
-from . import import_owmdl
-from . import import_owmat
-from . import import_oweffect
-from . import owm_types
-from . import bpyhelper
-import bpy
-from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, CollectionProperty
-from bpy_extras.io_utils import ImportHelper
-from bpy.app.handlers import persistent
-from bpy.utils import smpte_from_seconds
 from datetime import datetime
+
+import bpy
+from bpy.app.handlers import persistent
+from bpy.props import (BoolProperty, CollectionProperty, FloatProperty,
+                       IntProperty, StringProperty)
+from bpy.utils import smpte_from_seconds
+from bpy_extras.io_utils import ImportHelper
+
+from . import (bpyhelper, import_oweffect, import_owentity, import_owmap,
+               import_owmat, import_owmdl, owm_types)
 
 
 class ImportOWMDL(bpy.types.Operator, ImportHelper):
