@@ -20,7 +20,7 @@ def cleanUnusedMaterials(materials):
     for name in materials[0]:
         tex = materials[0][name]
         if tex.users == 0:
-            bpy.data.textures.remove(tex)
+            bpy.data.images.remove(tex)
         else:
             t[name] = tex
     bpyhelper.scene_update()
@@ -69,8 +69,12 @@ def read(filename, prefix = ''):
     t = {}
     m = {}
 
-    for i in range(len(data.materials)):
-        m[data.materials[i].key] = process_material(data.materials[i], prefix, root, t)
+    if len(data.keys):
+        for i,key in enumerate(data.keys):
+            m[key] = process_material(data.materials[i],prefix,root,t)
+    else:
+        for i in range(len(data.materials)): #not fixing old exports
+            m[data.materials[i].key] = process_material(data.materials[i], prefix, root, t)
 
     return (t, m)
 
@@ -130,9 +134,9 @@ def clone_material(material, prefix, root, t, key):
                 nodeTex.image = None
             else:
                 nodeTex.image = tex
+                nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
             if nodeTex.image and isColor == False:
                 nodeTex.image.colorspace_settings.name = 'Raw'
-                nodeTex.image.alpha_mode = 'CHANNEL_PACKED'
         else: 
             nodeTex = nodes[str(typ)]
             isColor = nodeTex['owm.material.color']
