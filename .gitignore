@@ -1,7 +1,7 @@
 __pycache__ 
 .vscode 
 tmp 
-**/*.pyc 
+*.pyc 
 .idea
 *.blend*
 !library.blend
