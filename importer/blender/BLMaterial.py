@@ -185,39 +185,42 @@ class BlenderMaterialTree:
         
         # shader specific fixes
         if material.shader == 51 and "4101268840" in nodes: # ow2 hair
-            #alpha
-            albedoNode = nodes["1239794147"]
-            texNode = createTexNode(nodes, albedoNode.name+"_A", albedoNode.label+" (Alpha)", locationFromNode(albedoNode, y=-1))
-            texNode.image = albedoNode.image
+            if "758934576" in nodes: # doomfist doesn't have strands apparently or alpha in uvlayer2
+                #alpha
+                albedoNode = nodes["1239794147"]
+                texNode = createTexNode(nodes, albedoNode.name+"_A", albedoNode.label+" (Alpha)", locationFromNode(albedoNode, y=-1))
+                texNode.image = albedoNode.image
 
-            UVNode = createUVNode(nodes, 2, locationFromNode(texNode, x=1))
+                UVNode = createUVNode(nodes, 2, locationFromNode(texNode, x=1))
+                
+                blendMaterial.node_tree.links.new(texNode.inputs[0], UVNode.outputs[0])
+                blendMaterial.node_tree.links.new(texNode.outputs[1], shaderGroup.inputs["Alpha"])
+
             
-            blendMaterial.node_tree.links.new(texNode.inputs[0], UVNode.outputs[0])
-            blendMaterial.node_tree.links.new(texNode.outputs[1], shaderGroup.inputs["Alpha"])
+                # strands
+                strandMapTexNode = nodes["4101268840"]
+                strandMapTexNode2 = createTexNode(nodes, strandMapTexNode.name+"_Pixel", strandMapTexNode.label+" (Closest)", locationFromNode(strandMapTexNode, x=1.5))
+                strandMapTexNode2.image = strandMapTexNode.image
+                strandMapTexNode2.interpolation = 'Closest'
 
-            # strands
-            strandMapTexNode = nodes["4101268840"]
-            strandMapTexNode2 = createTexNode(nodes, strandMapTexNode.name+"_Pixel", strandMapTexNode.label+" (Closest)", locationFromNode(strandMapTexNode, x=1.5))
-            strandMapTexNode2.image = strandMapTexNode.image
-            strandMapTexNode2.interpolation = 'Closest'
+                strandTexNode = nodes["758934576"]
 
-            strandTexNode = nodes["758934576"]
+                strandTexNode2 = createTexNode(nodes, strandTexNode.name+"_2", strandTexNode.label, locationFromNode(strandTexNode, y=1))
+                strandTexNode2.image = strandTexNode.image
 
-            strandTexNode2 = createTexNode(nodes, strandTexNode.name+"_2", strandTexNode.label, locationFromNode(strandTexNode, y=1))
-            strandTexNode2.image = strandTexNode.image
+                strandsNode = nodes.new("ShaderNodeGroup")
+                strandsNode.location = getLocation(*locationFromNode(strandTexNode, x=.5))
+                strandsNode.node_tree = bpy.data.node_groups["OWM: Hair Strand Preprocess"]
+                strandsNode.inputs["Density"].default_value = material.staticInputs[3604494376][0]
 
-            strandsNode = nodes.new("ShaderNodeGroup")
-            strandsNode.location = getLocation(*locationFromNode(strandTexNode, x=.5))
-            strandsNode.node_tree = bpy.data.node_groups["OWM: Hair Strand Preprocess"]
-            strandsNode.inputs["Density"].default_value = material.staticInputs[3604494376][0]
-
-            blendMaterial.node_tree.links.new(strandMapTexNode2.outputs[0], strandsNode.inputs["Strand"])
-            blendMaterial.node_tree.links.new(strandsNode.outputs[0], strandTexNode.inputs[0])
-            blendMaterial.node_tree.links.new(strandsNode.outputs[1], strandTexNode2.inputs[0])
-            blendMaterial.node_tree.links.new(strandTexNode.outputs[0], shaderGroup.inputs["Detail 1"])
-            blendMaterial.node_tree.links.new(strandTexNode2.outputs[0], shaderGroup.inputs["Detail 2"])
-
-
+                blendMaterial.node_tree.links.new(strandMapTexNode2.outputs[0], strandsNode.inputs["Strand"])
+                blendMaterial.node_tree.links.new(strandsNode.outputs[0], strandTexNode.inputs[0])
+                blendMaterial.node_tree.links.new(strandsNode.outputs[1], strandTexNode2.inputs[0])
+                blendMaterial.node_tree.links.new(strandTexNode.outputs[0], shaderGroup.inputs["Detail 1"])
+                blendMaterial.node_tree.links.new(strandTexNode2.outputs[0], shaderGroup.inputs["Detail 2"])
+            else:
+                albedoNode = nodes["1239794147"]
+                blendMaterial.node_tree.links.new(texNode.outputs[1], shaderGroup.inputs["Alpha"])
             
 
     def loadTexture(self, texture):
