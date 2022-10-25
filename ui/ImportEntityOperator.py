@@ -24,12 +24,6 @@ class ImportOWENTITY(bpy.types.Operator, ImportHelper):
 
     entitySettings: bpy.props.PointerProperty(type=SettingTypes.OWEntitySettings)
 
-    def menu_func(self, context):
-        self.layout.operator_context = 'INVOKE_DEFAULT'
-        self.layout.operator(
-            ImportOWMAP.bl_idname,
-            text='Text Export Operator')
-
     @classmethod
     def poll(cls, context):
         return True

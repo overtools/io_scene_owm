@@ -35,13 +35,13 @@ TextureTypes = {
         378934698: [['Normal'], [], 'Normal'],
         548341454: [['PBR'], [], 'PBR'],
         2018946191: [['PBR'], [], 'PBR'],  # (?)
-        2903569922: [['Color'], [], 'Albedo + AO'],
+        2903569922: [['Color'], [], 'Albedo'],
         845901908: [['Cloth'], [], 'Cloth Mask'],
-        3335614873: [[], [], 'AO'],
+        3335614873: [['AO'], [], 'AO'],
         1482859648: [['Alpha'], [], 'Alpha'],  # (?)
         1557393490: [['Cloth Mask'], [], 'Mask'],  # (?) cloth maybe except not?
         # Blends
-        3038474910: [[], [], 'Blend AO'],
+        3038474910: [['Blend AO'], [], 'Blend AO'],
         571210053: [['Normal B'], [], 'Blend Normal'],
         682378068: [['Color B'], [], 'Blend Albedo 2'],
         1724830523: [['Blend'], [], 'Blend Mask'],
@@ -63,11 +63,11 @@ TextureTypes = {
         2838344713: [['Normal Strength'], [], 'Glass Normal Fac'],
         1493127177: [['Emission Color'], [], 'Glass Emission'],
         # Decals
+        3989656707: [['Color', 'Alpha', 'Emission'], [], 'Decal Albedo + Alpha + Emission'],
         562391268: [['Normal'], [], 'Normal'],
         3111105361: [['PBR'], [], 'Decal PBR'],
         1716930793: [['Color'], [], 'Decal Albedo'],
         1140682086: [['Alpha'], [], 'Decal Alpha'],
-        3989656707: [['Color', 'Alpha', 'Emission'], [], 'Decal Albedo + Alpha + Emission'],
         # Complex Test
         1281400944: [['Color'], [], 'Flag Albedo'],
         996643046: [['PBR'], [], 'Flag PBR'],
@@ -122,7 +122,7 @@ TextureTypes = {
         -200:StaticInput((-200, "I", "UVLayer", "Basic", (2903569922,548341454,378934698))),
         1701780890:StaticInput((1701780890, "ff", "UVScale", "Blend 2")),  # blend2 uv scale
         3260151041:StaticInput((3260151041, "ff", "UVScale", "Blend 1")),  # blend1 uv scale
-        1883253226:StaticInput((1701780890, "ff", "UVScale", "Basic")),
+        1883253226:StaticInput((1883253226, "ff", "UVScale", "Basic")),
         2166182138:StaticInput((2166182138, "ff", "UVScale", "default")),  # default uv scale
         3561634072:StaticInput((3561634072, "f", "ShaderParm", "Blend Factor")),  # 
         3250491852:StaticInput((3250491852, "f", "ShaderParm", "Emission Strength")),  # emission Strength

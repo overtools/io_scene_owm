@@ -183,7 +183,7 @@ def importMesh(meshData, modelSettings, armature, blendBoneNames):
 
     mesh.update()
 
-    mesh.use_auto_smooth = True  # TODO determine if this should be optional
+    mesh.use_auto_smooth = modelSettings.autoSmoothNormals
     if modelSettings.importNormals:
         mesh.create_normals_split()
         mesh.validate(clean_customdata=False)

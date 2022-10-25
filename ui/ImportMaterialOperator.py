@@ -20,12 +20,6 @@ class ImportOWMAT(bpy.types.Operator, ImportHelper):
         options={'HIDDEN'},
     )
 
-    def menu_func(self, context):
-        self.layout.operator_context = 'INVOKE_DEFAULT'
-        self.layout.operator(
-            ImportOWMAT.bl_idname,
-            text='Text Export Operator')
-
     @classmethod
     def poll(cls, context):
         return True

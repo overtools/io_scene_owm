@@ -3,7 +3,7 @@ from . import LibraryHandler
 
 class OWMUtilityPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_owm_panel2"
-    bl_label = "OWM Tools"
+    bl_label = "OWM Tools V3"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "scene"
@@ -23,7 +23,7 @@ class OWMUtilityPanel(bpy.types.Panel):
         row = layout.row()
         row.operator(LibraryHandler.OWMLoadJSONOp.bl_idname, text="Import OWM Library from JSON", icon="LINK_BLEND")
         #row = layout.row()
-        #row.prop(bpy.context.scene.owm_internal_settings, "b_logsalot", text="Log Map Progress")
+        #row.prop(bpy.context.scene.owm3_internal_settings, "b_logsalot", text="Log Map Progress")
 
         box = layout.box()
         box.label(text="Cleanup")
@@ -33,9 +33,15 @@ class OWMUtilityPanel(bpy.types.Panel):
         row.operator(OWMCleanupOp.bl_idname, text="Unused Socket Objects", icon="OBJECT_DATA")
         #row.operator(OWMCleanupTexOp.bl_idname, text="Unused Materials", icon="MATERIAL")
 
+        box = layout.box()
+        box.label(text="Material Operators")
+        row = box.row()
+        row.operator(LibraryHandler.OWMConnectAOOp.bl_idname, text="Connect AO Textures", icon="OBJECT_DATA")
+        row.operator(LibraryHandler.OWMDisconnectAOOp.bl_idname, text="Disconnect AO Textures", icon="OBJECT_DATA")
+
 class OWMCleanupOp(bpy.types.Operator):
     """Deletes empty objects with no sub objects"""
-    bl_idname = "owm.delete_unused_empties"
+    bl_idname = "owm3.delete_unused_empties"
     bl_label = "Delete Unused Empties"
 
     def execute(self, context):
@@ -60,9 +66,9 @@ class OWMCleanupOp(bpy.types.Operator):
         return self.execute(context)
 
 
-class OWMCleanupTexOp(bpy.types.Operator):
+class OWMCleanupTexOp(bpy.types.Operator): #TODO remake this
     """Deletes materials with no owners"""
-    bl_idname = "owm.delete_unused_materials"
+    bl_idname = "owm3.delete_unused_materials"
     bl_label = "Delete Unused Materials"
 
     def execute(self, context):

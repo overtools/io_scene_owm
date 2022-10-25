@@ -323,6 +323,11 @@ def buildNodeTree(textureInputs, shaderKey):
         texNode["owm.issRGB"] = mapping.sRGB if mapping else False
 
         # Shader specific
+        if texture == 3335614873: #AO
+            UVNodeAO = createUVNode(nodes, 2, (2,i+2), "AO")
+            links.new(UVNodeAO.outputs[0], texNode.inputs[0])
+        if (shaderGroup == 217 or shaderGroup == 44) and texture == 2903569922: # hero ao
+            links.new(texNode.outputs[1], shaderNode.inputs["AO"])
         if (shaderGroup == 217 or shaderGroup == 43) and texture in textureMap["DetailTextures"].keys(): #detail
             #mappingNode = createMappingNode(nodes, str(texture)+" Detail Mapping", (1.5, i+2))
             scalingNode = nodes.new("ShaderNodeGroup")

@@ -210,7 +210,7 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
             if mapSettings.removeCollision and objLookID in collisionMats:
                 continue
             elif objFolder is None:
-                objFolder = bpy.data.collections.new(objID + '_COLLECTION')  # maybe make this collection
+                objFolder = bpy.data.collections.new(objID + '_COLLECTION')
                 blenderTree.addQueueRoot(objFolder)
                 objCol = objectsCol if objID not in mapTree.details else detailsCol
                 objCol.children.link(objFolder)
@@ -244,9 +244,10 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
         blenderTree.queueRemoveRecursive(modelFolder)
 
     #bpy.data.batch_remove(blenderTree.removeQueue)
+    if modelSettings.importMaterial:
+        matTree.removeSkeletonNodeTrees()
+        
     blenderTree.startQueues()
-
-    """"""
 
     if mapSettings.importObjects:
         rootMapCol.children.link(objectsCol)

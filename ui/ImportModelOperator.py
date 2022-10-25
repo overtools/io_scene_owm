@@ -22,13 +22,7 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
     )
 
     modelSettings: bpy.props.PointerProperty(type=SettingTypes.OWModelSettings)
-
-    def menu_func(self, context):
-        self.layout.operator_context = 'INVOKE_DEFAULT'
-        self.layout.operator(
-            ImportOWMDL.bl_idname,
-            text='Text Export Operator')
-
+    
     @classmethod
     def poll(cls, context):
         return True

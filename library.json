@@ -240,8 +240,8 @@
 				"bl_idname": "NodeGroupOutput",
 				"name": "Group Output",
 				"location": [
-					416,
-					185
+					537,
+					194
 				],
 				"dimensions": [
 					140,
@@ -856,6 +856,17 @@
 				]
 			},
 			{
+				"name": "AO",
+				"bl_socket_idname": "NodeSocketColor",
+				"type": "RGBA",
+				"default_value": [
+					1.0,
+					1.0,
+					1.0,
+					1.0
+				]
+			},
+			{
 				"name": "PBR",
 				"bl_socket_idname": "NodeSocketColor",
 				"type": "RGBA",
@@ -917,17 +928,6 @@
 				],
 				"inputs": [
 					{
-						"name": "AO",
-						"type": "RGBA",
-						"default_value": [
-							0.5,
-							0.5,
-							0.5,
-							1.0
-						],
-						"index": 1
-					},
-					{
 						"name": "Emission",
 						"type": "VALUE",
 						"default_value": 0.0,
@@ -982,7 +982,7 @@
 				"links": [
 					{
 						"fn": "Group Input",
-						"fs": 3,
+						"fs": 4,
 						"fo": true,
 						"tn": "Mix",
 						"ts": 1,
@@ -990,7 +990,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 5,
+						"fs": 6,
 						"fo": true,
 						"tn": "Mix",
 						"ts": 0,
@@ -998,7 +998,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 4,
+						"fs": 5,
 						"fo": true,
 						"tn": "Mix",
 						"ts": 2,
@@ -1022,10 +1022,18 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 2,
+						"fs": 3,
 						"fo": true,
 						"tn": "Group",
 						"ts": 2,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 2,
+						"fo": true,
+						"tn": "Group",
+						"ts": 1,
 						"to": false
 					}
 				]
@@ -6933,7 +6941,7 @@
 					-384
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -6957,7 +6965,7 @@
 					-384
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -6981,7 +6989,7 @@
 					-321
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -7005,7 +7013,7 @@
 					-321
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -7029,7 +7037,7 @@
 					-274
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -7053,7 +7061,7 @@
 					149
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -7085,7 +7093,7 @@
 					0
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -7109,7 +7117,7 @@
 					-20
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -7133,7 +7141,7 @@
 					-40
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -7157,7 +7165,7 @@
 					-60
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -7181,7 +7189,7 @@
 					-84
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -7253,11 +7261,14 @@
 			},
 			{
 				"name": "Alpha",
-				"bl_socket_idname": "NodeSocketFloatFactor",
-				"type": "VALUE",
-				"default_value": 0.0,
-				"min_value": 0.0,
-				"max_value": 1.0
+				"bl_socket_idname": "NodeSocketColor",
+				"type": "RGBA",
+				"default_value": [
+					0.0,
+					0.0,
+					0.0,
+					1.0
+				]
 			},
 			{
 				"name": "Opacity",
@@ -7325,8 +7336,8 @@
 				"bl_idname": "NodeGroupInput",
 				"name": "Group Input",
 				"location": [
-					-541,
-					-219
+					-722,
+					-220
 				],
 				"dimensions": [
 					140,
@@ -7347,7 +7358,7 @@
 						"fn": "Group Input",
 						"fs": 5,
 						"fo": true,
-						"tn": "Math.001",
+						"tn": "Separate Color",
 						"ts": 0,
 						"to": false
 					},
@@ -7361,14 +7372,6 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
 						"fs": 2,
 						"fo": true,
 						"tn": "Group",
@@ -7377,18 +7380,10 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 3,
+						"fs": 0,
 						"fo": true,
 						"tn": "Group",
-						"ts": 3,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
-						"fs": 4,
-						"fo": true,
-						"tn": "Group",
-						"ts": 4,
+						"ts": 0,
 						"to": false
 					},
 					{
@@ -7405,6 +7400,22 @@
 						"fo": true,
 						"tn": "Group",
 						"ts": 6,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 4,
+						"fo": true,
+						"tn": "Group",
+						"ts": 4,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 3,
+						"fo": true,
+						"tn": "Group",
+						"ts": 3,
 						"to": false
 					}
 				]
@@ -7548,6 +7559,32 @@
 					}
 				]
 			},
+			"Separate Color": {
+				"bl_idname": "ShaderNodeSeparateColor",
+				"name": "Separate Color",
+				"location": [
+					-540,
+					-340
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [],
+				"attributes": {
+					"mode": "RGB"
+				},
+				"links": [
+					{
+						"fn": "Separate Color",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.001",
+						"ts": 0,
+						"to": false
+					}
+				]
+			},
 			"Transparent BSDF": {
 				"bl_idname": "ShaderNodeBsdfTransparent",
 				"name": "Transparent BSDF",
@@ -7626,6 +7663,14 @@
 				"max_value": 3.4028234663852886e+38
 			},
 			{
+				"name": "BLACK_F",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 0.0,
+				"min_value": -3.4028234663852886e+38,
+				"max_value": 3.4028234663852886e+38
+			},
+			{
 				"name": "RED",
 				"bl_socket_idname": "NodeSocketColor",
 				"type": "RGBA",
@@ -7638,6 +7683,14 @@
 			},
 			{
 				"name": "RED_A",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 0.0,
+				"min_value": -3.4028234663852886e+38,
+				"max_value": 3.4028234663852886e+38
+			},
+			{
+				"name": "RED_F",
 				"bl_socket_idname": "NodeSocketFloat",
 				"type": "VALUE",
 				"default_value": 0.0,
@@ -7664,6 +7717,14 @@
 				"max_value": 3.4028234663852886e+38
 			},
 			{
+				"name": "GREEN_F",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 0.0,
+				"min_value": -3.4028234663852886e+38,
+				"max_value": 3.4028234663852886e+38
+			},
+			{
 				"name": "BLUE",
 				"bl_socket_idname": "NodeSocketColor",
 				"type": "RGBA",
@@ -7676,6 +7737,14 @@
 			},
 			{
 				"name": "BLUE_A",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 0.0,
+				"min_value": -3.4028234663852886e+38,
+				"max_value": 3.4028234663852886e+38
+			},
+			{
+				"name": "BLUE_F",
 				"bl_socket_idname": "NodeSocketFloat",
 				"type": "VALUE",
 				"default_value": 0.0,
@@ -7702,6 +7771,14 @@
 				"max_value": 3.4028234663852886e+38
 			},
 			{
+				"name": "YELLOW_F",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 0.0,
+				"min_value": -3.4028234663852886e+38,
+				"max_value": 3.4028234663852886e+38
+			},
+			{
 				"name": "CYAN",
 				"bl_socket_idname": "NodeSocketColor",
 				"type": "RGBA",
@@ -7714,6 +7791,14 @@
 			},
 			{
 				"name": "CYAN_A",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 0.0,
+				"min_value": -3.4028234663852886e+38,
+				"max_value": 3.4028234663852886e+38
+			},
+			{
+				"name": "CYAN_F",
 				"bl_socket_idname": "NodeSocketFloat",
 				"type": "VALUE",
 				"default_value": 0.0,
@@ -7740,6 +7825,14 @@
 				"max_value": 3.4028234663852886e+38
 			},
 			{
+				"name": "PINK_F",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 0.0,
+				"min_value": -3.4028234663852886e+38,
+				"max_value": 3.4028234663852886e+38
+			},
+			{
 				"name": "WHITE",
 				"bl_socket_idname": "NodeSocketColor",
 				"type": "RGBA",
@@ -7757,6 +7850,14 @@
 				"default_value": 0.0,
 				"min_value": -3.4028234663852886e+38,
 				"max_value": 3.4028234663852886e+38
+			},
+			{
+				"name": "WHITE_F",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 0.0,
+				"min_value": 0.0,
+				"max_value": 2.0
 			}
 		],
 		"outputs": [
@@ -7771,6 +7872,10 @@
 			{
 				"name": "ROUGHNESS",
 				"bl_socket_idname": "NodeSocketFloat"
+			},
+			{
+				"name": "BLENDFAC",
+				"bl_socket_idname": "NodeSocketFloat"
 			}
 		],
 		"nodes": {
@@ -7778,8 +7883,8 @@
 				"bl_idname": "ShaderNodeCombineXYZ",
 				"name": "Combine XYZ",
 				"location": [
-					2138,
-					-2246
+					1120,
+					-2160
 				],
 				"dimensions": [
 					140,
@@ -7810,8 +7915,8 @@
 				"name": "Frame",
 				"label": "Roughness",
 				"location": [
-					59,
-					-2911
+					60,
+					-2940
 				],
 				"dimensions": [
 					969,
@@ -7830,12 +7935,12 @@
 				"name": "Frame.001",
 				"label": "Normal",
 				"location": [
-					-733,
-					-167
+					-740,
+					-160
 				],
 				"dimensions": [
-					1123,
-					1955
+					1111,
+					1971
 				],
 				"inputs": [],
 				"attributes": {
@@ -7849,8 +7954,8 @@
 				"bl_idname": "NodeGroupInput",
 				"name": "Group Input",
 				"location": [
-					-2377,
-					-1715
+					-2560,
+					-1960
 				],
 				"dimensions": [
 					140,
@@ -7861,7 +7966,7 @@
 				"links": [
 					{
 						"fn": "Group Input",
-						"fs": 16,
+						"fs": 23,
 						"fo": true,
 						"tn": "Math.001",
 						"ts": 0,
@@ -7877,7 +7982,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 4,
+						"fs": 5,
 						"fo": true,
 						"tn": "Math.003",
 						"ts": 0,
@@ -7885,7 +7990,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 12,
+						"fs": 17,
 						"fo": true,
 						"tn": "Math.004",
 						"ts": 0,
@@ -7893,7 +7998,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 6,
+						"fs": 8,
 						"fo": true,
 						"tn": "Math.006",
 						"ts": 0,
@@ -7901,7 +8006,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 10,
+						"fs": 14,
 						"fo": true,
 						"tn": "Math.005",
 						"ts": 0,
@@ -7909,7 +8014,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 14,
+						"fs": 20,
 						"fo": true,
 						"tn": "Math.007",
 						"ts": 0,
@@ -7917,7 +8022,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 8,
+						"fs": 11,
 						"fo": true,
 						"tn": "Math.008",
 						"ts": 0,
@@ -7925,7 +8030,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 15,
+						"fs": 22,
 						"fo": true,
 						"tn": "Mix.001",
 						"ts": 2,
@@ -7941,7 +8046,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 3,
+						"fs": 4,
 						"fo": true,
 						"tn": "Mix.021",
 						"ts": 2,
@@ -7949,7 +8054,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 9,
+						"fs": 13,
 						"fo": true,
 						"tn": "Mix.020",
 						"ts": 2,
@@ -7957,7 +8062,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 5,
+						"fs": 7,
 						"fo": true,
 						"tn": "Mix.023",
 						"ts": 2,
@@ -7965,7 +8070,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 11,
+						"fs": 16,
 						"fo": true,
 						"tn": "Mix.017",
 						"ts": 2,
@@ -7973,7 +8078,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 7,
+						"fs": 10,
 						"fo": true,
 						"tn": "Mix.024",
 						"ts": 2,
@@ -7981,10 +8086,74 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 13,
+						"fs": 19,
 						"fo": true,
 						"tn": "Mix.018",
 						"ts": 2,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 24,
+						"fo": true,
+						"tn": "Math",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 6,
+						"fo": true,
+						"tn": "Math.017",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 21,
+						"fo": true,
+						"tn": "Math.022",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 18,
+						"fo": true,
+						"tn": "Math.020",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 12,
+						"fo": true,
+						"tn": "Math.021",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 9,
+						"fo": true,
+						"tn": "Math.019",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 15,
+						"fo": true,
+						"tn": "Math.018",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 3,
+						"fo": true,
+						"tn": "Math.016",
+						"ts": 1,
 						"to": false
 					},
 					{
@@ -8001,8 +8170,8 @@
 				"bl_idname": "NodeGroupOutput",
 				"name": "Group Output",
 				"location": [
-					3642,
-					-2275
+					1340,
+					-2160
 				],
 				"dimensions": [
 					140,
@@ -8018,8 +8187,8 @@
 				"bl_idname": "ShaderNodeGroup",
 				"name": "Group.001",
 				"location": [
-					-1506,
-					-1715
+					-1920,
+					-2080
 				],
 				"dimensions": [
 					214,
@@ -8030,6 +8199,134 @@
 					"node_tree": "OWM: Separate Color Mask"
 				},
 				"links": [
+					{
+						"fn": "Group.001",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 1,
+						"fo": true,
+						"tn": "Math.016",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 2,
+						"fo": true,
+						"tn": "Math.017",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 3,
+						"fo": true,
+						"tn": "Math.018",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 4,
+						"fo": true,
+						"tn": "Math.019",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 5,
+						"fo": true,
+						"tn": "Math.020",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 6,
+						"fo": true,
+						"tn": "Math.021",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 7,
+						"fo": true,
+						"tn": "Math.022",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 0,
+						"fo": true,
+						"tn": "Mix.001",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 1,
+						"fo": true,
+						"tn": "Mix.019",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 2,
+						"fo": true,
+						"tn": "Mix.021",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 3,
+						"fo": true,
+						"tn": "Mix.020",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 4,
+						"fo": true,
+						"tn": "Mix.023",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 5,
+						"fo": true,
+						"tn": "Mix.017",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 6,
+						"fo": true,
+						"tn": "Mix.024",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.001",
+						"fs": 7,
+						"fo": true,
+						"tn": "Mix.018",
+						"ts": 0,
+						"to": false
+					},
 					{
 						"fn": "Group.001",
 						"fs": 0,
@@ -8093,76 +8390,49 @@
 						"tn": "Math.007",
 						"ts": 1,
 						"to": false
-					},
+					}
+				]
+			},
+			"Math": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math",
+				"label": "WHITE FAC",
+				"location": [
+					-1540,
+					-2060
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
 					{
-						"fn": "Group.001",
-						"fs": 1,
-						"fo": true,
-						"tn": "Mix.019",
-						"ts": 0,
-						"to": false
-					},
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "MULTIPLY",
+					"use_clamp": true
+				},
+				"links": [
 					{
-						"fn": "Group.001",
-						"fs": 2,
-						"fo": true,
-						"tn": "Mix.021",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group.001",
-						"fs": 3,
-						"fo": true,
-						"tn": "Mix.020",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group.001",
-						"fs": 4,
-						"fo": true,
-						"tn": "Mix.023",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group.001",
-						"fs": 5,
-						"fo": true,
-						"tn": "Mix.017",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group.001",
+						"fn": "Math",
 						"fs": 0,
 						"fo": true,
-						"tn": "Mix.001",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group.001",
-						"fs": 7,
-						"fo": true,
-						"tn": "Mix.018",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group.001",
-						"fs": 6,
-						"fo": true,
-						"tn": "Mix.024",
+						"tn": "Math.023",
 						"ts": 0,
 						"to": false
 					}
-				]
+				],
+				"hide": true
 			},
 			"Math.001": {
 				"bl_idname": "ShaderNodeMath",
 				"name": "Math.001",
+				"label": "WHITE",
 				"location": [
 					-793,
 					624
@@ -8198,6 +8468,7 @@
 			"Math.002": {
 				"bl_idname": "ShaderNodeMath",
 				"name": "Math.002",
+				"label": "BLACK",
 				"location": [
 					-793,
 					457
@@ -8233,6 +8504,7 @@
 			"Math.003": {
 				"bl_idname": "ShaderNodeMath",
 				"name": "Math.003",
+				"label": "RED",
 				"location": [
 					-793,
 					284
@@ -8268,6 +8540,7 @@
 			"Math.004": {
 				"bl_idname": "ShaderNodeMath",
 				"name": "Math.004",
+				"label": "CYAN",
 				"location": [
 					-793,
 					-237
@@ -8303,6 +8576,7 @@
 			"Math.005": {
 				"bl_idname": "ShaderNodeMath",
 				"name": "Math.005",
+				"label": "YELLOW",
 				"location": [
 					-793,
 					103
@@ -8338,6 +8612,7 @@
 			"Math.006": {
 				"bl_idname": "ShaderNodeMath",
 				"name": "Math.006",
+				"label": "GREEN",
 				"location": [
 					-793,
 					-64
@@ -8373,6 +8648,7 @@
 			"Math.007": {
 				"bl_idname": "ShaderNodeMath",
 				"name": "Math.007",
+				"label": "PINK",
 				"location": [
 					-793,
 					-591
@@ -8408,6 +8684,7 @@
 			"Math.008": {
 				"bl_idname": "ShaderNodeMath",
 				"name": "Math.008",
+				"label": "BLUE",
 				"location": [
 					-793,
 					-419
@@ -8685,13 +8962,510 @@
 				],
 				"parent": "Frame"
 			},
+			"Math.016": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.016",
+				"label": "BLACK FAC",
+				"location": [
+					-1540,
+					-2100
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "MULTIPLY",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.016",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.023",
+						"ts": 1,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.017": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.017",
+				"label": "RED FAC",
+				"location": [
+					-1540,
+					-2140
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "MULTIPLY",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.017",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.024",
+						"ts": 0,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.018": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.018",
+				"label": "YELLOW FAC",
+				"location": [
+					-1540,
+					-2180
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "MULTIPLY",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.018",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.024",
+						"ts": 1,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.019": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.019",
+				"label": "GREEN FAC",
+				"location": [
+					-1540,
+					-2220
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "MULTIPLY",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.019",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.025",
+						"ts": 0,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.020": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.020",
+				"label": "CYAN FAC",
+				"location": [
+					-1540,
+					-2260
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "MULTIPLY",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.020",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.025",
+						"ts": 1,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.021": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.021",
+				"label": "BLUE FAC",
+				"location": [
+					-1540,
+					-2300
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "MULTIPLY",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.021",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.026",
+						"ts": 0,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.022": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.022",
+				"label": "PINK FAC",
+				"location": [
+					-1540,
+					-2340
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "MULTIPLY",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.022",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.026",
+						"ts": 1,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.023": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.023",
+				"location": [
+					-740,
+					-2120
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "ADD",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.023",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.027",
+						"ts": 0,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.024": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.024",
+				"location": [
+					-740,
+					-2160
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "ADD",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.024",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.027",
+						"ts": 1,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.025": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.025",
+				"location": [
+					-740,
+					-2200
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "ADD",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.025",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.028",
+						"ts": 0,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.026": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.026",
+				"location": [
+					-740,
+					-2240
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "ADD",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.026",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.028",
+						"ts": 1,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.027": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.027",
+				"location": [
+					-560,
+					-2140
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "ADD",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.027",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.029",
+						"ts": 0,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.028": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.028",
+				"location": [
+					-560,
+					-2220
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "ADD",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.028",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.029",
+						"ts": 1,
+						"to": false
+					}
+				],
+				"hide": true
+			},
+			"Math.029": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.029",
+				"location": [
+					-380,
+					-2180
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "ADD",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.029",
+						"fs": 0,
+						"fo": true,
+						"tn": "Group Output",
+						"ts": 3,
+						"to": false
+					}
+				],
+				"hide": true
+			},
 			"Mix.001": {
 				"bl_idname": "ShaderNodeMixRGB",
 				"name": "Mix.001",
 				"label": "WHITE",
 				"location": [
-					48,
-					3
+					53,
+					7
 				],
 				"dimensions": [
 					140,
@@ -8774,8 +9548,8 @@
 				"name": "Mix.018",
 				"label": "PINK",
 				"location": [
-					41,
-					-1721
+					53,
+					-1733
 				],
 				"dimensions": [
 					140,
@@ -8816,8 +9590,8 @@
 				"name": "Mix.019",
 				"label": "BLACK",
 				"location": [
-					43,
-					-239
+					53,
+					-233
 				],
 				"dimensions": [
 					140,
@@ -8858,8 +9632,8 @@
 				"name": "Mix.020",
 				"label": "YELLOW",
 				"location": [
-					42,
-					-731
+					53,
+					-733
 				],
 				"dimensions": [
 					140,
@@ -8900,8 +9674,8 @@
 				"name": "Mix.021",
 				"label": "RED",
 				"location": [
-					43,
-					-488
+					53,
+					-493
 				],
 				"dimensions": [
 					140,
@@ -8942,8 +9716,8 @@
 				"name": "Mix.023",
 				"label": "GREEN",
 				"location": [
-					38,
-					-985
+					53,
+					-993
 				],
 				"dimensions": [
 					140,
@@ -8984,8 +9758,8 @@
 				"name": "Mix.024",
 				"label": "BLUE",
 				"location": [
-					50,
-					-1479
+					53,
+					-1473
 				],
 				"dimensions": [
 					140,
@@ -9025,8 +9799,8 @@
 				"bl_idname": "ShaderNodeSeparateXYZ",
 				"name": "Separate XYZ",
 				"location": [
-					1912,
-					-2248
+					880,
+					-2160
 				],
 				"dimensions": [
 					140,
@@ -9035,14 +9809,6 @@
 				"inputs": [],
 				"attributes": {},
 				"links": [
-					{
-						"fn": "Separate XYZ",
-						"fs": 2,
-						"fo": true,
-						"tn": "Group Output",
-						"ts": 1,
-						"to": false
-					},
 					{
 						"fn": "Separate XYZ",
 						"fs": 0,
@@ -9056,6 +9822,14 @@
 						"fs": 1,
 						"fo": true,
 						"tn": "Combine XYZ",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Separate XYZ",
+						"fs": 2,
+						"fo": true,
+						"tn": "Group Output",
 						"ts": 1,
 						"to": false
 					}
@@ -10349,14 +11123,6 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 13,
-						"fo": true,
-						"tn": "Group",
-						"ts": 1,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
 						"fs": 11,
 						"fo": true,
 						"tn": "Principled BSDF",
@@ -10369,6 +11135,14 @@
 						"fo": true,
 						"tn": "Principled BSDF",
 						"ts": 20,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 13,
+						"fo": true,
+						"tn": "Group",
+						"ts": 1,
 						"to": false
 					}
 				]
@@ -10822,7 +11596,7 @@
 					-489
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -10846,7 +11620,7 @@
 					-109
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -10870,7 +11644,7 @@
 					-204
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -10894,7 +11668,7 @@
 					-142
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -10918,7 +11692,7 @@
 					-360
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -10942,7 +11716,7 @@
 					-360
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -10966,7 +11740,7 @@
 					-159
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -10990,7 +11764,7 @@
 					270
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -11022,7 +11796,7 @@
 					-264
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16620,7 +17394,7 @@
 					-545
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16644,7 +17418,7 @@
 					-545
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16668,7 +17442,7 @@
 					-482
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16692,7 +17466,7 @@
 					-482
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16716,7 +17490,7 @@
 					-435
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16740,7 +17514,7 @@
 					0
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16764,7 +17538,7 @@
 					0
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16788,7 +17562,7 @@
 					-43
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16812,7 +17586,7 @@
 					-43
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16836,7 +17610,7 @@
 					-122
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16860,7 +17634,7 @@
 					-145
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16884,7 +17658,7 @@
 					-165
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16908,7 +17682,7 @@
 					233
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -16932,7 +17706,7 @@
 					233
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -17265,6 +18039,70 @@
 				"name": "Detail Roughness Power",
 				"bl_socket_idname": "NodeSocketFloat",
 				"type": "VALUE",
+				"default_value": 0.5,
+				"min_value": 0.0,
+				"max_value": 1.0
+			},
+			{
+				"name": "Detail Black Multiplier",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 1.0,
+				"min_value": 0.0,
+				"max_value": 1.0
+			},
+			{
+				"name": "Detail Red Multiplier",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 1.0,
+				"min_value": 0.0,
+				"max_value": 1.0
+			},
+			{
+				"name": "Detail Green Multiplier",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 1.0,
+				"min_value": 0.0,
+				"max_value": 1.0
+			},
+			{
+				"name": "Detail Blue Multiplier",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 1.0,
+				"min_value": 0.0,
+				"max_value": 1.0
+			},
+			{
+				"name": "Detail Yellow Multiplier",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 1.0,
+				"min_value": 0.0,
+				"max_value": 1.0
+			},
+			{
+				"name": "Detail Cyan Multiplier",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 1.0,
+				"min_value": 0.0,
+				"max_value": 1.0
+			},
+			{
+				"name": "Detail Pink Multiplier",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 1.0,
+				"min_value": 0.0,
+				"max_value": 1.0
+			},
+			{
+				"name": "Detail White Multiplier",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
 				"default_value": 1.0,
 				"min_value": 0.0,
 				"max_value": 1.0
@@ -17346,14 +18184,6 @@
 						"fo": true,
 						"tn": "Principled BSDF",
 						"ts": 7,
-						"to": false
-					},
-					{
-						"fn": "Group",
-						"fs": 4,
-						"fo": true,
-						"tn": "Principled BSDF",
-						"ts": 8,
 						"to": false
 					},
 					{
@@ -17446,14 +18276,6 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 10,
-						"fo": true,
-						"tn": "Math.003",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
 						"fs": 29,
 						"fo": true,
 						"tn": "Math.003",
@@ -17462,18 +18284,18 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 10,
-						"fo": true,
-						"tn": "Math.004",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
 						"fs": 28,
 						"fo": true,
 						"tn": "Math.004",
 						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 10,
+						"fo": true,
+						"tn": "Math.002",
+						"ts": 0,
 						"to": false
 					},
 					{
@@ -17521,7 +18343,7 @@
 						"fs": 13,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 3,
+						"ts": 4,
 						"to": false
 					},
 					{
@@ -17529,7 +18351,7 @@
 						"fs": 14,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 4,
+						"ts": 5,
 						"to": false
 					},
 					{
@@ -17537,7 +18359,7 @@
 						"fs": 15,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 5,
+						"ts": 7,
 						"to": false
 					},
 					{
@@ -17545,7 +18367,7 @@
 						"fs": 16,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 6,
+						"ts": 8,
 						"to": false
 					},
 					{
@@ -17553,7 +18375,7 @@
 						"fs": 17,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 7,
+						"ts": 10,
 						"to": false
 					},
 					{
@@ -17561,7 +18383,7 @@
 						"fs": 18,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 8,
+						"ts": 11,
 						"to": false
 					},
 					{
@@ -17569,7 +18391,7 @@
 						"fs": 19,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 9,
+						"ts": 13,
 						"to": false
 					},
 					{
@@ -17577,7 +18399,7 @@
 						"fs": 20,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 10,
+						"ts": 14,
 						"to": false
 					},
 					{
@@ -17585,7 +18407,7 @@
 						"fs": 21,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 11,
+						"ts": 16,
 						"to": false
 					},
 					{
@@ -17593,7 +18415,7 @@
 						"fs": 22,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 12,
+						"ts": 17,
 						"to": false
 					},
 					{
@@ -17601,7 +18423,7 @@
 						"fs": 23,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 13,
+						"ts": 19,
 						"to": false
 					},
 					{
@@ -17609,7 +18431,7 @@
 						"fs": 24,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 14,
+						"ts": 20,
 						"to": false
 					},
 					{
@@ -17617,7 +18439,7 @@
 						"fs": 25,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 15,
+						"ts": 22,
 						"to": false
 					},
 					{
@@ -17625,7 +18447,7 @@
 						"fs": 26,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 16,
+						"ts": 23,
 						"to": false
 					},
 					{
@@ -17646,10 +18468,66 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 10,
+						"fs": 30,
 						"fo": true,
-						"tn": "Group.006",
-						"ts": 5,
+						"tn": "Group.002",
+						"ts": 3,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 31,
+						"fo": true,
+						"tn": "Group.002",
+						"ts": 6,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 32,
+						"fo": true,
+						"tn": "Group.002",
+						"ts": 9,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 33,
+						"fo": true,
+						"tn": "Group.002",
+						"ts": 12,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 34,
+						"fo": true,
+						"tn": "Group.002",
+						"ts": 15,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 35,
+						"fo": true,
+						"tn": "Group.002",
+						"ts": 18,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 36,
+						"fo": true,
+						"tn": "Group.002",
+						"ts": 21,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 37,
+						"fo": true,
+						"tn": "Group.002",
+						"ts": 24,
 						"to": false
 					}
 				]
@@ -17658,8 +18536,8 @@
 				"bl_idname": "NodeGroupOutput",
 				"name": "Group Output",
 				"location": [
-					960,
-					180
+					1100,
+					200
 				],
 				"dimensions": [
 					140,
@@ -17713,8 +18591,8 @@
 				"bl_idname": "ShaderNodeGroup",
 				"name": "Group.002",
 				"location": [
-					-720,
-					-100
+					-820,
+					-80
 				],
 				"dimensions": [
 					169,
@@ -17743,18 +18621,26 @@
 					},
 					{
 						"fn": "Group.002",
-						"fs": 1,
-						"fo": true,
-						"tn": "Mix.007",
-						"ts": 2,
-						"to": false
-					},
-					{
-						"fn": "Group.002",
 						"fs": 0,
 						"fo": true,
 						"tn": "Group.006",
 						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group.002",
+						"fs": 3,
+						"fo": true,
+						"tn": "Math.002",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group.002",
+						"fs": 1,
+						"fo": true,
+						"tn": "Mix.007",
+						"ts": 2,
 						"to": false
 					}
 				]
@@ -17827,8 +18713,8 @@
 				"bl_idname": "ShaderNodeInvert",
 				"name": "Invert",
 				"location": [
-					-360,
-					-160
+					140,
+					-140
 				],
 				"dimensions": [
 					140,
@@ -17929,12 +18815,62 @@
 					}
 				]
 			},
+			"Math.002": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.002",
+				"location": [
+					-580,
+					-160
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "MULTIPLY",
+					"use_clamp": false
+				},
+				"links": [
+					{
+						"fn": "Math.002",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.003",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Math.002",
+						"fs": 0,
+						"fo": true,
+						"tn": "Math.004",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Math.002",
+						"fs": 0,
+						"fo": true,
+						"tn": "Group.006",
+						"ts": 5,
+						"to": false
+					}
+				]
+			},
 			"Math.003": {
 				"bl_idname": "ShaderNodeMath",
 				"name": "Math.003",
 				"label": "Roughness Power",
 				"location": [
-					-140,
+					-20,
 					-20
 				],
 				"dimensions": [
@@ -17977,8 +18913,8 @@
 				"name": "Math.004",
 				"label": "AO Power",
 				"location": [
-					-720,
-					80
+					-360,
+					280
 				],
 				"dimensions": [
 					140,
@@ -18011,7 +18947,7 @@
 				"bl_idname": "ShaderNodeMixRGB",
 				"name": "Mix.006",
 				"location": [
-					-100,
+					140,
 					300
 				],
 				"dimensions": [
@@ -18046,7 +18982,7 @@
 				"bl_idname": "ShaderNodeMixRGB",
 				"name": "Mix.007",
 				"location": [
-					-320,
+					-80,
 					300
 				],
 				"dimensions": [
@@ -18055,7 +18991,7 @@
 				],
 				"inputs": [],
 				"attributes": {
-					"blend_type": "DARKEN",
+					"blend_type": "MIX",
 					"use_alpha": false,
 					"use_clamp": false
 				},
@@ -18075,7 +19011,7 @@
 				"name": "Mix.008",
 				"location": [
 					360,
-					60
+					80
 				],
 				"dimensions": [
 					140,
@@ -18102,8 +19038,8 @@
 				"bl_idname": "ShaderNodeMixRGB",
 				"name": "Mix.009",
 				"location": [
-					340,
-					-160
+					360,
+					-120
 				],
 				"dimensions": [
 					140,
@@ -18206,7 +19142,7 @@
 				"bl_idname": "ShaderNodeBsdfPrincipled",
 				"name": "Principled BSDF",
 				"location": [
-					620,
+					689,
 					200
 				],
 				"dimensions": [
@@ -18252,6 +19188,12 @@
 						"type": "VALUE",
 						"default_value": 0.0,
 						"index": 5
+					},
+					{
+						"name": "Specular Tint",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 8
 					},
 					{
 						"name": "Anisotropic",
@@ -20406,6 +21348,30 @@
 				"default_value": 1.0,
 				"min_value": 0.0,
 				"max_value": 1.0
+			},
+			{
+				"name": "Detail Red Multiplier",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 1.0,
+				"min_value": 0.0,
+				"max_value": 1.0
+			},
+			{
+				"name": "Detail Green Multiplier",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 1.0,
+				"min_value": 0.0,
+				"max_value": 1.0
+			},
+			{
+				"name": "Detail Blue Multiplier",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 1.0,
+				"min_value": 0.0,
+				"max_value": 1.0
 			}
 		],
 		"outputs": [
@@ -20479,8 +21445,8 @@
 						"fn": "Group",
 						"fs": 2,
 						"fo": true,
-						"tn": "Math.006",
-						"ts": 0,
+						"tn": "Mix",
+						"ts": 1,
 						"to": false
 					}
 				]
@@ -20512,14 +21478,6 @@
 						"fs": 6,
 						"fo": true,
 						"tn": "Math",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
-						"fs": 2,
-						"fo": true,
-						"tn": "Reroute.008",
 						"ts": 0,
 						"to": false
 					},
@@ -20597,6 +21555,22 @@
 					},
 					{
 						"fn": "Group Input",
+						"fs": 2,
+						"fo": true,
+						"tn": "Math.006",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 3,
+						"fo": true,
+						"tn": "Math.006",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
 						"fs": 5,
 						"fo": true,
 						"tn": "Group",
@@ -20609,14 +21583,6 @@
 						"fo": true,
 						"tn": "Group.002",
 						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
-						"fs": 12,
-						"fo": true,
-						"tn": "Group.002",
-						"ts": 1,
 						"to": false
 					},
 					{
@@ -20640,7 +21606,7 @@
 						"fs": 15,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 7,
+						"ts": 8,
 						"to": false
 					},
 					{
@@ -20648,7 +21614,7 @@
 						"fs": 16,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 8,
+						"ts": 9,
 						"to": false
 					},
 					{
@@ -20656,7 +21622,7 @@
 						"fs": 17,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 3,
+						"ts": 2,
 						"to": false
 					},
 					{
@@ -20664,7 +21630,7 @@
 						"fs": 18,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 4,
+						"ts": 3,
 						"to": false
 					},
 					{
@@ -20672,7 +21638,7 @@
 						"fs": 10,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 2,
+						"ts": 1,
 						"to": false
 					},
 					{
@@ -20713,6 +21679,30 @@
 						"fo": true,
 						"tn": "Group.006",
 						"ts": 2,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 22,
+						"fo": true,
+						"tn": "Group.002",
+						"ts": 4,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 23,
+						"fo": true,
+						"tn": "Group.002",
+						"ts": 7,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 24,
+						"fo": true,
+						"tn": "Group.002",
+						"ts": 10,
 						"to": false
 					}
 				]
@@ -20847,7 +21837,7 @@
 				"bl_idname": "ShaderNodeMath",
 				"name": "Math.001",
 				"location": [
-					99,
+					84,
 					-209
 				],
 				"dimensions": [
@@ -20957,8 +21947,8 @@
 				"name": "Math.004",
 				"label": "AO Power",
 				"location": [
-					-720,
-					80
+					-696,
+					253
 				],
 				"dimensions": [
 					140,
@@ -21015,8 +22005,8 @@
 						"fn": "Math.005",
 						"fs": 0,
 						"fo": true,
-						"tn": "Math.006",
-						"ts": 1,
+						"tn": "Mix",
+						"ts": 2,
 						"to": false
 					}
 				]
@@ -21025,8 +22015,8 @@
 				"bl_idname": "ShaderNodeMath",
 				"name": "Math.006",
 				"location": [
-					338,
-					-667
+					-520,
+					89
 				],
 				"dimensions": [
 					140,
@@ -21041,12 +22031,47 @@
 					}
 				],
 				"attributes": {
-					"operation": "ADD",
+					"operation": "MULTIPLY",
 					"use_clamp": false
 				},
 				"links": [
 					{
 						"fn": "Math.006",
+						"fs": 0,
+						"fo": true,
+						"tn": "Reroute.008",
+						"ts": 0,
+						"to": false
+					}
+				]
+			},
+			"Mix": {
+				"bl_idname": "ShaderNodeMixRGB",
+				"name": "Mix",
+				"location": [
+					350,
+					-568
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Fac",
+						"type": "VALUE",
+						"default_value": 1.0,
+						"index": 0
+					}
+				],
+				"attributes": {
+					"blend_type": "OVERLAY",
+					"use_alpha": false,
+					"use_clamp": false
+				},
+				"links": [
+					{
+						"fn": "Mix",
 						"fs": 0,
 						"fo": true,
 						"tn": "Principled BSDF",
@@ -21246,7 +22271,7 @@
 					-348
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -21270,7 +22295,7 @@
 					86
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -21294,7 +22319,7 @@
 					86
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -21318,7 +22343,7 @@
 					43
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -21342,7 +22367,7 @@
 					43
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -21363,8 +22388,8 @@
 				"name": "Vector Math",
 				"label": "Subsurf",
 				"location": [
-					-160,
-					60
+					-143,
+					71
 				],
 				"dimensions": [
 					140,
@@ -22020,7 +23045,7 @@
 					-323
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22044,7 +23069,7 @@
 					-489
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22068,7 +23093,7 @@
 					63
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22108,7 +23133,7 @@
 					-271
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22132,7 +23157,7 @@
 					272
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22156,7 +23181,7 @@
 					-28
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22180,7 +23205,7 @@
 					246
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22204,7 +23229,7 @@
 					198
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22228,7 +23253,7 @@
 					202
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22252,7 +23277,7 @@
 					-7
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22284,7 +23309,7 @@
 					17
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22308,7 +23333,7 @@
 					-102
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22332,7 +23357,7 @@
 					-292
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22356,7 +23381,7 @@
 					-58
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22380,7 +23405,7 @@
 					-76
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22404,7 +23429,7 @@
 					-361
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22428,7 +23453,7 @@
 					-358
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22452,7 +23477,7 @@
 					-95
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -22476,7 +23501,7 @@
 					-126
 				],
 				"dimensions": [
-					16,
+					100,
 					100
 				],
 				"inputs": [],
@@ -24228,14 +25253,6 @@
 				]
 			},
 			{
-				"name": "BLEND",
-				"bl_socket_idname": "NodeSocketFloat",
-				"type": "VALUE",
-				"default_value": 0.0,
-				"min_value": -3.4028234663852886e+38,
-				"max_value": 3.4028234663852886e+38
-			},
-			{
 				"name": "NORMAL",
 				"bl_socket_idname": "NodeSocketColor",
 				"type": "RGBA",
@@ -24266,6 +25283,14 @@
 				"max_value": 3.4028234663852886e+38
 			},
 			{
+				"name": "RED_F",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 0.0,
+				"min_value": -3.4028234663852886e+38,
+				"max_value": 3.4028234663852886e+38
+			},
+			{
 				"name": "GREEN",
 				"bl_socket_idname": "NodeSocketColor",
 				"type": "RGBA",
@@ -24285,6 +25310,14 @@
 				"max_value": 3.4028234663852886e+38
 			},
 			{
+				"name": "GREEN_F",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 0.0,
+				"min_value": -3.4028234663852886e+38,
+				"max_value": 3.4028234663852886e+38
+			},
+			{
 				"name": "BLUE",
 				"bl_socket_idname": "NodeSocketColor",
 				"type": "RGBA",
@@ -24297,6 +25330,14 @@
 			},
 			{
 				"name": "BLUE_A",
+				"bl_socket_idname": "NodeSocketFloat",
+				"type": "VALUE",
+				"default_value": 0.0,
+				"min_value": -3.4028234663852886e+38,
+				"max_value": 3.4028234663852886e+38
+			},
+			{
+				"name": "BLUE_F",
 				"bl_socket_idname": "NodeSocketFloat",
 				"type": "VALUE",
 				"default_value": 0.0,
@@ -24354,8 +25395,8 @@
 				"bl_idname": "NodeGroupInput",
 				"name": "Group Input",
 				"location": [
-					-806,
-					155
+					-940,
+					160
 				],
 				"dimensions": [
 					140,
@@ -24374,7 +25415,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 3,
+						"fs": 2,
 						"fo": true,
 						"tn": "Mix",
 						"ts": 2,
@@ -24390,7 +25431,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 7,
+						"fs": 8,
 						"fo": true,
 						"tn": "Mix.002",
 						"ts": 2,
@@ -24398,7 +25439,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 4,
+						"fs": 3,
 						"fo": true,
 						"tn": "Mix.008",
 						"ts": 2,
@@ -24414,7 +25455,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 8,
+						"fs": 9,
 						"fo": true,
 						"tn": "Mix.010",
 						"ts": 2,
@@ -24424,23 +25465,31 @@
 						"fn": "Group Input",
 						"fs": 1,
 						"fo": true,
-						"tn": "Mix.017",
-						"ts": 2,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
-						"fs": 2,
-						"fo": true,
 						"tn": "Mix",
 						"ts": 1,
 						"to": false
 					},
 					{
 						"fn": "Group Input",
-						"fs": 1,
+						"fs": 4,
 						"fo": true,
-						"tn": "Math",
+						"tn": "Math.001",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 7,
+						"fo": true,
+						"tn": "Math.002",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 10,
+						"fo": true,
+						"tn": "Math.003",
 						"ts": 1,
 						"to": false
 					}
@@ -24450,7 +25499,7 @@
 				"bl_idname": "NodeGroupOutput",
 				"name": "Group Output",
 				"location": [
-					1183,
+					1224,
 					126
 				],
 				"dimensions": [
@@ -24463,12 +25512,13 @@
 				},
 				"links": []
 			},
-			"Math": {
+			"Math.001": {
 				"bl_idname": "ShaderNodeMath",
-				"name": "Math",
+				"name": "Math.001",
+				"label": "RED FAC",
 				"location": [
-					344,
-					244
+					-460,
+					60
 				],
 				"dimensions": [
 					140,
@@ -24484,15 +25534,109 @@
 				],
 				"attributes": {
 					"operation": "MULTIPLY",
-					"use_clamp": false
+					"use_clamp": true
 				},
 				"links": [
 					{
-						"fn": "Math",
+						"fn": "Math.001",
 						"fs": 0,
 						"fo": true,
-						"tn": "Group Output",
-						"ts": 2,
+						"tn": "Mix.008",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Math.001",
+						"fs": 0,
+						"fo": true,
+						"tn": "Mix",
+						"ts": 0,
+						"to": false
+					}
+				]
+			},
+			"Math.002": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.002",
+				"label": "GREEN FAC",
+				"location": [
+					-460,
+					20
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "MULTIPLY",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.002",
+						"fs": 0,
+						"fo": true,
+						"tn": "Mix.009",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Math.002",
+						"fs": 0,
+						"fo": true,
+						"tn": "Mix.001",
+						"ts": 0,
+						"to": false
+					}
+				]
+			},
+			"Math.003": {
+				"bl_idname": "ShaderNodeMath",
+				"name": "Math.003",
+				"label": "BLUE FAC",
+				"location": [
+					-460,
+					-20
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Value",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 2
+					}
+				],
+				"attributes": {
+					"operation": "MULTIPLY",
+					"use_clamp": true
+				},
+				"links": [
+					{
+						"fn": "Math.003",
+						"fs": 0,
+						"fo": true,
+						"tn": "Mix.002",
+						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Math.003",
+						"fs": 0,
+						"fo": true,
+						"tn": "Mix.010",
+						"ts": 0,
 						"to": false
 					}
 				]
@@ -24578,8 +25722,8 @@
 						"fn": "Mix.002",
 						"fs": 0,
 						"fo": true,
-						"tn": "Mix.017",
-						"ts": 1,
+						"tn": "Separate XYZ",
+						"ts": 0,
 						"to": false
 					}
 				]
@@ -24588,7 +25732,7 @@
 				"bl_idname": "ShaderNodeMixRGB",
 				"name": "Mix.008",
 				"location": [
-					-241,
+					-200,
 					244
 				],
 				"dimensions": [
@@ -24628,7 +25772,7 @@
 				"bl_idname": "ShaderNodeMixRGB",
 				"name": "Mix.009",
 				"location": [
-					-50,
+					-9,
 					244
 				],
 				"dimensions": [
@@ -24656,7 +25800,7 @@
 				"bl_idname": "ShaderNodeMixRGB",
 				"name": "Mix.010",
 				"location": [
-					144,
+					185,
 					244
 				],
 				"dimensions": [
@@ -24674,43 +25818,8 @@
 						"fn": "Mix.010",
 						"fs": 0,
 						"fo": true,
-						"tn": "Math",
-						"ts": 0,
-						"to": false
-					}
-				]
-			},
-			"Mix.017": {
-				"bl_idname": "ShaderNodeMixRGB",
-				"name": "Mix.017",
-				"location": [
-					344,
-					12
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Fac",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 0
-					}
-				],
-				"attributes": {
-					"blend_type": "MULTIPLY",
-					"use_alpha": false,
-					"use_clamp": false
-				},
-				"links": [
-					{
-						"fn": "Mix.017",
-						"fs": 0,
-						"fo": true,
-						"tn": "Separate XYZ",
-						"ts": 0,
+						"tn": "Group Output",
+						"ts": 2,
 						"to": false
 					}
 				]
@@ -24719,8 +25828,8 @@
 				"bl_idname": "ShaderNodeSeparateColor",
 				"name": "Separate RGB",
 				"location": [
-					-543,
-					83
+					-640,
+					80
 				],
 				"dimensions": [
 					140,
@@ -24735,7 +25844,7 @@
 						"fn": "Separate RGB",
 						"fs": 0,
 						"fo": true,
-						"tn": "Mix",
+						"tn": "Math.001",
 						"ts": 0,
 						"to": false
 					},
@@ -24743,7 +25852,7 @@
 						"fn": "Separate RGB",
 						"fs": 1,
 						"fo": true,
-						"tn": "Mix.001",
+						"tn": "Math.002",
 						"ts": 0,
 						"to": false
 					},
@@ -24751,31 +25860,7 @@
 						"fn": "Separate RGB",
 						"fs": 2,
 						"fo": true,
-						"tn": "Mix.002",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Separate RGB",
-						"fs": 0,
-						"fo": true,
-						"tn": "Mix.008",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Separate RGB",
-						"fs": 1,
-						"fo": true,
-						"tn": "Mix.009",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Separate RGB",
-						"fs": 2,
-						"fo": true,
-						"tn": "Mix.010",
+						"tn": "Math.003",
 						"ts": 0,
 						"to": false
 					}

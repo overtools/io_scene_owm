@@ -88,6 +88,9 @@ def dump_json_library():
                 else:
                     del nodeData["label"]
 
+                if node.hide:
+                    nodeData["attributes"]["hide"] = True
+
                 if node.parent:
                     nodeData["parent"]=node.parent.name
                     
@@ -288,7 +291,7 @@ def load_data():
 
 class OWMLoadOp(bpy.types.Operator):
     """Load OWM Material Library"""
-    bl_idname = "owm.load_library"
+    bl_idname = "owm3.load_library"
     bl_label = "Import OWM Library"
 
     def execute(self, context):
@@ -300,7 +303,7 @@ class OWMLoadOp(bpy.types.Operator):
 
 class OWMSaveOp(bpy.types.Operator):
     """Export OWM Material Library"""
-    bl_idname = "owm.save_library"
+    bl_idname = "owm3.save_library"
     bl_label = "Export OWM Library"
 
     def execute(self, context):
@@ -312,11 +315,87 @@ class OWMSaveOp(bpy.types.Operator):
 
 class OWMLoadJSONOp(bpy.types.Operator):
     """Import OWM Library from JSON"""
-    bl_idname = "owm.load_library_json"
+    bl_idname = "owm3.load_library_json"
     bl_label = "Import OWM Library from JSON"
 
     def execute(self, context):
         load_from_json()
+        return {"FINISHED"}
+
+    def invoke(self, context, event):
+        return self.execute(context)
+
+def getAOTextures():
+    ao = {}
+    for tex, mapping in textureMap.TextureTypes["Mapping"].items():
+        if tex == 3761386704: 
+            continue
+        if "AO" in mapping.colorSockets or "AO" in mapping.alphaSockets or "Blend AO" in mapping.colorSockets:
+            ao[str(tex)] = mapping
+    return ao
+
+class OWMConnectAOOp(bpy.types.Operator):
+    """Remove repeated OWM Node Groups"""
+    bl_idname = "owm3.enable_ao"
+    bl_label = "Enable AO"
+
+    def execute(self, context):
+        aoTexs = getAOTextures()
+        connectCount = 0
+        for mat in bpy.data.materials:
+            if not mat.use_nodes:
+                continue
+            if "OverwatchShader" in mat.node_tree.nodes:
+                shaderNode = mat.node_tree.nodes["OverwatchShader"]
+                aoNodes = [node for node in mat.node_tree.nodes if node.name in aoTexs]
+                for node in aoNodes:
+                    mapping = aoTexs[node.name]
+                    for colorSocket in mapping.colorSockets:
+                        if colorSocket in shaderNode.inputs:
+                            mat.node_tree.links.new(node.outputs[0], shaderNode.inputs[colorSocket])
+                            connectCount+=1
+                    for alphaSocket in mapping.alphaSockets:
+                        if alphaSocket in shaderNode.inputs:
+                            mat.node_tree.links.new(node.outputs[1], shaderNode.inputs[alphaSocket])
+                            connectCount+=1
+                if "2903569922" in mat.node_tree.nodes and ("43" in shaderNode.label or "217" in shaderNode.label): # hero ao
+                    mat.node_tree.links.new(mat.node_tree.nodes["2903569922"].outputs[1], shaderNode.inputs["AO"])
+                    connectCount+=1
+        self.report({'INFO'}, 'Connected {} AO Textures.'.format(connectCount))                   
+        return {"FINISHED"}
+
+    def invoke(self, context, event):
+        return self.execute(context)
+
+class OWMDisconnectAOOp(bpy.types.Operator):
+    """Remove repeated OWM Node Groups"""
+    bl_idname = "owm3.disable_ao"
+    bl_label = "Disable AO"
+
+    def execute(self, context):
+        aoTexs = getAOTextures()
+        disconnectCount = 0
+        for mat in bpy.data.materials:
+            if not mat.use_nodes:
+                continue
+            if "OverwatchShader" in mat.node_tree.nodes:
+                aoNodes = [node for node in mat.node_tree.nodes if node.name in aoTexs]
+                for node in aoNodes:
+                    for link in node.outputs[0].links:
+                        if "AO" in link.to_socket.name:
+                            mat.node_tree.links.remove(link)
+                        disconnectCount+=1
+                    for link in node.outputs[1].links:
+                        if "AO" in link.to_socket.name:
+                            mat.node_tree.links.remove(link)
+                            disconnectCount+=1
+                
+                shaderNode = mat.node_tree.nodes["OverwatchShader"]
+                if "2903569922" in mat.node_tree.nodes and ("43" in shaderNode.label or "217" in shaderNode.label): # hero ao
+                    for link in mat.node_tree.nodes["2903569922"].outputs[1].links:
+                        mat.node_tree.links.remove(link)
+                        disconnectCount+=1
+        self.report({'INFO'}, 'Disonnected {} AO Textures.'.format(disconnectCount))                   
         return {"FINISHED"}
 
     def invoke(self, context, event):

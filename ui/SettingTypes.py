@@ -4,7 +4,7 @@ from bpy.props import BoolProperty, FloatProperty, IntProperty
 from . import LibraryHandler
 
 
-class OWMInternalSettings(bpy.types.PropertyGroup):
+class OWMInternalSettings2(bpy.types.PropertyGroup):
     b_logsalot: bpy.props.BoolProperty(name="Log alot", description="Verbose logging",
                                        default=False, update=lambda self, context: self.update_logs_alot(context))
 
