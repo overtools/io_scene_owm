@@ -1,5 +1,5 @@
-from ..readers import PathUtil
-
+from .CommonTypes import OWMFile
+from mathutils import Vector
 
 class ModelData:
     def __init__(self, armature, meshes, empties, meshData):
@@ -12,71 +12,74 @@ class ModelData:
         return "ModelData: {} meshes".format(len(self.meshes))
 
 
-class OWMDLFile:
-    def __init__(self, header, refPoseBones, meshes, empties, guid, filepath):
+class OWMDLFile(OWMFile):
+    def __init__(self, header, filepath):
+        super().__init__(filepath)
         self.header = header
-        self.refPoseBones = refPoseBones
-        self.meshes = meshes
-        self.empties = empties
-        self.GUID = guid
-        self.filepath = filepath
+        self.refPoseBones = []
+        self.meshes = []
+        self.empties = []
 
 
 class OWMDLHeader:
-    def __init__(self, major, minor, material, name, boneCount, meshCount, emptyCount):
+    def __init__(self, major, minor, material, name, guid, boneCount, meshCount, emptyCount):
         self.major = major
         self.minor = minor
-        self.material = PathUtil.normPath(material) if material else None
+        self.guid = guid
+        self.material = OWMFile(material)
         self.name = name
         self.boneCount = boneCount
         self.meshCount = meshCount
         self.emptyCount = emptyCount
 
-
-class OWMDLRefposeBone:
-    def __init__(self, name, parent, pos, scale, rot):
-        self.name = name
-        self.parent = parent
-        self.pos = pos
-        self.scale = scale
-        self.rot = rot
-
-
 class OWMDLBone:
     def __init__(self, name, parent, pos, scale, rot):
         self.name = name
-        self.parent = parent
+        self.parent = parent[0]
         self.pos = pos
         self.scale = scale
         self.rot = rot
 
 
 class OWMDLMesh:
-    def __init__(self, name, materialKey, uvCount, vertexCount, indexCount, uvs, normals, color1, color2, boneIndices,
-                 boneWeights, vertices, indices):
+    def __init__(self, name, materialKey, uvCount, vertexCount, indexCount, boneDataCount):
         self.name = name
         self.materialKey = materialKey
         self.uvCount = uvCount
         self.vertexCount = vertexCount
         self.indexCount = indexCount
-        self.vertices = vertices
-        self.uvs = uvs
-        self.normals = normals
-        self.color1 = color1
-        self.color2 = color2
-        self.boneIndices = boneIndices
-        self.boneWeights = boneWeights
-        self.indices = indices
+        self.boneDataCount = boneDataCount
+        # raw
+        self.vertices = []
+        self.rawUVs = []
+        self.rawNormals = []
+        self.rawColor1 = []
+        self.rawColor2 = []
+        self.tangents = [] # unused ¯\_(ツ)_/¯
+        # processed for blender
+        self.normals = []
+        self.color1 = []
+        self.color2 = []
+        self.uvs = [list() for l in range(uvCount)]
+        self.boneIndices = []
+        self.boneWeights = []
+        self.indices = []
 
+    def blendProcess(self):
+        for i in range(self.vertexCount):
+            self.normals.append(Vector(self.rawNormals[i]).normalized())
+            col1=self.rawColor1[i]
+            self.color1+=[col1[3],col1[0],col1[1],col1[2]]
+            col2=self.rawColor2[i]
+            self.color2+=[col2[3],col2[0],col2[1],col2[2]]
 
-class OWMDLIndex:
-    def __init__(self, pointCount, points):
-        self.pointCount = pointCount
-        self.points = points
-
+        for face in self.indices:
+            for vert in face:
+                for k in range(self.uvCount):
+                    self.uvs[k].append(self.rawUVs[k][vert])
 
 class OWMDLEmpty:
-    def __init__(self, name, position, rotation, hardpoint=''):
+    def __init__(self, name, hardpoint, position, rotation):
         self.name = name
         self.position = position
         self.rotation = rotation

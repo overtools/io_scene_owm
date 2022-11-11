@@ -1,6 +1,9 @@
 import enum
 import bpy
 from mathutils import Quaternion
+import math
+
+from ...ui import UIUtil
 
 from . import BLUtils
 from . import BLEntity
@@ -49,6 +52,15 @@ class BlenderTree:
         self.queueRemove(obj, deep)
         for child in self.parentChildren.get(obj.name, []):
             self.queueRemove(child, deep)
+        
+    def removeFromQueue(self, obj):
+        for col, objs in self.linkQueue.items():
+            if obj in objs:
+                self.linkQueue[col].remove(obj)
+
+    def removeChildren(self, parent, children):
+        for child in children:
+            self.parentChildren[parent].remove(child)
 
     def removeRecursive(self, obj, deep=False):
         t = set()
@@ -92,7 +104,6 @@ class BlenderTree:
         for mesh in model.meshes:
             self.parent(mesh, rootFolder)
             
-
         # Parent and link hardpoints
         if model.empties[0] is not None:  # this will be none if importEmpties is false
             self.parent(model.empties[0], rootFolder)
@@ -165,7 +176,7 @@ class BlenderTree:
             self.queueLinkRecursive(obj, col)
 
 
-collisionMats = TextureTypes["CollisionMaterialLooks"]
+collisionMats = TextureTypes["CollisionMaterials"]
 
 def progress_bar(op, current, total, bar_length=20): #TODO find a place for this ig
     fraction = current / total
@@ -177,7 +188,7 @@ def progress_bar(op, current, total, bar_length=20): #TODO find a place for this
 
     print(f'{op}: [{arrow}{padding}] {int(fraction*100)}%', end=ending)
 
-def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettings):
+def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettings, lightSettings):
     blenderTree = BlenderTree(mapSettings.joinMeshes)
     matTree = BlenderMaterialTree(mapTree.modelLookPaths) if modelSettings.importMaterial else None
     sceneCol = bpy.context.view_layer.active_layer_collection.collection
@@ -185,10 +196,14 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
     sceneCol.children.link(rootMapCol)
 
     if mapSettings.importObjects:
-        objectsCol = bpy.data.collections.new(mapName + '_OBJECTS')
+        objectsCol = bpy.data.collections.new('{}_OBJECTS'.format(mapName))
 
     if mapSettings.importDetails:
-        detailsCol = bpy.data.collections.new(mapName + '_DETAILS')
+        detailsCol = bpy.data.collections.new('{}_DETAILS'.format(mapName))
+
+    if mapSettings.importLights and mapTree.lights:
+        lightsCol = bpy.data.collections.new('{}_LIGHTS'.format(mapName))
+        blenderTree.addQueueRoot(lightsCol)
 
     models = len(mapTree.objects)-1
     for i,objID in enumerate(mapTree.objects):
@@ -198,7 +213,7 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
         isEntity = mapTree.modelFilepaths[objID].endswith(".owentity")
 
         if isEntity:  # this is so bad ngl also TODO move this path sih
-            objModel = BLEntity.readEntity(PathUtil.makePathAbsolute(mapRootPath, mapTree.modelFilepaths[objID]), modelSettings, entitySettings)
+            objModel = BLEntity.readEntity(mapTree.modelFilepaths[objID], modelSettings, entitySettings)
             modelFolder = blenderTree.createEntityHierarchy(objModel, objID)
             if modelFolder is None:
                 continue
@@ -207,17 +222,15 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
             modelFolder = blenderTree.createModelHierarchy(objModel, objID)
 
         for objLookID in mapTree.objects[objID]:
-            if mapSettings.removeCollision and objLookID in collisionMats:
-                continue
-            elif objFolder is None:
-                objFolder = bpy.data.collections.new(objID + '_COLLECTION')
+            if objFolder is None:
+                objFolder = bpy.data.collections.new('{}_COLLECTION'.format(objID))
                 blenderTree.addQueueRoot(objFolder)
                 objCol = objectsCol if objID not in mapTree.details else detailsCol
                 objCol.children.link(objFolder)
 
             if modelSettings.importMaterial:
                 # create a "folder" for the material
-                lookFolder = BLUtils.createFolder(objLookID if objLookID else "null" + '_LOOK')  # maybe make this a collection
+                lookFolder = BLUtils.createFolder('{}_LOOK'.format(objLookID if objLookID else "null"))  # maybe make this a collection
                 objFolder.objects.link(lookFolder)
 
                 if objLookID:
@@ -241,12 +254,52 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
                         continue
                     blenderTree.queueClone(modelFolder, None, objFolder, rec)
 
-        blenderTree.queueRemoveRecursive(modelFolder)
+        if modelSettings.importMaterial:
+            blenderTree.queueRemoveRecursive(modelFolder)
 
-    #bpy.data.batch_remove(blenderTree.removeQueue)
-    if modelSettings.importMaterial:
+    if modelSettings.importMaterial: # cleanup
+        print("[owm]: cleaning up...")
         matTree.removeSkeletonNodeTrees()
-        
+        if mapSettings.removeCollision:
+            for parent, children in blenderTree.parentChildren.items():
+                remove = set()
+                for child in children:
+                    if "owm.material" in child:
+                        if child["owm.material"] in collisionMats:
+                            blenderTree.queueRemove(child)
+                            blenderTree.removeFromQueue(child)
+                            remove.add(child)
+                blenderTree.removeChildren(parent, remove)
+        #bpy.data.batch_remove(blenderTree.removeQueue) nukes perf in 3.3, thanks blender devs TODO enable when 3.4 is out
+
+    if mapSettings.importLights:
+        if mapTree.lights:
+            lights = len(mapTree.lights)-1
+            for i, lightData in enumerate(mapTree.lights):
+                if lights > 0:
+                    progress_bar("[owm]: Loading lights",i,lights)
+                # skip very dark lights
+                if lightData.color[0] < 0.001 and lightData.color[1] < 0.001 and lightData.color[2] < 0.001:
+                    continue
+                lightName = "{} Light".format('Point' if lightData.type == 0 else 'Spot')
+                blendLightData = bpy.data.lights.new(name=lightName, type='POINT' if lightData.type == 0 else 'SPOT')
+                blendLightObj = bpy.data.objects.new(name=lightName, object_data=blendLightData)
+                blenderTree.queueLink(blendLightObj, lightsCol)
+
+                blendLightObj.location = BLUtils.pos_matrix(lightData.position)
+                BLUtils.rotateLight(blendLightObj, lightData)
+                
+                blendLightData.color = lightData.color
+                blendLightData.energy = lightData.intensity * lightSettings.adjustLightStrength
+                blendLightData.cycles.use_multiple_importance_sampling = lightSettings.multipleImportance
+                blendLightData.shadow_soft_size = lightSettings.shadowSoftBias
+
+                if lightData.type == 1 and lightData.fov > 0:
+                    blendLightData.spot_size = lightData.fov * (math.pi / 180)
+        else:
+            UIUtil.owmap20Warning()
+
+
     blenderTree.startQueues()
 
     if mapSettings.importObjects:
@@ -254,3 +307,11 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
 
     if mapSettings.importDetails:
         rootMapCol.children.link(detailsCol)
+
+    if modelSettings.importMaterial and modelSettings.saveMaterialDB:
+        objects = [obj for childFolder in rootMapCol.children for objFolder in childFolder.children for obj in objFolder.objects]
+        matTree.createMaterialDatabase(objects, mapRootPath)
+
+    if mapSettings.importLights and mapTree.lights:
+        rootMapCol.children.link(lightsCol)
+

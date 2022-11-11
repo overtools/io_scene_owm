@@ -1,18 +1,5 @@
 import bpy
-from bpy.props import BoolProperty, FloatProperty, IntProperty
-
-from . import LibraryHandler
-
-
-class OWMInternalSettings2(bpy.types.PropertyGroup):
-    b_logsalot: bpy.props.BoolProperty(name="Log alot", description="Verbose logging",
-                                       default=False, update=lambda self, context: self.update_logs_alot(context))
-
-    def update_logs_alot(self, context):
-        LibraryHandler.LOG_ALOT = self.b_logsalot
-
-    def dummy(self, context): pass
-
+from bpy.props import BoolProperty, FloatProperty, IntProperty, StringProperty
 
 class OWModelSettings(bpy.types.PropertyGroup):
     importNormals: BoolProperty(
@@ -51,6 +38,25 @@ class OWModelSettings(bpy.types.PropertyGroup):
         default=True,
     )
 
+    saveMaterialDB: BoolProperty(
+        name='(DEV) Dump Materials JSON',
+        description='Save a material database in json for use in other applications',
+        default=False,
+    )
+
+    def draw(cls, me, layout):
+        layout.label(text='Mesh')
+        layout.prop(me, 'importMaterial')
+        layout.prop(me, 'importColor')
+        layout.prop(me, 'importNormals')
+        layout.prop(me, 'autoSmoothNormals')
+        layout.prop(me, 'importEmpties')
+
+    def draw_armature(cls, me, layout, label=True):
+        if label:
+            layout.label(text='Armature')
+        layout.prop(me, 'importSkeleton')
+
 
 class OWEntitySettings(bpy.types.PropertyGroup):
     importChildren: BoolProperty(
@@ -58,6 +64,10 @@ class OWEntitySettings(bpy.types.PropertyGroup):
         description='Import child entities',
         default=True,
     )
+
+    def draw(cls, me, layout):
+        layout.label(text='Entity')
+        layout.prop(me, 'importChildren')
 
 
 class OWMapSettings(bpy.types.PropertyGroup):
@@ -97,6 +107,13 @@ class OWMapSettings(bpy.types.PropertyGroup):
         default=False,
     )
 
+    def draw(cls, me, layout):
+        layout.label(text='Map')
+        layout.prop(me, 'importObjects')
+        layout.prop(me, 'importDetails')
+        layout.prop(me, 'importLights')
+        layout.prop(me, 'removeCollision')
+
 
 class OWLightSettings(bpy.types.PropertyGroup):
     multipleImportance: BoolProperty(
@@ -114,12 +131,6 @@ class OWLightSettings(bpy.types.PropertyGroup):
         precision=3
     )
 
-    useLightStrength: BoolProperty(
-        name='Use Light Strength',
-        description='Use light strength data (Experimental)',
-        default=True,
-    )
-
     shadowSoftBias: FloatProperty(
         name='Light Shadow Size',
         description='Light size for ray shadow sampling',
@@ -133,37 +144,18 @@ class OWLightSettings(bpy.types.PropertyGroup):
         name='Adjust Light Strength',
         description='Multiply strength by this amount',
         default=10.0,
-        step=1,
+        step=0.1,
         min=0.0,
         precision=3
     )
 
-    lightIndex: IntProperty(
-        name='Light Value Index',
-        description='Used for debug purposes, leave it at 25',
-        default=25,
-        step=1,
-        min=0,
-        max=35
-    )
-
-    edgeIndex: IntProperty(
-        name='Light Spot Edge Index',
-        description='Used for debug purposes, leave it at 26',
-        default=26,
-        step=1,
-        min=0,
-        max=35
-    )
-
-    sizeIndex: IntProperty(
-        name='Light Size Index',
-        description='Used for debug purposes, leave it at 12',
-        default=12,
-        step=1,
-        min=0,
-        max=35
-    )
+    def draw(cls, me, layout):
+        layout.label(text='Lights')
+        layout.enabled = cls.mapSettings.importLights
+        layout.prop(me, 'multipleImportance')
+        layout.prop(me, 'shadowSoftBias')
+        # layout.prop(me, 'adjustLightValue')
+        layout.prop(me, 'adjustLightStrength')
 
 
 class OWEffectSettings:

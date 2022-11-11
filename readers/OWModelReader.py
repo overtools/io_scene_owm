@@ -1,12 +1,10 @@
-import struct
-from mathutils import Vector
-
 from . import BinaryUtil
-from . import PathUtil
 from ..datatypes import ModelTypes
-from ..ui import UIUtil
 
 class OWMDLFormat():
+    extension = "owmdl"
+    major,minor = (2,0)
+    minimum = (2,0)
     header = ('<HH', str, str, '<IHII')
     boneRef = (str, '<h', '<fff', '<fff', '<fff')
     boneWeight = 'f'
@@ -22,83 +20,46 @@ class OWMDLFormat():
     
 
 def read(filename):
-    stream = BinaryUtil.openStream(filename)
+    stream = BinaryUtil.openStream(filename, OWMDLFormat.extension)
     if stream == None:
-        return None # what
+        return None 
 
-    try:
-        major, minor, materialstr, namestr, guid, boneCount, meshCount, emptyCount = BinaryUtil.readFmtFlat(stream, OWMDLFormat.header)
-    except:
-        UIUtil.fileFormatError("owmdl")
-        return None
+    header = stream.readClass(OWMDLFormat.header, ModelTypes.OWMDLHeader, absPath=True, flat=True)
 
-    if major < 2:
-        UIUtil.legacyFileError()
+    if not BinaryUtil.compatibilityCheck(OWMDLFormat, header.major, header.minor):
         return False
-        
-    if materialstr:
-        materialstr = PathUtil.makePathAbsolute(PathUtil.pathRoot(filename), materialstr)
-    header = ModelTypes.OWMDLHeader(major, minor, materialstr, namestr, boneCount, meshCount, emptyCount)
 
-    refPoseBones = []
+    data = ModelTypes.OWMDLFile(header, filename)
 
-    if boneCount > 0:
-        for i in range(boneCount):
-            name, parent, pos, scale, rot = BinaryUtil.readFmt(stream, OWMDLFormat.boneRef)
-            refPoseBones += [ModelTypes.OWMDLRefposeBone(name, parent[0], pos, scale, rot)]
+    if header.boneCount:
+        data.refPoseBones = stream.readClassArray(OWMDLFormat.boneRef, ModelTypes.OWMDLBone, header.boneCount, flat=False)
 
-    meshes = []
-    for i in range(meshCount):
-        name, materialKey, uvCount, vertexCount, indexCount, boneDataCount = BinaryUtil.readFmtFlat(stream, OWMDLFormat.mesh)
+    for i in range(header.meshCount):
+        mesh = stream.readClass(OWMDLFormat.mesh, ModelTypes.OWMDLMesh)
 
-        verts = BinaryUtil.readFmtArray(stream, OWMDLFormat.meshVertex, vertexCount)
+        mesh.vertices = stream.readFmtArray(OWMDLFormat.meshVertex, mesh.vertexCount)
 
-        rawNormals = BinaryUtil.readFmtArray(stream, OWMDLFormat.meshNormal, vertexCount)
+        mesh.rawNormals = stream.readFmtArray(OWMDLFormat.meshNormal, mesh.vertexCount)
 
-        tangents = BinaryUtil.readFmtArray(stream, OWMDLFormat.meshTangent, vertexCount)
+        mesh.tangents = stream.readFmtArray(OWMDLFormat.meshTangent, mesh.vertexCount)
 
-        uvs = []
-        for i in range(uvCount):
-            uvs.append(BinaryUtil.readFmtArray(stream, OWMDLFormat.meshUV, vertexCount))
+        for i in range(mesh.uvCount):
+            mesh.rawUVs.append(stream.readFmtArray(OWMDLFormat.meshUV, mesh.vertexCount))
 
-        if boneDataCount > 0:
-            boneIndices = BinaryUtil.readFmtArray(stream, OWMDLFormat.boneIndex*boneDataCount, vertexCount)
-            boneWeights = BinaryUtil.readFmtArray(stream, OWMDLFormat.boneWeight*boneDataCount, vertexCount)
-        else:
-            boneIndices = boneWeights = []
+        if mesh.boneDataCount > 0:
+            mesh.boneIndices = stream.readFmtArray(OWMDLFormat.boneIndex*mesh.boneDataCount, mesh.vertexCount)
+            mesh.boneWeights = stream.readFmtArray(OWMDLFormat.boneWeight*mesh.boneDataCount, mesh.vertexCount)
 
-        color1 = BinaryUtil.readFmtArray(stream, OWMDLFormat.meshColor, vertexCount)
+        mesh.rawColor1 = stream.readFmtArray(OWMDLFormat.meshColor, mesh.vertexCount)
 
-        color2 = BinaryUtil.readFmtArray(stream, OWMDLFormat.meshColor, vertexCount)
+        mesh.rawColor2 = stream.readFmtArray(OWMDLFormat.meshColor, mesh.vertexCount)
 
-        faces = BinaryUtil.readFmtArray(stream, OWMDLFormat.meshIndex, indexCount)
+        mesh.indices = stream.readFmtArray(OWMDLFormat.meshIndex, mesh.indexCount)
 
-        #TODO move this processing elsewhere
-        meshcolor1 = []
-        meshcolor2 = []
-        meshuvs = [list() for l in range(uvCount)]
+        mesh.blendProcess()
 
-        normals = []
+        data.meshes.append(mesh)
 
-        for i in range(vertexCount):
-            normals.append(Vector(rawNormals[i]).normalized())
-            col1=color1[i]
-            meshcolor1+=[col1[3],col1[0],col1[1],col1[2]]
-            col2=color2[i]
-            meshcolor2+=[col2[3],col2[0],col2[1],col2[2]]
+    data.empties = stream.readClassArray(OWMDLFormat.empty, ModelTypes.OWMDLEmpty, header.emptyCount, flat=False)
 
-        for face in faces:
-            for vert in face:
-                for k in range(uvCount):
-                    meshuvs[k] += [uvs[k][vert]]
-
-        meshes += [ModelTypes.OWMDLMesh(name, materialKey, uvCount, vertexCount, indexCount, meshuvs, normals, meshcolor1,
-                                   meshcolor2, boneIndices, boneWeights, verts, faces)]
-
-    empties = []
-    if emptyCount > 0:  # whatevs
-        for i in range(emptyCount):
-            name, hardpoint, position, rotation = BinaryUtil.readFmt(stream, OWMDLFormat.empty)
-            empties += [ModelTypes.OWMDLEmpty(name, position, rotation, hardpoint)]
-
-    return ModelTypes.OWMDLFile(header, refPoseBones, meshes, empties, guid, filename)
+    return data

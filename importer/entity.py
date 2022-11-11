@@ -3,7 +3,6 @@ from mathutils import Matrix
 from .blender import BLUtils
 from .blender import BLEntity
 from .blender.BLMaterial import BlenderMaterialTree
-from ..readers import PathUtil
 
 
 def buildMatPaths(entity):
@@ -12,8 +11,9 @@ def buildMatPaths(entity):
     def registerLook(ent):
         if ent.baseModel:
             look = ent.baseModel.meshData.header.material
-            modelRootPath = PathUtil.pathRoot(ent.baseModel.meshData.filepath)
-            paths.setdefault(PathUtil.nameFromPath(look), PathUtil.makePathAbsolute(modelRootPath, look))
+            if ent.entityData.modelLook:
+                look = ent.entityData.modelLook
+            paths.setdefault(look.GUID, look.filepath)
 
         for child in ent.children:
             registerLook(child)
@@ -23,14 +23,14 @@ def buildMatPaths(entity):
     return paths
 
 
-def init(filename, modelSettings, entitySettings):
+def init(filename, modelSettings, entitySettings, prettyName=None):
     def handleEntityModel(ent, parentFolder, parentEnt=None):
         modelData = ent.baseModel
+        folderName = ("" if prettyName else "Entity ")+ent.name
 
         # Create Folder (ignores effects for now)
         if ent.entityData.model or len(ent.entityData.children) > 0:  # TODO Effects import, check if they're empty
-            entityFolder = BLUtils.createFolder(("Child " if parentEnt else "") + "Entity {}".format(PathUtil.nameFromPath(ent.name)), hide=False,
-                link=True)
+            entityFolder = BLUtils.createFolder(("Child " if parentEnt else "") + folderName, hide=False, link=True)
             entityFolder.parent = parentFolder
             if parentEnt and ent.childData:
                 hardpoint = ent.childData.attachment
@@ -42,6 +42,8 @@ def init(filename, modelSettings, entitySettings):
 
         # Deal with model
         if modelData:
+            folder = modelData.armature if modelData.armature else entityFolder
+            folder["owm.modelPath"] = modelData.meshData.filepath
             # Put armature inside folder
             if modelData.armature:
                 modelData.armature.parent = entityFolder
@@ -50,7 +52,10 @@ def init(filename, modelSettings, entitySettings):
             # Bind materials
             if modelSettings.importMaterial:
                 modelLook = modelData.meshData.header.material
-                matTree.bindModelLook(modelData, PathUtil.nameFromPath(modelLook))
+                if ent.entityData.modelLook:
+                    modelLook = ent.entityData.modelLook
+                folder["owm.modelLook"] = modelLook.GUID
+                matTree.bindModelLook(modelData, modelLook.GUID)
 
             # Parent and link meshes
             for obj in modelData.meshes:
@@ -72,6 +77,11 @@ def init(filename, modelSettings, entitySettings):
     entityData = BLEntity.readEntity(filename, modelSettings, entitySettings)
     if not entityData:
         return
+    if prettyName:
+        entityData.name = prettyName
+
     matTree = BlenderMaterialTree(buildMatPaths(entityData))
 
     handleEntityModel(entityData, None)
+    
+    matTree.removeSkeletonNodeTrees()

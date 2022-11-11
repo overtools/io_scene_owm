@@ -1,17 +1,22 @@
 import bpy
+import json 
 
 from ...readers import OWMaterialReader, PathUtil
 from ...textureMap import TextureTypes as textureMap
 from ...textureMap import StaticInputsByType, ScalesByName
+from ...datatypes import MaterialTypes
 
 class BlenderMaterialTree:
-    def __init__(self, modelLooks):
+    def __init__(self, modelLooks, dedup=False):
         self.materialLooks = {}
         self.materials = {}
         self.blendMaterials = {}
+        if dedup:
+            self.blendMaterials = {material.name:material for material in bpy.data.materials}
         self.nodeTreeCache = {}
         self.blendTextures = {}
         self.texPaths = {}
+        self.dedup = dedup
         self.unusedMaterials = set()
         print("[owm]: Reading material looks")
         self.batchLoadMaterials(modelLooks)
@@ -26,21 +31,29 @@ class BlenderMaterialTree:
                 modelLookData = OWMaterialReader.read(modelLookPath)
                 if not modelLookData:
                     continue
-                matKeys = {}
-                for material in modelLookData.materials:
+                if type(modelLookData) == MaterialTypes.OWMATMaterial:
+                    mats= {"virtual": modelLookData}
+                    modelLookData = MaterialTypes.OWMATModelLook("virtual")
+                    modelLookData.materials = mats
+
+                for key, material in modelLookData.materials.items():
+                    if not material:
+                        continue
                     self.materials.setdefault(material.GUID, material)
-                    matKeys.setdefault(material.key, material.GUID)
                     for texture in material.textures:
-                        self.texPaths.setdefault(texture.GUID, texture.path)
-                        # print(self.texPaths[PathUtil.nameFromPath(texture[0])])
-                modelLookData.materials = matKeys
+                        self.texPaths.setdefault(texture.GUID, texture.filepath)
+
+                    modelLookData.materials[key] = material.GUID
+
                 self.materialLooks.setdefault(modelLookGUID, modelLookData)
-        self.materialLooks[None] = None  # deal with this later TODO
+        self.materialLooks[None] = None
 
     def createMaterials(self):
         materialNodeTree = self.buildShaderNodeTrees()
         for nodeTree in materialNodeTree:
             for material in materialNodeTree[nodeTree]:
+                if material in self.blendMaterials and self.dedup:
+                    continue
                 blendMaterial = self.nodeTreeCache[nodeTree].copy()
                 self.insertMaterialData(blendMaterial, self.materials[material])
                 self.blendMaterials[material] = blendMaterial
@@ -56,13 +69,19 @@ class BlenderMaterialTree:
             blendMesh = blendObj.data
             meshData = model.meshData.meshes[meshI]
 
-            if meshData.materialKey in modelLook.keys:
-                blendMaterial = self.blendMaterials[modelLook.materials[meshData.materialKey]]
+            if meshData.materialKey in modelLook.materials:
+                materialGUID = modelLook.materials[meshData.materialKey]
+                if not materialGUID:
+                    blendMesh.materials.clear()
+                    blendObj["owm.material"] = materialGUID
+                    continue
+                blendMaterial = self.blendMaterials[materialGUID]
                 blendMesh.materials.clear()
                 blendMesh.materials.append(blendMaterial)
                 blendObj.material_slots[0].link = 'OBJECT'
                 blendObj.material_slots[0].material = blendMaterial
                 self.markUsed(blendMaterial)
+                blendObj["owm.material"] = materialGUID
             else:
                 print("[owm]: Unable to find material {:016X} in provided material set (BLMaterial)".format(
                     meshData.materialKey))
@@ -242,7 +261,34 @@ class BlenderMaterialTree:
     
     def removeSkeletonNodeTrees(self):
         bpy.data.batch_remove(self.nodeTreeCache.values())
-        
+
+    def createMaterialDatabase(self, objects, filepath):
+        database = {"Mappings": {}, "Materials": {}, "Textures": {}}
+        textures = database["Textures"]
+        for textureGUID, texture in self.blendTextures.items():
+            textures[textureGUID] = {"filepath":self.texPaths[textureGUID], "sRGB": texture.colorspace_settings.name == "sRGB"}
+
+        materials = database["Materials"]
+        mappings = database["Mappings"]
+        for materialGUID, material in self.materials.items():
+            materials[materialGUID] = {
+                "shaderGroup": material.shader,
+                "textures": [],
+                "users": [],
+            }
+            
+            for texture in material.textures:
+                mapping = textureMapping[texture.key] if texture.key in textureMapping else None
+                materials[materialGUID]["textures"].append({"GUID": texture.GUID, "mapping": texture.key})
+                if mapping and texture.key not in mappings:
+                    mappings[texture.key] = mapping.__dict__
+
+        for object in objects:
+            if "owm.material" in object:
+                materials[object["owm.material"]]["users"].append(object.name)
+
+        json.dump(database, open(filepath+"\\materials.json", "w"))
+            
 
 
 tile_x = 400

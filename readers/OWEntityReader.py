@@ -1,32 +1,31 @@
 from . import BinaryUtil
-from . import PathUtil
 from ..datatypes import EntityTypes
-from ..ui import UIUtil
 
 class OWENTITYFormat():
+    extension = "owentity"
+    major,minor = (2,1)
+    minimum = (2,0)
     headerFormat = (str, '<HH', str, str, str, '<IIIi')
     childFormat = (str, '<QQII', str)
+    modelLook = (str, str) # 2.1
     
 def read(filename):
-    stream = BinaryUtil.openStream(PathUtil.normPath(filename))
+    stream = BinaryUtil.openStream(filename, OWENTITYFormat.extension)
     if stream == None:
         return None
 
-    try:
-        magic, major, minor, guid, modelGUID, effectGUID, idx, modelIndex, effectIndex, childCount = BinaryUtil.readFmtFlat(stream, OWENTITYFormat.headerFormat)
-    except:
-        UIUtil.fileFormatError("owentity")
-        return None
+    header = stream.readClass(OWENTITYFormat.headerFormat, EntityTypes.OWEntityHeader)
+    data = EntityTypes.OWEntityFile(header)
         
-    
-    if major < 2:
-        UIUtil.legacyFileError()
+    if not BinaryUtil.compatibilityCheck(OWENTITYFormat, header.major, header.minor):
         return False
 
-    header = EntityTypes.OWEntityHeader(magic, major, minor, guid, modelGUID, effectGUID, idx, modelIndex, effectIndex,childCount)
+    data.children = stream.readClassArray(OWENTITYFormat.childFormat, EntityTypes.OWEntityChild, header.childCount, absPath=True)
 
-    children = []
-    for i in range(childCount):
-        child_file, child_hardpoint, child_variable, child_hpIndex, child_varIndex, child_attachment = BinaryUtil.readFmtFlat(stream, OWENTITYFormat.childFormat)
-        children.append(EntityTypes.OWEntityChild(child_file, child_hardpoint, child_variable, child_hpIndex, child_varIndex,child_attachment))
-    return EntityTypes.OWEntityFile(header, guid, modelGUID, effectGUID, idx, modelIndex, effectIndex, children)
+    # 2.1 
+    if header.major >= 2 and header.minor >= 1:
+        data.header.modelLook, data.header.relativePath = stream.readFmt(OWENTITYFormat.modelLook)
+    
+    data.fixPaths(filename)
+    
+    return data

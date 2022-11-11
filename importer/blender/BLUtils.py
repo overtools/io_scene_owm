@@ -37,6 +37,9 @@ def pos_matrix(pos):
     mtx = acm @ posMtx
     return mtx.to_translation()
 
+def rotateLight(blendLightObj, lightData):
+    blendLightObj.rotation_euler = mathutils.Quaternion(wxzy(lightData.rotation)).to_euler('XYZ')
+    blendLightObj.rotation_euler.x -= 1.5708
 
 def xpzy(vec):
     return vec[0], vec[2], vec[1]

@@ -9,7 +9,6 @@ from math import radians
 from . import BLUtils
 from ...datatypes.ModelTypes import ModelData
 from ...readers import OWModelReader
-from ...readers import PathUtil
 
 
 def euler(rot):
@@ -110,7 +109,9 @@ def importArmature(meshData):  # honestly fuck this 2x
     for bone in armature.pose.bones:
         bone.matrix_basis.identity()
         bone.matrix = matrices[bone.name]
-
+        if "cloth" in bone.name:
+            bone.bone.layers[1] = True
+            bone.bone.layers[0] = False
     
     bpy.ops.pose.armature_apply()
     bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -144,6 +145,7 @@ def makeVertexGroups(mesh, meshData, blendBoneNames):
 
 def importMesh(meshData, modelSettings, armature, blendBoneNames):
     mesh = bpy.data.meshes.new(meshData.name)
+    mesh["owm.materialKey"] = str(meshData.materialKey)
     obj = bpy.data.objects.new(mesh.name, mesh)
     mesh.from_pydata(meshData.vertices, [], meshData.indices)
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
@@ -202,7 +204,7 @@ def readMDL(filename, modelSettings):
     armature = blendBoneNames = None
     if modelSettings.importSkeleton and data.header.boneCount > 0:
         armature, blendBoneNames = importArmature(data)
-        armature.name = PathUtil.nameFromPath(filename) + '_Skeleton'
+        armature.name = '{}_Skeleton'.format(data.GUID)
         # armature.parent = rootObject
         armature.show_in_front = True
         armature['owm.skeleton.name'] = armature.name

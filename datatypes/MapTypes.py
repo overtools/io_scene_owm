@@ -1,40 +1,38 @@
-from ..readers import PathUtil
+from .CommonTypes import OWMFile
 
-
-class OWMAPFile:
-    def __init__(self, header, objects, details, lights=list(), sounds=list()):
+class OWMAPFile(OWMFile):
+    def __init__(self, header, filepath):
+        super().__init__(filepath)
         self.header = header
-        self.objects = objects
-        self.details = details
-        self.lights = lights
-        self.sounds = sounds
+        self.objects = []
+        self.details = []
+        self.lights = []
+        self.sounds = []
 
 
 class OWMAPHeader:
-    def __init__(self, major, minor, name, objectCount, detailCount, lightCount=0, soundCount=0):
+    def __init__(self, major, minor, name, objectCount, detailCount, lightCount):
         self.major = major
         self.minor = minor
         self.name = name
         self.objectCount = objectCount
         self.detailCount = detailCount
         self.lightCount = lightCount
-        self.soundCount = soundCount
+        self.soundCount = 0
 
 
 class OWMAPObject:
-    def __init__(self, model, entityCount, entities):
-        self.model = PathUtil.normPath(model)
-        self.modelGUID = PathUtil.nameFromPath(model)
+    def __init__(self, model, entityCount):
+        self.model = OWMFile(model)
         self.entityCount = entityCount
-        self.entities = entities
+        self.entities = []
 
 
 class OWMAPEntity:
-    def __init__(self, material, recordCount, records):
-        self.material = PathUtil.normPath(material) if material else None
-        self.materialGUID = PathUtil.nameFromPath(material) if material else None
+    def __init__(self, material, recordCount):
+        self.material = OWMFile(material)
         self.recordCount = recordCount
-        self.records = records
+        self.records = []
 
 
 class OWMAPRecord:
@@ -43,36 +41,27 @@ class OWMAPRecord:
         self.scale = scale
         self.rotation = rotation
 
-    def __str__(self):
-        return "map record"
-
-    def __repr__(self):
-        return "0"
-
 
 class OWMAPDetail:
     def __init__(self, model, material, record):
-        self.model = PathUtil.normPath(model)
-        self.modelGUID = PathUtil.nameFromPath(model)
-        self.material = PathUtil.normPath(material) if material else None
-        self.materialGUID = PathUtil.nameFromPath(material) if material else None
+        self.model = OWMFile(model)
+        self.material = OWMFile(material)
         self.record = record
 
 
 class OWMAPSound:
-    def __init__(self, position, soundCount, sounds=list()):
+    def __init__(self, position, soundCount, sounds):
         self.position = position
         self.soundCount = soundCount
-        self.sounds = sounds
+        self.sounds = []
 
 
 class OWMAPLight:
-    defaultEx = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.1, 1.0, 0, 0, 0, 0, 0,0, 0, 0, 0]
-
-    def __init__(self, position, rotation, typ, fov, color, ex=defaultEx):
+    def __init__(self, position, rotation, typ, fov, color, intensity, projectionTextures):
         self.position = position
         self.rotation = rotation
-        self.type = typ
-        self.fov = fov
+        self.type = typ[0]
+        self.fov = fov[0]
         self.color = color
-        self.ex = ex
+        self.intensity = intensity[0]
+        self.textures = projectionTextures

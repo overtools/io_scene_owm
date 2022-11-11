@@ -1,79 +1,66 @@
 from . import BinaryUtil
-from . import PathUtil
 from ..datatypes import MapTypes
-from ..ui import UIUtil
 
 class OWMAPFormat():
+    extension = "owmap"
+    major,minor = (2,1)
+    minimum = (2,0)
     header = ('<HH', str, '<III')
     object = (str, '<I')
     record = ('<fff', '<fff', '<ffff')
     detail = (str, str)
     light = ('<fff', '<ffff', '<I', '<f', '<fff')
     lightExtra = ('<IIBBBBII', '<fff', '<ffff', '<fff', '<ffff', '<fff', '<ffff', '<ffIHHII')
+    lightNew = ('<fff', '<ffff', '<I', '<f', '<fff', '<f', '<QQ') # 2.1
     soundCount = ('<I') #grr
     sound = ('<fff', '<i')
     soundFile = (str,)
     
 
 def read(filename):
-    stream = BinaryUtil.openStream(PathUtil.normPath(filename))
+    stream = BinaryUtil.openStream(filename, OWMAPFormat.extension)
     if stream == None:
         return None
-    mapRootPath = PathUtil.pathRoot(filename)
 
-    try:
-        major, minor, name, objectCount, detailCount, lightCount = BinaryUtil.readFmtFlat(stream, OWMAPFormat.header)
-    except:
-        UIUtil.fileFormatError("owmap")
-        return None
+    header = stream.readClass(OWMAPFormat.header, MapTypes.OWMAPHeader)
 
-    if major < 2:
-        UIUtil.legacyFileError()
+    if not BinaryUtil.compatibilityCheck(OWMAPFormat, header.major, header.minor):
         return False
     
-    header = MapTypes.OWMAPHeader(major, minor, name, objectCount, detailCount, lightCount)
+    mapData = MapTypes.OWMAPFile(header, filename)
 
-    objects = []
-    for i in range(objectCount):
-        model, entityCount = BinaryUtil.readFmtFlat(stream, OWMAPFormat.object)
-        model = PathUtil.makePathAbsolute(mapRootPath,model)
+    # Objects
+    for i in range(header.objectCount):
+        object = stream.readClass(OWMAPFormat.object, MapTypes.OWMAPObject, absPath=True)
 
-        entities = []
-        for j in range(entityCount):
-            material, recordCount = BinaryUtil.readFmtFlat(stream, OWMAPFormat.object)
-            material = PathUtil.makePathAbsolute(mapRootPath,material) if material else None
+        for j in range(object.entityCount):
+            entity = stream.readClass(OWMAPFormat.object, MapTypes.OWMAPEntity, absPath=True)
+            entity.records = stream.readClassArray(OWMAPFormat.record, MapTypes.OWMAPRecord, entity.recordCount, flat=False)
+            object.entities.append(entity)
 
-            records = []
-            for k in range(recordCount):
-                position, scale, rotation = BinaryUtil.readFmt(stream, OWMAPFormat.record)
-                records += [MapTypes.OWMAPRecord(position, scale, rotation)]
-            entities += [MapTypes.OWMAPEntity(material, recordCount, records)]
-        objects += [MapTypes.OWMAPObject(model, entityCount, entities)]
+        mapData.objects.append(object)
 
-    details = []
-    for i in range(detailCount):
-        model, material = BinaryUtil.readFmtFlat(stream, OWMAPFormat.detail)
-        model = PathUtil.makePathAbsolute(mapRootPath,model)
-        material = PathUtil.makePathAbsolute(mapRootPath,material) if material else None
-        
-        position, scale, rotation = BinaryUtil.readFmt(stream, OWMAPFormat.record)
-        details += [MapTypes.OWMAPDetail(model, material, MapTypes.OWMAPRecord(position, scale, rotation))]
-
-    lights = []
-    for i in range(lightCount):
-        position, rotation, typ, fov, color = BinaryUtil.readFmt(stream, OWMAPFormat.light)
-        ex = BinaryUtil.readFmtFlat(stream, OWMAPFormat.lightExtra)
-        lights += [MapTypes.OWMAPLight(position, rotation, typ[0], fov[0], color, ex)]
-
-    sounds = []
-    soundCount = BinaryUtil.readFmtFlat(stream, OWMAPFormat.soundCount)
+    # Details
+    mapData.details = stream.readCoupledClassArray(OWMAPFormat.detail, MapTypes.OWMAPDetail, OWMAPFormat.record, MapTypes.OWMAPRecord, False, header.detailCount,coupledFlat=False)
+    
+    # Lights
+    if header.major == 2 and header.minor == 0:
+        mapData.lights = False
+        for i in range(header.lightCount):
+            position = stream.readFmt(OWMAPFormat.light)
+            ex = stream.readFmt(OWMAPFormat.lightExtra)
+    else:
+        mapData.lights = stream.readClassArray(OWMAPFormat.lightNew, MapTypes.OWMAPLight, header.lightCount, flat=False)
+            
+    # Sounds
+    soundCount = stream.readFmt(OWMAPFormat.soundCount)
     header.soundCount = soundCount
 
     for i in range(soundCount):
-        position, filecount = BinaryUtil.readFmt(stream, OWMAPFormat.sound)
+        position, filecount = stream.readFmt(OWMAPFormat.sound, flat=False)
         files = []
         for j in range(filecount[0]):
-            files += [BinaryUtil.readFmtFlat(stream, OWMAPFormat.soundFile)]
-        sounds += [MapTypes.OWMAPSound(position, filecount, files)]
+            files.append(stream.readFmt(OWMAPFormat.soundFile))
+        mapData.sounds.append(MapTypes.OWMAPSound(position, filecount, files))
 
-    return MapTypes.OWMAPFile(header, objects, details, lights, sounds)
+    return mapData

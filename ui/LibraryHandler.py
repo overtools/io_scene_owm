@@ -173,7 +173,7 @@ def load_from_json():
                 setattr(blendNode, attr, value)
         
         for input in node["inputs"]:
-            print(input)
+            #print(input)
             if len(blendNode.inputs) > int(input["index"]) and "default_value" in input:
                 blendNode.inputs[int(input["index"])].default_value = input["default_value"]
 
@@ -252,7 +252,7 @@ def load_from_json():
                 groupLinks.setdefault(blendNodeGroup, [])
                 groupLinks[blendNodeGroup].append(link)
                     
-    print(groupNodes)
+    #print(groupNodes)
     for blendNodeGroup, nodes in groupNodes.items():
         for node in nodes:
             createNode(blendNodeGroup, node)
@@ -335,7 +335,7 @@ def getAOTextures():
     return ao
 
 class OWMConnectAOOp(bpy.types.Operator):
-    """Remove repeated OWM Node Groups"""
+    """Connects all AO textures"""
     bl_idname = "owm3.enable_ao"
     bl_label = "Enable AO"
 
@@ -368,7 +368,7 @@ class OWMConnectAOOp(bpy.types.Operator):
         return self.execute(context)
 
 class OWMDisconnectAOOp(bpy.types.Operator):
-    """Remove repeated OWM Node Groups"""
+    """Disconnects all AO textures"""
     bl_idname = "owm3.disable_ao"
     bl_label = "Disable AO"
 

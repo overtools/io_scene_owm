@@ -1,5 +1,8 @@
 import bpy
+from ..readers import PathUtil
 from . import LibraryHandler
+from . import Preferences
+from ..importer.blender.BLMaterial import BlenderMaterialTree
 
 class OWMUtilityPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_owm_panel2"
@@ -19,9 +22,10 @@ class OWMUtilityPanel(bpy.types.Panel):
 
         row = layout.row()
         row.operator(LibraryHandler.OWMLoadOp.bl_idname, text="Import OWM Library", icon="LINK_BLEND")
-        row.operator(LibraryHandler.OWMSaveOp.bl_idname, text="Export OWM Library", icon="APPEND_BLEND")
-        row = layout.row()
-        row.operator(LibraryHandler.OWMLoadJSONOp.bl_idname, text="Import OWM Library from JSON", icon="LINK_BLEND")
+        if Preferences.getPreferences().devMode:
+            row.operator(LibraryHandler.OWMSaveOp.bl_idname, text="Export OWM Library", icon="APPEND_BLEND")
+            row = layout.row()
+            row.operator(LibraryHandler.OWMLoadJSONOp.bl_idname, text="Import OWM Library from JSON", icon="LINK_BLEND")
         #row = layout.row()
         #row.prop(bpy.context.scene.owm3_internal_settings, "b_logsalot", text="Log Map Progress")
 
@@ -65,6 +69,110 @@ class OWMCleanupOp(bpy.types.Operator):
     def invoke(self, context, event):
         return self.execute(context)
 
+def getModelFolder(obj):
+    if obj.type == 'MESH':
+        return obj.parent
+    elif obj.type == 'EMPTY':
+        if "owm.modelPath" in obj.parent:
+            return obj.parent
+        elif "owm.modelPath" in obj.parent.parent:
+            return obj.parent.parent
+        else: #fuck this
+            return None
+    elif obj.type == 'ARMATURE': #???
+        return obj
+    return None
+
+class OWMModelLookPanel(bpy.types.Panel):
+    bl_idname = "OBJECT_PT_owmmodellook"
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = "OWM"
+    bl_label = "OWM Model Look Manager"
+    
+    @classmethod
+    def poll(cls, context):
+        if context.object:
+            if context.object.type == 'MESH':
+                return "owm.materialKey" in context.object.data
+            if context.object.type == 'EMPTY': #idk yet
+                folder = getModelFolder(context.object)
+                if folder:
+                    return "owm.modelPath" in folder
+            if context.object.type == 'ARMATURE':
+                return "owm.modelPath" in context.object
+        return False
+
+    def draw(self, context):
+        layout = self.layout
+        folder = getModelFolder(context.object)
+
+        row = layout.row()
+        """row.label(text="Current Model Look: {}".format(folder["owm.modelLook"]))
+        if "owm.originalModelLook" in folder:
+            row = layout.row()
+            row.label(text="Original Model Look: {}".format(folder["owm.originalModelLook"]))"""
+        
+        rootFolder = PathUtil.joinPath(PathUtil.pathRoot(folder["owm.modelPath"]), "ModelLooks")
+        if PathUtil.checkExistence(rootFolder):
+            row = layout.row()
+            row.operator_enum('owm3.change_modellook', 'modelLook')
+
+        row = layout.row()
+
+class OWMChangeModelLookOp(bpy.types.Operator):
+    bl_idname = "owm3.change_modellook"
+    bl_label = "Change ModelLook"
+    __doc__ = bl_label
+    bl_options = {'INTERNAL'}
+
+    
+    def getModelLooks(self, context):
+        folder = getModelFolder(context.object)
+        rootFolder = PathUtil.joinPath(PathUtil.pathRoot(folder["owm.modelPath"]), "ModelLooks")
+        looks = []
+        if PathUtil.checkExistence(rootFolder):
+            files = list(PathUtil.listPath(rootFolder))
+            for i,look in enumerate(files):
+                lookName = look.replace(".owmat","")
+                if lookName == folder["owm.modelLook"]:
+                    tag = " (selected)"
+                elif lookName == folder.get("owm.originalModelLook", ""):
+                    tag = " (original)"
+                else:
+                    tag = ""
+                looks.append((look,lookName+tag,"",i))
+        return looks
+    
+    modelLook: bpy.props.EnumProperty(items=getModelLooks)
+
+    def execute(self, context):
+        folder = getModelFolder(context.object)
+
+        rootPath = PathUtil.joinPath(PathUtil.pathRoot(folder["owm.modelPath"]), "ModelLooks")
+        matTree = BlenderMaterialTree({"virtual": PathUtil.joinPath(rootPath, self.modelLook)}, True)
+        if "owm.originalModelLook" not in folder:
+            folder["owm.originalModelLook"] = folder["owm.modelLook"]
+        elif folder["owm.originalModelLook"] == self.modelLook.replace(".owmat",""):
+            del folder["owm.originalModelLook"]
+        folder["owm.modelLook"] = self.modelLook.replace(".owmat","")
+        if "virtual" in matTree.materialLooks:
+            for meshI, blendObj in enumerate([child for child in folder.children if child.type == 'MESH']):
+                blendMesh = blendObj.data
+
+                if int(blendMesh.get("owm.materialKey", 0)) in matTree.materialLooks["virtual"].materials:
+                    blendMaterial = matTree.blendMaterials[matTree.materialLooks["virtual"].materials[int(blendMesh["owm.materialKey"])]]
+                    blendMesh.materials.clear()
+                    blendMesh.materials.append(blendMaterial)
+                    blendObj.material_slots[0].link = 'OBJECT'
+                    blendObj.material_slots[0].material = blendMaterial
+        else:
+            pass #borked, todo warn
+        matTree.removeSkeletonNodeTrees()
+        return {"FINISHED"}
+
+    def invoke(self, context, event): # uh idk
+        return self.execute(context)
 
 class OWMCleanupTexOp(bpy.types.Operator): #TODO remake this
     """Deletes materials with no owners"""

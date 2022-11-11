@@ -12,7 +12,8 @@ from ..importer import model
 
 class ImportOWMDL(bpy.types.Operator, ImportHelper):
     bl_idname = 'import_mesh.overtools2_model'
-    bl_label = 'Import Overtools Model (owmdl)'
+    bl_label = 'Import Overtools Model'
+    __doc__ = bl_label
     bl_options = {'UNDO'}
 
     filename_ext = '.owmdl'
@@ -38,18 +39,8 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
         layout = self.layout
 
         col = layout.column(align=True)
-        col.label(text='Mesh')
-        col.prop(self.modelSettings, 'importMaterial')
-        col.prop(self.modelSettings, 'importColor')
-        col.prop(self.modelSettings, 'importNormals')
-        col.prop(self.modelSettings, 'autoSmoothNormals')
-        col.prop(self.modelSettings, 'importEmpties')
+        SettingTypes.OWModelSettings.draw(self, self.modelSettings, col)
 
         col = layout.column(align=True)
-        col.label(text='Armature')
-        col.prop(self.modelSettings, 'importSkeleton')
-
-        # col = layout.column(align=True)
-        # col.enabled = self.importMaterial  and bpy.context.scene.render.engine != 'CYCLES'
-        # col.label(text = 'Material')
+        SettingTypes.OWModelSettings.draw_armature(self, self.modelSettings, col)
         

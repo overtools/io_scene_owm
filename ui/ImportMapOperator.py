@@ -8,11 +8,13 @@ from bpy_extras.io_utils import ImportHelper
 from . import LibraryHandler
 from ..importer import owmap
 from . import SettingTypes
+from . import Preferences
 
 
 class ImportOWMAP(bpy.types.Operator, ImportHelper):
     bl_idname = 'import_mesh.overtools2_map'
-    bl_label = 'Import Overtools Map (owmap)'
+    bl_label = 'Import Overtools Map'
+    __doc__ = bl_label
     bl_options = {'UNDO'}
 
     filename_ext = '.owmap'
@@ -50,35 +52,19 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         layout = self.layout
 
         col = layout.column(align=True)
-        col.label(text='Map')
-        col.prop(self.mapSettings, 'importObjects')
-        col.prop(self.mapSettings, 'importDetails')
-        #col.prop(self.mapSettings, 'importLights')
-        #col.prop(self.mapSettings, 'importSounds')
-        col.prop(self.mapSettings, 'removeCollision')
+        SettingTypes.OWMapSettings.draw(self, self.mapSettings, col)
 
         col = layout.column(align=True)
-        col.label(text='Meshes')
-        col.prop(self.modelSettings, 'importMaterial')
-        col.prop(self.modelSettings, 'importColor')
-        col.prop(self.modelSettings, 'importNormals')
-        col.prop(self.modelSettings, 'autoSmoothNormals')
-        col.prop(self.modelSettings, 'importEmpties')
-        col.prop(self.modelSettings, 'importSkeleton')
-        #col.prop(self.mapSettings, 'joinMeshes') #planned
+        SettingTypes.OWModelSettings.draw(self, self.modelSettings, col)
+        SettingTypes.OWModelSettings.draw_armature(self, self.modelSettings, col, False)
+        if Preferences.getPreferences().devMode:
+            col2 = col.column()
+            col2.enabled = self.modelSettings.importMaterial
+            col2.prop(self.modelSettings, 'saveMaterialDB')
 
         col = layout.column(align=True)
-        col.label(text='Entities')
-        col.prop(self.entitySettings, 'importChildren')
+        SettingTypes.OWEntitySettings.draw(self, self.entitySettings, col)
 
-        """col = layout.column(align=True)
-        col.label(text='Lights')
-        col.enabled = self.mapSettings.importLights
-        col.prop(self.lightSettings, 'multipleImportance')
-        col.prop(self.lightSettings, 'useLightStrength')
-        col.prop(self.lightSettings, 'shadowSoftBias')
-        col.prop(self.lightSettings, 'adjustLightValue')
-        col2 = col.column(align=True)
-        col2.enabled = self.lightSettings.useLightStrength
-        col2.prop(self.lightSettings, 'adjustLightStrength')"""
+        col = layout.column(align=True)
+        SettingTypes.OWLightSettings.draw(self, self.lightSettings, col)
         

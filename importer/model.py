@@ -1,7 +1,6 @@
 from .blender import BLUtils
 from .blender import BLModel
 from .blender.BLMaterial import BlenderMaterialTree
-from ..readers import PathUtil
 
 
 def init(filename, modelSettings):
@@ -9,17 +8,19 @@ def init(filename, modelSettings):
     if not modelData:
         return
 
-    modelFolder = modelData.armature if modelData.armature else BLUtils.createFolder(PathUtil.nameFromPath(filename), False)
+    modelFolder = modelData.armature if modelData.armature else BLUtils.createFolder(modelData.meshData.GUID, False)
     #if not modelData.armature:
     BLUtils.linkScene(modelFolder)
+    modelFolder["owm.modelPath"] = modelData.meshData.filepath
 
     if modelSettings.importMaterial:
         modelLook = modelData.meshData.header.material
         #print(modelLook)
         if modelLook: #TODO make it none
-            modelLookGUID = PathUtil.nameFromPath(modelLook)
-            matTree = BlenderMaterialTree({modelLookGUID: modelLook})
-            matTree.bindModelLook(modelData, modelLookGUID)
+            modelFolder["owm.modelLook"] = modelLook.GUID
+            matTree = BlenderMaterialTree({modelLook.GUID: modelLook.filepath})
+            matTree.bindModelLook(modelData, modelLook.GUID)
+            matTree.removeSkeletonNodeTrees()
 
     for obj in modelData.meshes:
         obj.parent = modelFolder

@@ -1,23 +1,27 @@
-from ..readers import PathUtil
+from .CommonTypes import OWMFile
 
-class OWMATFile:
-    def __init__(self, guid, materials, keys=None):
-        self.GUID = guid
-        self.materials = materials
-        self.keys = keys
+class OWMATHeader:
+    def __init__(self, major, minor, type):
+        self.major = major
+        self.minor = minor
+        self.type = type
 
-class OWMATMaterial:
-    def __init__(self, key, guid, textureCount, textures, shader=0, staticInputs={}):
-        self.key = key
-        self.GUID = guid
+class OWMATModelLook(OWMFile):
+    def __init__(self, filename):
+        super().__init__(filename)
+        self.materials = {}
+
+class OWMATMaterial(OWMFile):
+    def __init__(self, textureCount, staticInputCount, shader):
+        super().__init__()
+        self.staticInputCount = staticInputCount
         self.textureCount = textureCount
-        self.textures = textures
+        self.textures = []
         self.shader = shader
-        self.staticInputs = staticInputs
+        self.staticInputs = {}
 
-class OWMATMaterialTexture:
-    def __init__(self, path, flag, key):
-        self.path = path
-        self.GUID = PathUtil.nameFromPath(path)
+class OWMATMaterialTexture(OWMFile):
+    def __init__(self, path, key, flag=0):
+        super().__init__(path)
         self.flag = flag
         self.key = key

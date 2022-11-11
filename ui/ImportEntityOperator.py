@@ -11,7 +11,8 @@ from ..importer import entity
 
 class ImportOWENTITY(bpy.types.Operator, ImportHelper):
     bl_idname = 'import_mesh.overtools2_entity'
-    bl_label = 'Import Overtools Entity (owentity)'
+    bl_label = 'Import Overtools Entity'
+    __doc__ = bl_label
     bl_options = {'UNDO'}
 
     filename_ext = '.owentity'
@@ -39,18 +40,11 @@ class ImportOWENTITY(bpy.types.Operator, ImportHelper):
         layout = self.layout
 
         col = layout.column(align=True)
-        col.label(text='Entity')
-        col.prop(self.entitySettings, 'importChildren')
+        SettingTypes.OWEntitySettings.draw(self, self.entitySettings, col)
 
         col = layout.column(align=True)
-        col.label(text='Mesh')
-        col.prop(self.modelSettings, 'importMaterial')
-        col.prop(self.modelSettings, 'importColor')
-        col.prop(self.modelSettings, 'importNormals')
-        col.prop(self.modelSettings, 'autoSmoothNormals')
-        col.prop(self.modelSettings, 'importEmpties')
+        SettingTypes.OWModelSettings.draw(self, self.modelSettings, col)
 
         col = layout.column(align=True)
-        col.label(text='Armature')
-        col.prop(self.modelSettings, 'importSkeleton')
+        SettingTypes.OWModelSettings.draw_armature(self, self.modelSettings, col)
         

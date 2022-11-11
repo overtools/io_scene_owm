@@ -1,5 +1,3 @@
-import os
-
 from enum import IntEnum
 from . import BinaryUtil
 from . import PathUtil
@@ -12,67 +10,59 @@ class OWMatType(IntEnum):
     ModelLook = 1
 
 class OWMATFormat():
+    extension = "owmat"
+    major,minor = (3,0)
+    minimum = (3,0)
     header = '<HHI'
     materialHeader = '<QQI'
-    texture = [str, '<I']
+    texture = (str, '<I')
     staticInput = '<II'
     modelLookHeader = '<Q'
-    modelLookMaterial = ['<Q', str]
+    modelLookMaterial = ('<Q', str)
 
-def read(filename, sub=False):
-    stream = BinaryUtil.openStream(PathUtil.normPath(filename))
+def readMaterial(filename, stream):
+    material = stream.readClass(OWMATFormat.materialHeader, MaterialTypes.OWMATMaterial)
+    material.setPath(filename)
+
+    material.textures = stream.readClassArray(OWMATFormat.texture, MaterialTypes.OWMATMaterialTexture, material.textureCount, absPath=True)
+
+    for i in range(material.staticInputCount):
+        inputHash, inputDataLength = stream.readFmt(OWMATFormat.staticInput)
+    
+        if inputHash in textureMap.TextureTypes["StaticInputs"]:
+            input = textureMap.TextureTypes["StaticInputs"][inputHash]
+            if input.type == "Array":
+                data = stream.readFmtArray(input.format, int(inputDataLength/16))
+            else:
+                data = stream.readFmt(input.format)
+            material.staticInputs[inputHash] = data
+        else:
+            material.staticInputs[inputHash] = stream.read(inputDataLength)
+    return material
+
+def readModelLook(filename, stream):
+    data = MaterialTypes.OWMATModelLook(filename)
+    materialCount = stream.readFmt(OWMATFormat.modelLookHeader)
+    for i in range(materialCount):
+        key, materialFile = stream.readFmt(OWMATFormat.modelLookMaterial)
+        material = read(PathUtil.joinPath(filename, materialFile))
+        data.materials.setdefault(key, material)
+    return data
+
+def read(filename):
+    stream = BinaryUtil.openStream(filename, OWMATFormat.extension)
     if stream == None:
         return None
-    matRootPath = PathUtil.pathRoot(filename)
+    
+    header = stream.readClass(OWMATFormat.header, MaterialTypes.OWMATHeader, absPath=True)
 
-    try:
-        major, minor, matType = BinaryUtil.readFmtFlat(stream, OWMATFormat.header)
-    except:
-        UIUtil.fileFormatError("owmat")
-        return None
-
-    if major < 3:
-        UIUtil.legacyFileError()
+    if header.major < 3:
+        UIUtil.ow1FileError()
+        return False
+    if not BinaryUtil.compatibilityCheck(OWMATFormat, header.major, header.minor):
         return False
 
-    if matType == OWMatType.Material:
-        textureCount, staticInputCount, shader = BinaryUtil.readFmtFlat(stream, OWMATFormat.materialHeader)
-        matGuid = PathUtil.nameFromPath(filename)
-
-        textures = []
-        for i in range(textureCount):
-            texture, textureType = BinaryUtil.readFmtFlat(stream, OWMATFormat.texture)
-            textures += [MaterialTypes.OWMATMaterialTexture(PathUtil.makePathAbsolute(matRootPath, texture), 0, textureType)]
-
-        staticInputs = {}
-        for i in range(staticInputCount):
-            inputHash, inputDataLength = BinaryUtil.readFmtFlat(stream, OWMATFormat.staticInput)
-        
-            if inputHash in textureMap.TextureTypes["StaticInputs"]:
-                input = textureMap.TextureTypes["StaticInputs"][inputHash]
-                if input.type == "Array":
-                    data = BinaryUtil.readFmtArray(stream, input.format, int(inputDataLength/16))
-                else:
-                    data = BinaryUtil.readFmtFlat(stream, input.format)
-                staticInputs[inputHash] = data
-            else:
-                staticInputs[inputHash] = stream.read(inputDataLength)
-
-        if sub:
-            return textures, shader, staticInputs
-        else:
-            return MaterialTypes.OWMATFile(PathUtil.nameFromPath(filename), [MaterialTypes.OWMATMaterial(None, matGuid, textureCount, textures, shader, staticInputs)])
-
-    elif matType == OWMatType.ModelLook:
-        materialCount = BinaryUtil.readFmtFlat(stream, OWMATFormat.modelLookHeader)
-        materials = []
-        keys = []
-        for i in range(materialCount):
-            key, materialFile = BinaryUtil.readFmtFlat(stream, OWMATFormat.modelLookMaterial)
-            matGuid = PathUtil.nameFromPath(materialFile)  # this totally won't cause issues
-            textures, shader, staticInputs = read(os.path.join(filename, PathUtil.normPath(materialFile)), True)
-
-            materials += [MaterialTypes.OWMATMaterial(key, matGuid, len(textures), textures, shader, staticInputs)]
-            keys.append(key)
-
-        return MaterialTypes.OWMATFile(PathUtil.nameFromPath(filename), materials, keys)
+    if header.type == OWMatType.Material:
+        return readMaterial(filename, stream)
+    elif header.type == OWMatType.ModelLook:
+        return readModelLook(filename, stream)

@@ -1,7 +1,6 @@
 from . import BLModel
 from ...datatypes.EntityTypes import EntityData
 from ...readers import OWEntityReader
-from ...readers import PathUtil
 
 
 def readEntity(filename, modelSettings, entitySettings, childData=None):
@@ -13,14 +12,13 @@ def readEntity(filename, modelSettings, entitySettings, childData=None):
     baseModel = None
     if data.model:
         # print(data.model)
-        baseModel = BLModel.readMDL(PathUtil.getModelPath(filename, data.model), modelSettings)
+        baseModel = BLModel.readMDL(data.model.filepath, modelSettings)
 
     if entitySettings.importChildren:
         for child in data.children:
-            childPath = PathUtil.getEntPath(filename, child.file)
 
-            children.append(readEntity(childPath, modelSettings, entitySettings, child))
+            children.append(readEntity(child.filepath, modelSettings, entitySettings, child))
 
             # TODO effects?
 
-    return EntityData(baseModel, children, PathUtil.nameFromPath(filename), data, childData)
+    return EntityData(baseModel, children, data.header.GUID, data, childData)
