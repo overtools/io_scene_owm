@@ -287,7 +287,7 @@ class BlenderMaterialTree:
             if "owm.material" in object:
                 materials[object["owm.material"]]["users"].append(object.name)
 
-        json.dump(database, open(filepath+"\\materials.json", "w"))
+        json.dump(database, open(PathUtil.joinPath(filepath,"..", "materials.json"), "w"))
             
 
 

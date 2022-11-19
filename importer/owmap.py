@@ -61,7 +61,7 @@ def init(filename, mapSettings, modelSettings, lightSettings, entitySettings):
 
     # print(mapTree.modelLookPaths)
 
-    blenderMap.init(mapTree, mapName, data.GUID, mapSettings, modelSettings, entitySettings, lightSettings)
+    blenderMap.init(mapTree, mapName, data.filepath, mapSettings, modelSettings, entitySettings, lightSettings)
 
     """name = data.header.name
     if len(name) == 0:
