@@ -16782,6 +16782,30 @@
 			}
 		],
 		"nodes": {
+			"Geometry": {
+				"bl_idname": "ShaderNodeNewGeometry",
+				"name": "Geometry",
+				"location": [
+					-152,
+					244
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [],
+				"attributes": {},
+				"links": [
+					{
+						"fn": "Geometry",
+						"fs": 1,
+						"fo": true,
+						"tn": "Mix",
+						"ts": 4,
+						"to": false
+					}
+				]
+			},
 			"Group Input": {
 				"bl_idname": "NodeGroupInput",
 				"name": "Group Input",
@@ -16790,7 +16814,7 @@
 					40
 				],
 				"dimensions": [
-					140,
+					156,
 					100
 				],
 				"inputs": [],
@@ -16816,16 +16840,24 @@
 						"fn": "Group Input",
 						"fs": 0,
 						"fo": true,
-						"tn": "Vector Math.011",
-						"ts": 0,
+						"tn": "Mix",
+						"ts": 2,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 0,
+						"fo": true,
+						"tn": "Mix",
+						"ts": 5,
 						"to": false
 					},
 					{
 						"fn": "Group Input",
 						"fs": 1,
 						"fo": true,
-						"tn": "Vector Math.010",
-						"ts": 1,
+						"tn": "Group.001",
+						"ts": 0,
 						"to": false
 					}
 				]
@@ -16846,6 +16878,32 @@
 					"is_active_output": true
 				},
 				"links": []
+			},
+			"Group.001": {
+				"bl_idname": "ShaderNodeGroup",
+				"name": "Group.001",
+				"location": [
+					610,
+					20
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [],
+				"attributes": {
+					"node_tree": "OWM: Mix Normals"
+				},
+				"links": [
+					{
+						"fn": "Group.001",
+						"fs": 0,
+						"fo": true,
+						"tn": "Group Output",
+						"ts": 0,
+						"to": false
+					}
+				]
 			},
 			"Math.002": {
 				"bl_idname": "ShaderNodeMath",
@@ -16875,18 +16933,18 @@
 						"fn": "Math.002",
 						"fs": 0,
 						"fo": true,
-						"tn": "Vector Math.011",
-						"ts": 1,
+						"tn": "Mix",
+						"ts": 0,
 						"to": false
 					}
 				]
 			},
-			"Vector Math.009": {
-				"bl_idname": "ShaderNodeVectorMath",
-				"name": "Vector Math.009",
+			"Mix": {
+				"bl_idname": "ShaderNodeMix",
+				"name": "Mix",
 				"location": [
-					640,
-					20
+					167,
+					147
 				],
 				"dimensions": [
 					140,
@@ -16894,128 +16952,58 @@
 				],
 				"inputs": [
 					{
-						"name": "Vector",
+						"name": "Factor",
 						"type": "VECTOR",
 						"default_value": [
-							1.0,
-							1.0,
-							0.0
+							0.5,
+							0.5,
+							0.5
 						],
 						"index": 1
 					},
 					{
-						"name": "Vector",
-						"type": "VECTOR",
-						"default_value": [
-							0.0,
-							0.0,
-							0.0
-						],
-						"index": 2
+						"name": "B",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 3
 					},
 					{
-						"name": "Scale",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 3
+						"name": "A",
+						"type": "RGBA",
+						"default_value": [
+							0.5,
+							0.5,
+							0.5,
+							1.0
+						],
+						"index": 6
+					},
+					{
+						"name": "B",
+						"type": "RGBA",
+						"default_value": [
+							0.5,
+							0.5,
+							0.5,
+							1.0
+						],
+						"index": 7
 					}
 				],
 				"attributes": {
-					"operation": "NORMALIZE"
+					"data_type": "VECTOR",
+					"factor_mode": "UNIFORM",
+					"blend_type": "MIX",
+					"clamp_factor": false,
+					"clamp_result": false
 				},
 				"links": [
 					{
-						"fn": "Vector Math.009",
-						"fs": 0,
+						"fn": "Mix",
+						"fs": 1,
 						"fo": true,
-						"tn": "Group Output",
-						"ts": 0,
-						"to": false
-					}
-				]
-			},
-			"Vector Math.010": {
-				"bl_idname": "ShaderNodeVectorMath",
-				"name": "Vector Math.010",
-				"location": [
-					440,
-					40
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Vector",
-						"type": "VECTOR",
-						"default_value": [
-							0.0,
-							0.0,
-							0.0
-						],
-						"index": 2
-					},
-					{
-						"name": "Scale",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 3
-					}
-				],
-				"attributes": {
-					"operation": "ADD"
-				},
-				"links": [
-					{
-						"fn": "Vector Math.010",
-						"fs": 0,
-						"fo": true,
-						"tn": "Vector Math.009",
-						"ts": 0,
-						"to": false
-					}
-				]
-			},
-			"Vector Math.011": {
-				"bl_idname": "ShaderNodeVectorMath",
-				"name": "Vector Math.011",
-				"location": [
-					218,
-					40
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Vector",
-						"type": "VECTOR",
-						"default_value": [
-							0.0,
-							0.0,
-							0.0
-						],
-						"index": 2
-					},
-					{
-						"name": "Scale",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 3
-					}
-				],
-				"attributes": {
-					"operation": "MULTIPLY"
-				},
-				"links": [
-					{
-						"fn": "Vector Math.011",
-						"fs": 0,
-						"fo": true,
-						"tn": "Vector Math.010",
-						"ts": 0,
+						"tn": "Group.001",
+						"ts": 1,
 						"to": false
 					}
 				]
@@ -19683,7 +19671,7 @@
 				"name": "Detail Normal Power",
 				"bl_socket_idname": "NodeSocketFloat",
 				"type": "VALUE",
-				"default_value": 1.0,
+				"default_value": 0.5,
 				"min_value": 0.0,
 				"max_value": 1.0
 			},
@@ -22975,7 +22963,7 @@
 				"name": "Detail Normal Power",
 				"bl_socket_idname": "NodeSocketFloat",
 				"type": "VALUE",
-				"default_value": 1.0,
+				"default_value": 0.5,
 				"min_value": 0.0,
 				"max_value": 1.0
 			},
@@ -23236,7 +23224,7 @@
 						"fs": 13,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 5,
+						"ts": 4,
 						"to": false
 					},
 					{
@@ -23244,7 +23232,7 @@
 						"fs": 14,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 6,
+						"ts": 5,
 						"to": false
 					},
 					{
@@ -23252,7 +23240,7 @@
 						"fs": 15,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 8,
+						"ts": 7,
 						"to": false
 					},
 					{
@@ -23260,7 +23248,7 @@
 						"fs": 16,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 9,
+						"ts": 8,
 						"to": false
 					},
 					{
@@ -23268,7 +23256,7 @@
 						"fs": 17,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 2,
+						"ts": 1,
 						"to": false
 					},
 					{
@@ -23276,15 +23264,7 @@
 						"fs": 18,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 3,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
-						"fs": 10,
-						"fo": true,
-						"tn": "Group.002",
-						"ts": 1,
+						"ts": 2,
 						"to": false
 					},
 					{
@@ -23292,7 +23272,7 @@
 						"fs": 24,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 10,
+						"ts": 9,
 						"to": false
 					},
 					{
@@ -23300,7 +23280,7 @@
 						"fs": 22,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 4,
+						"ts": 3,
 						"to": false
 					},
 					{
@@ -23308,15 +23288,7 @@
 						"fs": 23,
 						"fo": true,
 						"tn": "Group.002",
-						"ts": 7,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
-						"fs": 9,
-						"fo": true,
-						"tn": "Group.002",
-						"ts": 11,
+						"ts": 6,
 						"to": false
 					},
 					{
@@ -23374,7 +23346,7 @@
 				"bl_idname": "ShaderNodeGroup",
 				"name": "Group.001",
 				"location": [
-					-186,
+					-179,
 					-386
 				],
 				"dimensions": [
@@ -23952,8 +23924,8 @@
 				"bl_idname": "ShaderNodeNormalMap",
 				"name": "Normal Map",
 				"location": [
-					-428,
-					-296
+					-425,
+					-317
 				],
 				"dimensions": [
 					150,
@@ -27173,17 +27145,6 @@
 				]
 			},
 			{
-				"name": "NORMAL",
-				"bl_socket_idname": "NodeSocketColor",
-				"type": "RGBA",
-				"default_value": [
-					0.0,
-					0.0,
-					0.0,
-					1.0
-				]
-			},
-			{
 				"name": "RED",
 				"bl_socket_idname": "NodeSocketColor",
 				"type": "RGBA",
@@ -27263,14 +27224,6 @@
 				"default_value": 0.0,
 				"min_value": -3.4028234663852886e+38,
 				"max_value": 3.4028234663852886e+38
-			},
-			{
-				"name": "Strength",
-				"bl_socket_idname": "NodeSocketFloat",
-				"type": "VALUE",
-				"default_value": 1.0,
-				"min_value": 0.0,
-				"max_value": 10.0
 			}
 		],
 		"outputs": [
@@ -27312,7 +27265,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 3,
+						"fs": 2,
 						"fo": true,
 						"tn": "Mix.008",
 						"ts": 7,
@@ -27320,7 +27273,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 6,
+						"fs": 5,
 						"fo": true,
 						"tn": "Mix.009",
 						"ts": 7,
@@ -27328,7 +27281,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 9,
+						"fs": 8,
 						"fo": true,
 						"tn": "Mix.010",
 						"ts": 7,
@@ -27336,7 +27289,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 4,
+						"fs": 3,
 						"fo": true,
 						"tn": "Math.001",
 						"ts": 1,
@@ -27344,7 +27297,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 7,
+						"fs": 6,
 						"fo": true,
 						"tn": "Math.002",
 						"ts": 1,
@@ -27352,7 +27305,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 10,
+						"fs": 9,
 						"fo": true,
 						"tn": "Math.003",
 						"ts": 1,
@@ -27360,7 +27313,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 2,
+						"fs": 1,
 						"fo": true,
 						"tn": "Node",
 						"ts": 1,
@@ -27368,7 +27321,7 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 5,
+						"fs": 4,
 						"fo": true,
 						"tn": "Group.001",
 						"ts": 1,
@@ -27376,18 +27329,10 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 8,
+						"fs": 7,
 						"fo": true,
 						"tn": "Group.002",
 						"ts": 1,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
-						"fs": 1,
-						"fo": true,
-						"tn": "Group.005",
-						"ts": 0,
 						"to": false
 					}
 				]
@@ -27479,32 +27424,6 @@
 					}
 				]
 			},
-			"Group.003": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.003",
-				"location": [
-					525,
-					-177
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Mix Normals"
-				},
-				"links": [
-					{
-						"fn": "Group.003",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.004",
-						"ts": 1,
-						"to": false
-					}
-				]
-			},
 			"Group.004": {
 				"bl_idname": "ShaderNodeGroup",
 				"name": "Group.004",
@@ -27527,32 +27446,6 @@
 						"fo": true,
 						"tn": "Group Output",
 						"ts": 0,
-						"to": false
-					}
-				]
-			},
-			"Group.005": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.005",
-				"location": [
-					-496,
-					-481
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Unpack Blue Channel"
-				},
-				"links": [
-					{
-						"fn": "Group.005",
-						"fs": 0,
-						"fo": true,
-						"tn": "Normal Map",
-						"ts": 1,
 						"to": false
 					}
 				]
@@ -28123,46 +28016,12 @@
 					}
 				]
 			},
-			"Normal Map": {
-				"bl_idname": "ShaderNodeNormalMap",
-				"name": "Normal Map",
-				"location": [
-					-208,
-					-477
-				],
-				"dimensions": [
-					150,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Strength",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 0
-					}
-				],
-				"attributes": {
-					"space": "TANGENT",
-					"uv_map": ""
-				},
-				"links": [
-					{
-						"fn": "Normal Map",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.003",
-						"ts": 1,
-						"to": false
-					}
-				]
-			},
 			"Normal Map.001": {
 				"bl_idname": "ShaderNodeNormalMap",
 				"name": "Normal Map.001",
 				"location": [
-					242,
-					-201
+					229,
+					-216
 				],
 				"dimensions": [
 					150,
@@ -28185,8 +28044,8 @@
 						"fn": "Normal Map.001",
 						"fs": 0,
 						"fo": true,
-						"tn": "Group.003",
-						"ts": 0,
+						"tn": "Group.004",
+						"ts": 1,
 						"to": false
 					}
 				]
