@@ -5733,6 +5733,17 @@
 					0.5,
 					1.0
 				]
+			},
+			{
+				"name": "Base",
+				"bl_socket_idname": "NodeSocketColor",
+				"type": "RGBA",
+				"default_value": [
+					0.5,
+					0.5,
+					0.0,
+					1.0
+				]
 			}
 		],
 		"outputs": [
@@ -5815,6 +5826,14 @@
 						"fo": true,
 						"tn": "Math",
 						"ts": 0,
+						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 2,
+						"fo": true,
+						"tn": "Mix",
+						"ts": 6,
 						"to": false
 					}
 				]
@@ -5923,17 +5942,6 @@
 							0.0
 						],
 						"index": 5
-					},
-					{
-						"name": "A",
-						"type": "RGBA",
-						"default_value": [
-							0.5,
-							0.5,
-							0.0,
-							1.0
-						],
-						"index": 6
 					}
 				],
 				"attributes": {
@@ -8726,8 +8734,8 @@
 					-160
 				],
 				"dimensions": [
-					2508,
-					1894
+					2400,
+					1895
 				],
 				"inputs": [],
 				"attributes": {
@@ -8736,33 +8744,6 @@
 					"label_size": 20
 				},
 				"links": []
-			},
-			"Group": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group",
-				"location": [
-					728,
-					-119
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Mix Normals"
-				},
-				"links": [
-					{
-						"fn": "Group",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.006",
-						"ts": 0,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
 			},
 			"Group Input": {
 				"bl_idname": "NodeGroupInput",
@@ -9207,309 +9188,12 @@
 					}
 				]
 			},
-			"Group.002": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.002",
-				"location": [
-					722,
-					-624
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Mix Normals"
-				},
-				"links": [
-					{
-						"fn": "Group.002",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.006",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.003": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.003",
-				"location": [
-					746,
-					-1049
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Mix Normals"
-				},
-				"links": [
-					{
-						"fn": "Group.003",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.005",
-						"ts": 0,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.004": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.004",
-				"location": [
-					736,
-					-1509
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Mix Normals"
-				},
-				"links": [
-					{
-						"fn": "Group.004",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.005",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.005": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.005",
-				"location": [
-					1478,
-					-1209
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Mix Normals"
-				},
-				"links": [
-					{
-						"fn": "Group.005",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.015",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.006": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.006",
-				"location": [
-					1433,
-					-347
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Mix Normals"
-				},
-				"links": [
-					{
-						"fn": "Group.006",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.015",
-						"ts": 0,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.007": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.007",
-				"location": [
-					273,
-					-53
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Unpack Blue Channel"
-				},
-				"links": [
-					{
-						"fn": "Group.007",
-						"fs": 0,
-						"fo": true,
-						"tn": "Normal Map.007",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.008": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.008",
-				"location": [
-					277,
-					-187
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Unpack Blue Channel"
-				},
-				"links": [
-					{
-						"fn": "Group.008",
-						"fs": 0,
-						"fo": true,
-						"tn": "Normal Map.006",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.009": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.009",
-				"location": [
-					272,
-					-565
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Unpack Blue Channel"
-				},
-				"links": [
-					{
-						"fn": "Group.009",
-						"fs": 0,
-						"fo": true,
-						"tn": "Normal Map.005",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.010": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.010",
-				"location": [
-					272,
-					-692
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Unpack Blue Channel"
-				},
-				"links": [
-					{
-						"fn": "Group.010",
-						"fs": 0,
-						"fo": true,
-						"tn": "Normal Map.004",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.011": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.011",
-				"location": [
-					282,
-					-998
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Unpack Blue Channel"
-				},
-				"links": [
-					{
-						"fn": "Group.011",
-						"fs": 0,
-						"fo": true,
-						"tn": "Normal Map.003",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.012": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.012",
-				"location": [
-					296,
-					-1173
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Unpack Blue Channel"
-				},
-				"links": [
-					{
-						"fn": "Group.012",
-						"fs": 0,
-						"fo": true,
-						"tn": "Normal Map.002",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
 			"Group.013": {
 				"bl_idname": "ShaderNodeGroup",
 				"name": "Group.013",
 				"location": [
-					272,
-					-1508
+					2036,
+					-998
 				],
 				"dimensions": [
 					140,
@@ -9524,62 +9208,8 @@
 						"fn": "Group.013",
 						"fs": 0,
 						"fo": true,
-						"tn": "Normal Map.001",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.014": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.014",
-				"location": [
-					272,
-					-1676
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Unpack Blue Channel"
-				},
-				"links": [
-					{
-						"fn": "Group.014",
-						"fs": 0,
-						"fo": true,
 						"tn": "Normal Map",
 						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Group.015": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.015",
-				"location": [
-					2354,
-					-742
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Mix Normals"
-				},
-				"links": [
-					{
-						"fn": "Group.015",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group Output",
-						"ts": 0,
 						"to": false
 					}
 				],
@@ -9596,25 +9226,37 @@
 					140,
 					100
 				],
-				"inputs": [],
+				"inputs": [
+					{
+						"name": "Base",
+						"type": "RGBA",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0,
+							1.0
+						],
+						"index": 2
+					}
+				],
 				"attributes": {
 					"node_tree": "OWM: Blend Detail"
 				},
 				"links": [
 					{
 						"fn": "Group.016",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.014",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group.016",
 						"fs": 1,
 						"fo": true,
 						"tn": "Math.030",
 						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Group.016",
+						"fs": 0,
+						"fo": true,
+						"tn": "Mix.003",
+						"ts": 7,
 						"to": false
 					}
 				],
@@ -9631,25 +9273,37 @@
 					140,
 					100
 				],
-				"inputs": [],
+				"inputs": [
+					{
+						"name": "Base",
+						"type": "RGBA",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0,
+							1.0
+						],
+						"index": 2
+					}
+				],
 				"attributes": {
 					"node_tree": "OWM: Blend Detail"
 				},
 				"links": [
 					{
 						"fn": "Group.017",
-						"fs": 0,
+						"fs": 1,
 						"fo": true,
-						"tn": "Group.013",
+						"tn": "Math.030",
 						"ts": 0,
 						"to": false
 					},
 					{
 						"fn": "Group.017",
-						"fs": 1,
+						"fs": 0,
 						"fo": true,
-						"tn": "Math.030",
-						"ts": 0,
+						"tn": "Mix.003",
+						"ts": 6,
 						"to": false
 					}
 				],
@@ -9666,25 +9320,37 @@
 					140,
 					100
 				],
-				"inputs": [],
+				"inputs": [
+					{
+						"name": "Base",
+						"type": "RGBA",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0,
+							1.0
+						],
+						"index": 2
+					}
+				],
 				"attributes": {
 					"node_tree": "OWM: Blend Detail"
 				},
 				"links": [
 					{
 						"fn": "Group.018",
-						"fs": 0,
+						"fs": 1,
 						"fo": true,
-						"tn": "Group.012",
+						"tn": "Math.031",
 						"ts": 0,
 						"to": false
 					},
 					{
 						"fn": "Group.018",
-						"fs": 1,
+						"fs": 0,
 						"fo": true,
-						"tn": "Math.031",
-						"ts": 0,
+						"tn": "Mix.002",
+						"ts": 7,
 						"to": false
 					}
 				],
@@ -9701,25 +9367,37 @@
 					140,
 					100
 				],
-				"inputs": [],
+				"inputs": [
+					{
+						"name": "Base",
+						"type": "RGBA",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0,
+							1.0
+						],
+						"index": 2
+					}
+				],
 				"attributes": {
 					"node_tree": "OWM: Blend Detail"
 				},
 				"links": [
 					{
 						"fn": "Group.019",
-						"fs": 0,
+						"fs": 1,
 						"fo": true,
-						"tn": "Group.011",
+						"tn": "Math.032",
 						"ts": 0,
 						"to": false
 					},
 					{
 						"fn": "Group.019",
-						"fs": 1,
+						"fs": 0,
 						"fo": true,
-						"tn": "Math.032",
-						"ts": 0,
+						"tn": "Mix.002",
+						"ts": 6,
 						"to": false
 					}
 				],
@@ -9736,25 +9414,37 @@
 					140,
 					100
 				],
-				"inputs": [],
+				"inputs": [
+					{
+						"name": "Base",
+						"type": "RGBA",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0,
+							1.0
+						],
+						"index": 2
+					}
+				],
 				"attributes": {
 					"node_tree": "OWM: Blend Detail"
 				},
 				"links": [
 					{
 						"fn": "Group.020",
-						"fs": 0,
+						"fs": 1,
 						"fo": true,
-						"tn": "Group.010",
+						"tn": "Math.033",
 						"ts": 0,
 						"to": false
 					},
 					{
 						"fn": "Group.020",
-						"fs": 1,
+						"fs": 0,
 						"fo": true,
-						"tn": "Math.033",
-						"ts": 0,
+						"tn": "Mix.001",
+						"ts": 7,
 						"to": false
 					}
 				],
@@ -9771,25 +9461,37 @@
 					140,
 					100
 				],
-				"inputs": [],
+				"inputs": [
+					{
+						"name": "Base",
+						"type": "RGBA",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0,
+							1.0
+						],
+						"index": 2
+					}
+				],
 				"attributes": {
 					"node_tree": "OWM: Blend Detail"
 				},
 				"links": [
 					{
 						"fn": "Group.021",
-						"fs": 0,
+						"fs": 1,
 						"fo": true,
-						"tn": "Group.009",
+						"tn": "Math.034",
 						"ts": 0,
 						"to": false
 					},
 					{
 						"fn": "Group.021",
-						"fs": 1,
+						"fs": 0,
 						"fo": true,
-						"tn": "Math.034",
-						"ts": 0,
+						"tn": "Mix.001",
+						"ts": 6,
 						"to": false
 					}
 				],
@@ -9806,25 +9508,37 @@
 					140,
 					100
 				],
-				"inputs": [],
+				"inputs": [
+					{
+						"name": "Base",
+						"type": "RGBA",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0,
+							1.0
+						],
+						"index": 2
+					}
+				],
 				"attributes": {
 					"node_tree": "OWM: Blend Detail"
 				},
 				"links": [
 					{
 						"fn": "Group.022",
-						"fs": 0,
+						"fs": 1,
 						"fo": true,
-						"tn": "Group.008",
+						"tn": "Math.035",
 						"ts": 0,
 						"to": false
 					},
 					{
 						"fn": "Group.022",
-						"fs": 1,
+						"fs": 0,
 						"fo": true,
-						"tn": "Math.035",
-						"ts": 0,
+						"tn": "Mix",
+						"ts": 7,
 						"to": false
 					}
 				],
@@ -9841,25 +9555,37 @@
 					140,
 					100
 				],
-				"inputs": [],
+				"inputs": [
+					{
+						"name": "Base",
+						"type": "RGBA",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0,
+							1.0
+						],
+						"index": 2
+					}
+				],
 				"attributes": {
 					"node_tree": "OWM: Blend Detail"
 				},
 				"links": [
 					{
 						"fn": "Group.023",
-						"fs": 0,
+						"fs": 1,
 						"fo": true,
-						"tn": "Group.007",
+						"tn": "Math.036",
 						"ts": 0,
 						"to": false
 					},
 					{
 						"fn": "Group.023",
-						"fs": 1,
+						"fs": 0,
 						"fo": true,
-						"tn": "Math.036",
-						"ts": 0,
+						"tn": "Mix",
+						"ts": 6,
 						"to": false
 					}
 				],
@@ -11176,12 +10902,572 @@
 				],
 				"parent": "Frame.001"
 			},
+			"Mix": {
+				"bl_idname": "ShaderNodeMix",
+				"name": "Mix",
+				"location": [
+					368,
+					-111
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Factor",
+						"type": "VALUE",
+						"default_value": 1.0,
+						"index": 0
+					},
+					{
+						"name": "Factor",
+						"type": "VECTOR",
+						"default_value": [
+							0.5,
+							0.5,
+							0.5
+						],
+						"index": 1
+					},
+					{
+						"name": "A",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 2
+					},
+					{
+						"name": "B",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 3
+					},
+					{
+						"name": "A",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 4
+					},
+					{
+						"name": "B",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 5
+					}
+				],
+				"attributes": {
+					"data_type": "RGBA",
+					"factor_mode": "UNIFORM",
+					"blend_type": "ADD",
+					"clamp_factor": false,
+					"clamp_result": true
+				},
+				"links": [
+					{
+						"fn": "Mix",
+						"fs": 2,
+						"fo": true,
+						"tn": "Mix.005",
+						"ts": 6,
+						"to": false
+					}
+				],
+				"parent": "Frame.001"
+			},
+			"Mix.001": {
+				"bl_idname": "ShaderNodeMix",
+				"name": "Mix.001",
+				"location": [
+					377,
+					-638
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Factor",
+						"type": "VALUE",
+						"default_value": 1.0,
+						"index": 0
+					},
+					{
+						"name": "Factor",
+						"type": "VECTOR",
+						"default_value": [
+							0.5,
+							0.5,
+							0.5
+						],
+						"index": 1
+					},
+					{
+						"name": "A",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 2
+					},
+					{
+						"name": "B",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 3
+					},
+					{
+						"name": "A",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 4
+					},
+					{
+						"name": "B",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 5
+					}
+				],
+				"attributes": {
+					"data_type": "RGBA",
+					"factor_mode": "UNIFORM",
+					"blend_type": "ADD",
+					"clamp_factor": false,
+					"clamp_result": true
+				},
+				"links": [
+					{
+						"fn": "Mix.001",
+						"fs": 2,
+						"fo": true,
+						"tn": "Mix.005",
+						"ts": 7,
+						"to": false
+					}
+				],
+				"parent": "Frame.001"
+			},
+			"Mix.002": {
+				"bl_idname": "ShaderNodeMix",
+				"name": "Mix.002",
+				"location": [
+					393,
+					-1122
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Factor",
+						"type": "VALUE",
+						"default_value": 1.0,
+						"index": 0
+					},
+					{
+						"name": "Factor",
+						"type": "VECTOR",
+						"default_value": [
+							0.5,
+							0.5,
+							0.5
+						],
+						"index": 1
+					},
+					{
+						"name": "A",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 2
+					},
+					{
+						"name": "B",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 3
+					},
+					{
+						"name": "A",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 4
+					},
+					{
+						"name": "B",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 5
+					}
+				],
+				"attributes": {
+					"data_type": "RGBA",
+					"factor_mode": "UNIFORM",
+					"blend_type": "ADD",
+					"clamp_factor": false,
+					"clamp_result": true
+				},
+				"links": [
+					{
+						"fn": "Mix.002",
+						"fs": 2,
+						"fo": true,
+						"tn": "Mix.004",
+						"ts": 6,
+						"to": false
+					}
+				],
+				"parent": "Frame.001"
+			},
+			"Mix.003": {
+				"bl_idname": "ShaderNodeMix",
+				"name": "Mix.003",
+				"location": [
+					418,
+					-1536
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Factor",
+						"type": "VALUE",
+						"default_value": 1.0,
+						"index": 0
+					},
+					{
+						"name": "Factor",
+						"type": "VECTOR",
+						"default_value": [
+							0.5,
+							0.5,
+							0.5
+						],
+						"index": 1
+					},
+					{
+						"name": "A",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 2
+					},
+					{
+						"name": "B",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 3
+					},
+					{
+						"name": "A",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 4
+					},
+					{
+						"name": "B",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 5
+					}
+				],
+				"attributes": {
+					"data_type": "RGBA",
+					"factor_mode": "UNIFORM",
+					"blend_type": "ADD",
+					"clamp_factor": false,
+					"clamp_result": true
+				},
+				"links": [
+					{
+						"fn": "Mix.003",
+						"fs": 2,
+						"fo": true,
+						"tn": "Mix.004",
+						"ts": 7,
+						"to": false
+					}
+				],
+				"parent": "Frame.001"
+			},
+			"Mix.004": {
+				"bl_idname": "ShaderNodeMix",
+				"name": "Mix.004",
+				"location": [
+					944,
+					-1260
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Factor",
+						"type": "VALUE",
+						"default_value": 1.0,
+						"index": 0
+					},
+					{
+						"name": "Factor",
+						"type": "VECTOR",
+						"default_value": [
+							0.5,
+							0.5,
+							0.5
+						],
+						"index": 1
+					},
+					{
+						"name": "A",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 2
+					},
+					{
+						"name": "B",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 3
+					},
+					{
+						"name": "A",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 4
+					},
+					{
+						"name": "B",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 5
+					}
+				],
+				"attributes": {
+					"data_type": "RGBA",
+					"factor_mode": "UNIFORM",
+					"blend_type": "ADD",
+					"clamp_factor": false,
+					"clamp_result": true
+				},
+				"links": [
+					{
+						"fn": "Mix.004",
+						"fs": 2,
+						"fo": true,
+						"tn": "Mix.006",
+						"ts": 7,
+						"to": false
+					}
+				],
+				"parent": "Frame.001"
+			},
+			"Mix.005": {
+				"bl_idname": "ShaderNodeMix",
+				"name": "Mix.005",
+				"location": [
+					925,
+					-416
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Factor",
+						"type": "VALUE",
+						"default_value": 1.0,
+						"index": 0
+					},
+					{
+						"name": "Factor",
+						"type": "VECTOR",
+						"default_value": [
+							0.5,
+							0.5,
+							0.5
+						],
+						"index": 1
+					},
+					{
+						"name": "A",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 2
+					},
+					{
+						"name": "B",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 3
+					},
+					{
+						"name": "A",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 4
+					},
+					{
+						"name": "B",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 5
+					}
+				],
+				"attributes": {
+					"data_type": "RGBA",
+					"factor_mode": "UNIFORM",
+					"blend_type": "ADD",
+					"clamp_factor": false,
+					"clamp_result": true
+				},
+				"links": [
+					{
+						"fn": "Mix.005",
+						"fs": 2,
+						"fo": true,
+						"tn": "Mix.006",
+						"ts": 6,
+						"to": false
+					}
+				],
+				"parent": "Frame.001"
+			},
+			"Mix.006": {
+				"bl_idname": "ShaderNodeMix",
+				"name": "Mix.006",
+				"location": [
+					1530,
+					-898
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [
+					{
+						"name": "Factor",
+						"type": "VALUE",
+						"default_value": 1.0,
+						"index": 0
+					},
+					{
+						"name": "Factor",
+						"type": "VECTOR",
+						"default_value": [
+							0.5,
+							0.5,
+							0.5
+						],
+						"index": 1
+					},
+					{
+						"name": "A",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 2
+					},
+					{
+						"name": "B",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 3
+					},
+					{
+						"name": "A",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 4
+					},
+					{
+						"name": "B",
+						"type": "VECTOR",
+						"default_value": [
+							0.0,
+							0.0,
+							0.0
+						],
+						"index": 5
+					}
+				],
+				"attributes": {
+					"data_type": "RGBA",
+					"factor_mode": "UNIFORM",
+					"blend_type": "ADD",
+					"clamp_factor": false,
+					"clamp_result": true
+				},
+				"links": [
+					{
+						"fn": "Mix.006",
+						"fs": 2,
+						"fo": true,
+						"tn": "Group.013",
+						"ts": 0,
+						"to": false
+					}
+				],
+				"parent": "Frame.001"
+			},
 			"Normal Map": {
 				"bl_idname": "ShaderNodeNormalMap",
 				"name": "Normal Map",
 				"location": [
-					459,
-					-1630
+					2236,
+					-971
 				],
 				"dimensions": [
 					150,
@@ -11204,252 +11490,7 @@
 						"fn": "Normal Map",
 						"fs": 0,
 						"fo": true,
-						"tn": "Group.004",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Normal Map.001": {
-				"bl_idname": "ShaderNodeNormalMap",
-				"name": "Normal Map.001",
-				"location": [
-					476,
-					-1475
-				],
-				"dimensions": [
-					150,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Strength",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 0
-					}
-				],
-				"attributes": {
-					"space": "TANGENT",
-					"uv_map": ""
-				},
-				"links": [
-					{
-						"fn": "Normal Map.001",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.004",
-						"ts": 0,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Normal Map.002": {
-				"bl_idname": "ShaderNodeNormalMap",
-				"name": "Normal Map.002",
-				"location": [
-					516,
-					-1178
-				],
-				"dimensions": [
-					150,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Strength",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 0
-					}
-				],
-				"attributes": {
-					"space": "TANGENT",
-					"uv_map": ""
-				},
-				"links": [
-					{
-						"fn": "Normal Map.002",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.003",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Normal Map.003": {
-				"bl_idname": "ShaderNodeNormalMap",
-				"name": "Normal Map.003",
-				"location": [
-					519,
-					-994
-				],
-				"dimensions": [
-					150,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Strength",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 0
-					}
-				],
-				"attributes": {
-					"space": "TANGENT",
-					"uv_map": ""
-				},
-				"links": [
-					{
-						"fn": "Normal Map.003",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.003",
-						"ts": 0,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Normal Map.004": {
-				"bl_idname": "ShaderNodeNormalMap",
-				"name": "Normal Map.004",
-				"location": [
-					527,
-					-707
-				],
-				"dimensions": [
-					150,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Strength",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 0
-					}
-				],
-				"attributes": {
-					"space": "TANGENT",
-					"uv_map": ""
-				},
-				"links": [
-					{
-						"fn": "Normal Map.004",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.002",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Normal Map.005": {
-				"bl_idname": "ShaderNodeNormalMap",
-				"name": "Normal Map.005",
-				"location": [
-					531,
-					-542
-				],
-				"dimensions": [
-					150,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Strength",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 0
-					}
-				],
-				"attributes": {
-					"space": "TANGENT",
-					"uv_map": ""
-				},
-				"links": [
-					{
-						"fn": "Normal Map.005",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.002",
-						"ts": 0,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Normal Map.006": {
-				"bl_idname": "ShaderNodeNormalMap",
-				"name": "Normal Map.006",
-				"location": [
-					497,
-					-207
-				],
-				"dimensions": [
-					150,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Strength",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 0
-					}
-				],
-				"attributes": {
-					"space": "TANGENT",
-					"uv_map": ""
-				},
-				"links": [
-					{
-						"fn": "Normal Map.006",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group",
-						"ts": 1,
-						"to": false
-					}
-				],
-				"parent": "Frame.001"
-			},
-			"Normal Map.007": {
-				"bl_idname": "ShaderNodeNormalMap",
-				"name": "Normal Map.007",
-				"location": [
-					488,
-					-87
-				],
-				"dimensions": [
-					150,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Strength",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 0
-					}
-				],
-				"attributes": {
-					"space": "TANGENT",
-					"uv_map": ""
-				},
-				"links": [
-					{
-						"fn": "Normal Map.007",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group",
+						"tn": "Group Output",
 						"ts": 0,
 						"to": false
 					}
@@ -16463,6 +16504,38 @@
 			}
 		],
 		"nodes": {
+			"Geometry": {
+				"bl_idname": "ShaderNodeNewGeometry",
+				"name": "Geometry",
+				"location": [
+					-335,
+					-100
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [],
+				"attributes": {},
+				"links": [
+					{
+						"fn": "Geometry",
+						"fs": 1,
+						"fo": true,
+						"tn": "Vector Math.001",
+						"ts": 1,
+						"to": false
+					},
+					{
+						"fn": "Geometry",
+						"fs": 1,
+						"fo": true,
+						"tn": "Vector Math",
+						"ts": 1,
+						"to": false
+					}
+				]
+			},
 			"Group Input": {
 				"bl_idname": "NodeGroupInput",
 				"name": "Group Input",
@@ -16556,41 +16629,6 @@
 						"fo": true,
 						"tn": "Vector Rotate",
 						"ts": 3,
-						"to": false
-					}
-				]
-			},
-			"Texture Coordinate": {
-				"bl_idname": "ShaderNodeTexCoord",
-				"name": "Texture Coordinate",
-				"location": [
-					-380,
-					-168
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"object": null,
-					"from_instancer": false
-				},
-				"links": [
-					{
-						"fn": "Texture Coordinate",
-						"fs": 1,
-						"fo": true,
-						"tn": "Vector Math",
-						"ts": 1,
-						"to": false
-					},
-					{
-						"fn": "Texture Coordinate",
-						"fs": 1,
-						"fo": true,
-						"tn": "Vector Math.001",
-						"ts": 1,
 						"to": false
 					}
 				]
@@ -16716,7 +16754,7 @@
 				],
 				"attributes": {
 					"rotation_type": "AXIS_ANGLE",
-					"invert": false
+					"invert": true
 				},
 				"links": [
 					{
@@ -16857,7 +16895,7 @@
 						"fs": 1,
 						"fo": true,
 						"tn": "Group.001",
-						"ts": 0,
+						"ts": 1,
 						"to": false
 					}
 				]
@@ -16883,8 +16921,8 @@
 				"bl_idname": "ShaderNodeGroup",
 				"name": "Group.001",
 				"location": [
-					610,
-					20
+					577,
+					-6
 				],
 				"dimensions": [
 					140,
@@ -16943,8 +16981,8 @@
 				"bl_idname": "ShaderNodeMix",
 				"name": "Mix",
 				"location": [
-					167,
-					147
+					183,
+					138
 				],
 				"dimensions": [
 					140,
@@ -17003,7 +17041,7 @@
 						"fs": 1,
 						"fo": true,
 						"tn": "Group.001",
-						"ts": 1,
+						"ts": 0,
 						"to": false
 					}
 				]
@@ -20218,32 +20256,6 @@
 						"fn": "Group.002",
 						"fs": 0,
 						"fo": true,
-						"tn": "Group.004",
-						"ts": 0,
-						"to": false
-					}
-				]
-			},
-			"Group.004": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group.004",
-				"location": [
-					-287,
-					-426
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [],
-				"attributes": {
-					"node_tree": "OWM: Mix Normals"
-				},
-				"links": [
-					{
-						"fn": "Group.004",
-						"fs": 0,
-						"fo": true,
 						"tn": "Group.006",
 						"ts": 0,
 						"to": false
@@ -20254,8 +20266,8 @@
 				"bl_idname": "ShaderNodeGroup",
 				"name": "Group.005",
 				"location": [
-					-680,
-					-450
+					-615,
+					-452
 				],
 				"dimensions": [
 					140,
@@ -20838,8 +20850,8 @@
 				"bl_idname": "ShaderNodeNormalMap",
 				"name": "Normal Map.002",
 				"location": [
-					-524,
-					-426
+					-373,
+					-421
 				],
 				"dimensions": [
 					150,
@@ -20851,14 +20863,6 @@
 					"uv_map": ""
 				},
 				"links": [
-					{
-						"fn": "Normal Map.002",
-						"fs": 0,
-						"fo": true,
-						"tn": "Group.004",
-						"ts": 1,
-						"to": false
-					},
 					{
 						"fn": "Normal Map.002",
 						"fs": 0,
@@ -23015,76 +23019,6 @@
 			}
 		],
 		"nodes": {
-			"Group": {
-				"bl_idname": "ShaderNodeGroup",
-				"name": "Group",
-				"location": [
-					40,
-					40
-				],
-				"dimensions": [
-					140,
-					100
-				],
-				"inputs": [
-					{
-						"name": "Material",
-						"type": "RGBA",
-						"default_value": [
-							0.0,
-							0.0,
-							0.0,
-							1.0
-						],
-						"index": 1
-					}
-				],
-				"attributes": {
-					"node_tree": "OWM: Unpack PBR V2"
-				},
-				"links": [
-					{
-						"fn": "Group",
-						"fs": 0,
-						"fo": true,
-						"tn": "Principled BSDF",
-						"ts": 6,
-						"to": false
-					},
-					{
-						"fn": "Group",
-						"fs": 1,
-						"fo": true,
-						"tn": "Principled BSDF",
-						"ts": 7,
-						"to": false
-					},
-					{
-						"fn": "Group",
-						"fs": 3,
-						"fo": true,
-						"tn": "Principled BSDF",
-						"ts": 12,
-						"to": false
-					},
-					{
-						"fn": "Group",
-						"fs": 4,
-						"fo": true,
-						"tn": "Principled BSDF",
-						"ts": 13,
-						"to": false
-					},
-					{
-						"fn": "Group",
-						"fs": 2,
-						"fo": true,
-						"tn": "Mix",
-						"ts": 6,
-						"to": false
-					}
-				]
-			},
 			"Group Input": {
 				"bl_idname": "NodeGroupInput",
 				"name": "Group Input",
@@ -23205,14 +23139,6 @@
 					},
 					{
 						"fn": "Group Input",
-						"fs": 5,
-						"fo": true,
-						"tn": "Group",
-						"ts": 0,
-						"to": false
-					},
-					{
-						"fn": "Group Input",
 						"fs": 11,
 						"fo": true,
 						"tn": "Group.002",
@@ -23322,6 +23248,14 @@
 						"tn": "Group.001",
 						"ts": 2,
 						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 5,
+						"fo": true,
+						"tn": "Separate XYZ.001",
+						"ts": 0,
+						"to": false
 					}
 				]
 			},
@@ -23346,8 +23280,8 @@
 				"bl_idname": "ShaderNodeGroup",
 				"name": "Group.001",
 				"location": [
-					-179,
-					-386
+					-172,
+					-390
 				],
 				"dimensions": [
 					209,
@@ -23652,6 +23586,14 @@
 						"tn": "Mix",
 						"ts": 7,
 						"to": false
+					},
+					{
+						"fn": "Math.005",
+						"fs": 0,
+						"fo": true,
+						"tn": "Mix",
+						"ts": 3,
+						"to": false
 					}
 				]
 			},
@@ -23693,8 +23635,8 @@
 				"bl_idname": "ShaderNodeMix",
 				"name": "Mix",
 				"location": [
-					421,
-					-463
+					456,
+					-101
 				],
 				"dimensions": [
 					140,
@@ -23719,18 +23661,6 @@
 					},
 					{
 						"name": "A",
-						"type": "VALUE",
-						"default_value": 0.0,
-						"index": 2
-					},
-					{
-						"name": "B",
-						"type": "VALUE",
-						"default_value": 0.0,
-						"index": 3
-					},
-					{
-						"name": "A",
 						"type": "VECTOR",
 						"default_value": [
 							0.0,
@@ -23748,10 +23678,21 @@
 							0.0
 						],
 						"index": 5
+					},
+					{
+						"name": "A",
+						"type": "RGBA",
+						"default_value": [
+							0.5,
+							0.5,
+							0.5,
+							1.0
+						],
+						"index": 6
 					}
 				],
 				"attributes": {
-					"data_type": "RGBA",
+					"data_type": "FLOAT",
 					"factor_mode": "UNIFORM",
 					"blend_type": "MIX",
 					"clamp_factor": true,
@@ -23760,7 +23701,7 @@
 				"links": [
 					{
 						"fn": "Mix",
-						"fs": 2,
+						"fs": 0,
 						"fo": true,
 						"tn": "Principled BSDF",
 						"ts": 9,
@@ -23924,8 +23865,8 @@
 				"bl_idname": "ShaderNodeNormalMap",
 				"name": "Normal Map",
 				"location": [
-					-425,
-					-317
+					-405,
+					-232
 				],
 				"dimensions": [
 					150,
@@ -23972,6 +23913,12 @@
 						"index": 5
 					},
 					{
+						"name": "Metallic",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 6
+					},
+					{
 						"name": "Specular Tint",
 						"type": "VALUE",
 						"default_value": 1.0,
@@ -23988,6 +23935,18 @@
 						"type": "VALUE",
 						"default_value": 0.0,
 						"index": 11
+					},
+					{
+						"name": "Sheen",
+						"type": "VALUE",
+						"default_value": 0.0,
+						"index": 12
+					},
+					{
+						"name": "Sheen Tint",
+						"type": "VALUE",
+						"default_value": 0.5,
+						"index": 13
 					},
 					{
 						"name": "Clearcoat",
@@ -24183,6 +24142,38 @@
 						"fo": true,
 						"tn": "Reroute.009",
 						"ts": 0,
+						"to": false
+					}
+				]
+			},
+			"Separate XYZ.001": {
+				"bl_idname": "ShaderNodeSeparateXYZ",
+				"name": "Separate XYZ.001",
+				"location": [
+					110,
+					-35
+				],
+				"dimensions": [
+					140,
+					100
+				],
+				"inputs": [],
+				"attributes": {},
+				"links": [
+					{
+						"fn": "Separate XYZ.001",
+						"fs": 0,
+						"fo": true,
+						"tn": "Principled BSDF",
+						"ts": 7,
+						"to": false
+					},
+					{
+						"fn": "Separate XYZ.001",
+						"fs": 1,
+						"fo": true,
+						"tn": "Mix",
+						"ts": 2,
 						"to": false
 					}
 				]
@@ -27366,7 +27357,19 @@
 					140,
 					100
 				],
-				"inputs": [],
+				"inputs": [
+					{
+						"name": "Base",
+						"type": "RGBA",
+						"default_value": [
+							0.5,
+							0.5,
+							0.0,
+							1.0
+						],
+						"index": 2
+					}
+				],
 				"attributes": {
 					"node_tree": "OWM: Blend Detail"
 				},
@@ -27401,7 +27404,19 @@
 					138,
 					100
 				],
-				"inputs": [],
+				"inputs": [
+					{
+						"name": "Base",
+						"type": "RGBA",
+						"default_value": [
+							0.5,
+							0.5,
+							0.0,
+							1.0
+						],
+						"index": 2
+					}
+				],
 				"attributes": {
 					"node_tree": "OWM: Blend Detail"
 				},
@@ -27993,7 +28008,19 @@
 					140,
 					100
 				],
-				"inputs": [],
+				"inputs": [
+					{
+						"name": "Base",
+						"type": "RGBA",
+						"default_value": [
+							0.5,
+							0.5,
+							0.0,
+							1.0
+						],
+						"index": 2
+					}
+				],
 				"attributes": {
 					"node_tree": "OWM: Blend Detail"
 				},
@@ -29669,6 +29696,7 @@
 					}
 				],
 				"attributes": {
+					"hide": true,
 					"operation": "SUBTRACT",
 					"use_clamp": true
 				},
