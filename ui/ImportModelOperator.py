@@ -1,13 +1,14 @@
 from datetime import datetime
 
 import bpy
-from bpy.props import StringProperty
+from bpy.props import StringProperty, CollectionProperty
 from bpy.utils import smpte_from_seconds
 from bpy_extras.io_utils import ImportHelper
 
 from . import LibraryHandler
 from . import SettingTypes
 from ..importer import model
+from ..readers import PathUtil
 
 
 class ImportOWMDL(bpy.types.Operator, ImportHelper):
@@ -22,6 +23,15 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
         options={'HIDDEN'},
     )
 
+    directory: StringProperty(
+        options={'HIDDEN'}
+    )
+
+    files: CollectionProperty(
+        type=bpy.types.OperatorFileListElement,
+        options={'HIDDEN', 'SKIP_SAVE'},
+    )
+
     modelSettings: bpy.props.PointerProperty(type=SettingTypes.OWModelSettings)
     
     @classmethod
@@ -31,7 +41,8 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         LibraryHandler.load_data()
         t = datetime.now()
-        model.init(self.filepath, self.modelSettings)
+        files = [PathUtil.joinPath(self.directory, file.name) for file in self.files]
+        model.init(files, self.modelSettings)
         print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
