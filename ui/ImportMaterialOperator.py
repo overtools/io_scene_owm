@@ -27,16 +27,15 @@ class ImportOWMAT(bpy.types.Operator, ImportHelper):
     )
 
     files: CollectionProperty(
-            type=bpy.types.OperatorFileListElement,
-            options={'HIDDEN', 'SKIP_SAVE'},
-        )
+        type=bpy.types.OperatorFileListElement,
+        options={'HIDDEN', 'SKIP_SAVE'},
+    )
 
     @classmethod
     def poll(cls, context):
         return True
 
     def execute(self, context):
-        LibraryHandler.load_data()
         t = datetime.now()
         files = {PathUtil.nameFromPath(file.name):PathUtil.joinPath(self.directory, file.name) for file in self.files}
         material.init(files)

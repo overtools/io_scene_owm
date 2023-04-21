@@ -1,4 +1,4 @@
-modules = ["blender","entity","material","model","owmap"]
+modules = ["blender","animation","entity","material","model","owmap"]
 if "sys" in locals():
     from importlib import reload 
     for module in modules:

@@ -38,6 +38,12 @@ class OWModelSettings(bpy.types.PropertyGroup):
         default=True,
     )
 
+    importMatless: BoolProperty(
+        name='import matless meshes',
+        description='hidden attribute for mythic skins',
+        default=True,
+    )
+
     saveMaterialDB: BoolProperty(
         name='(DEV) Dump Materials JSON',
         description='Save a material database in json for use in other applications',

@@ -25,11 +25,9 @@ def xzy(pos):
 
 
 def wxzy(rot):
-    quat = Quaternion()
-    quat.x = rot[0]
-    quat.y = rot[1]
-    quat.z = rot[2]
-    quat.w = rot[3]
+    quat = Quaternion(rot[0:3], rot[3])
+    if rot[3] != 1:
+        quat.rotate(rotation)
     return quat
 
 
@@ -50,7 +48,6 @@ def importEmpties(meshData, armature=None, blendBones=[]):
         empty = bpy.data.objects.new(emp.name, None)
         empty.empty_display_size = .05
         empty.empty_display_type = "SPHERE"
-        #empty.parent = socketsFolder
         empty.location = xzy(emp.position)
         empty.rotation_mode = 'QUATERNION'
         empty.rotation_quaternion = wxzy(emp.rotation)
@@ -90,10 +87,6 @@ def importArmature(meshData):  # honestly fuck this 2x
 
         mpos = Matrix.Translation(bone.pos)
         mrot = Euler(bone.rot).to_matrix().to_4x4()
-        """mrot = mrot @ Matrix(((-1, 0, 0, 0),
-        (0, 0, 1, 0),
-        (0, 1, 0, 0),
-        (0, 0, 0, 1)))"""
         matrices[bone.name] = mpos @ mrot
 
     for i, bone in enumerate(restPoseBones):

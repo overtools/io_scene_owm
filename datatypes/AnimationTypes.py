@@ -1,6 +1,7 @@
 from enum import Enum
 
 from ..readers import PathUtil
+from .CommonTypes import OWMFile
 
 
 class OWAnimFile:
@@ -30,3 +31,37 @@ class OWAnimHeader:
         self.guid = guid
         self.fps = fps
         self.anim_type = anim_type
+
+class OWAnimClipFile(OWMFile):
+    def __init__(self, header, filepath):
+        super().__init__(filepath)
+        self.header = header
+        self.bones = []
+
+class OWAnimClipHeader:
+    def __init__(self, major, minor, boneCount, fps, duration):
+        self.major = major
+        self.minor = minor
+        self.boneCount = boneCount
+        self.fps = fps
+        self.duration = duration
+
+class OWAnimClipBone:
+    def __init__(self, name, trackCount):
+        self.name = name
+        self.trackCount = trackCount
+        self.positions = OWAnimClipTrack(0,0,0)
+        self.rotations = OWAnimClipTrack(0,0,0)
+        self.scale = OWAnimClipTrack(0,0,0)
+
+class OWAnimClipTrack:
+    def __init__(self, trackType, keyframeCount, componentCount):
+        self.trackType = trackType
+        self.keyframeCount = keyframeCount
+        self.componentCount = componentCount
+        self.keyframes = []
+
+class OWAnimClipKeyframe:
+    def __init__(self, frame):
+        self.frame = frame[0]
+        self.data = None

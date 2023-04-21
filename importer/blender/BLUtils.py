@@ -72,3 +72,6 @@ def unlinkScene(obj, collection=None):
     if collection is None:
         collection = bpy.context.view_layer.active_layer_collection.collection
     collection.objects.unlink(obj)
+
+def bulkDelete(objs):
+    bpy.data.batch_remove(objs)

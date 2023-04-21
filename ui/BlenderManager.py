@@ -12,6 +12,8 @@ from . import Preferences
 from . import SettingTypes
 from . import UtilityOperators
 from . import ImportMapWizard
+from . import ImportAnimationOperator
+from . import DatatoolLibHandler
 
 class OvertoolsMenu(bpy.types.Menu):
     bl_idname = 'OWM_MT_overtools_menu'
@@ -24,6 +26,7 @@ class OvertoolsMenu(bpy.types.Menu):
         self.layout.operator(ImportEntityOperator.ImportOWENTITY.bl_idname, text='Entity (.owentity)')
         self.layout.operator(ImportMapOperator.ImportOWMAP.bl_idname, text='Map (.owmap)')
         self.layout.operator(ImportMaterialOperator.ImportOWMAT.bl_idname, text='Material (.owmat)')
+        self.layout.operator(ImportAnimationOperator.ImportOWANIMCLIP.bl_idname, text='Animation (.owanimclip)')
 
 def overtoolsMenuDraw(self, context):
     self.layout.menu("OWM_MT_overtools_menu", text="Overtools")
@@ -51,6 +54,10 @@ classes = (
     UtilityOperators.OWMCleanupOp,
     UtilityOperators.OWMCleanupTexOp,
     UtilityOperators.OWMChangeModelLookOp,
+    DatatoolLibHandler.OWMBuildTextureDB,
+    DatatoolLibHandler.OWMFixTextures,
+    #Independent import
+    ImportAnimationOperator.ImportOWANIMCLIP,
 )
 classes_importers = (
     ImportModelOperator.ImportOWMDL,

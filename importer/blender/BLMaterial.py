@@ -5,6 +5,7 @@ from ...readers import OWMaterialReader, PathUtil
 from ...textureMap import TextureTypes as textureMap
 from ...textureMap import StaticInputsByType, ScalesByName
 from ...datatypes import MaterialTypes
+from ...ui import LibraryHandler
 
 class BlenderMaterialTree:
     def __init__(self, modelLooks, dedup=False):
@@ -18,6 +19,7 @@ class BlenderMaterialTree:
         self.texPaths = {}
         self.dedup = dedup
         self.unusedMaterials = set()
+        self.blendNodeGroups = LibraryHandler.load_data()
         print("[owm]: Reading material looks")
         self.batchLoadMaterials(modelLooks)
         print("[owm]: Creating {} materials".format(len(self.materials)))
@@ -83,8 +85,7 @@ class BlenderMaterialTree:
                 self.markUsed(blendMaterial)
                 blendObj["owm.material"] = materialGUID
             else:
-                print("[owm]: Unable to find material {:016X} in provided material set (BLMaterial)".format(
-                    meshData.materialKey))
+                print("[owm]: Unable to find material {:016X} in provided material set (BLMaterial)".format(meshData.materialKey))
 
     def bindEntityLook(self, entity, modelLookID):
         if entity.baseModel:
@@ -102,7 +103,7 @@ class BlenderMaterialTree:
             materialNodeTree[shaderKey].add(materialGUID)
 
         for nodeTree in materialNodeTree:
-            self.nodeTreeCache[nodeTree] = buildNodeTree(textureInputs[nodeTree], nodeTree)
+            self.nodeTreeCache[nodeTree] = buildNodeTree(textureInputs[nodeTree], nodeTree, self.blendNodeGroups)
 
         return materialNodeTree
 
@@ -201,6 +202,10 @@ class BlenderMaterialTree:
                     scaleNode.inputs[2].default_value = scale[-1]
                     scaleNode.inputs[3].default_value = scale[1]
                     scaleNode.inputs[4].default_value = scale[2]
+
+                    if 3249912104 in material.staticInputs:
+                        shaderInput = "Detail {} Multipliers".format(textureMapping[texture.key].readableName.replace("Detail Region ",""))
+                        shaderGroup.inputs[shaderInput].default_value = material.staticInputs[3249912104][index][:3]
         
         # shader specific fixes
         if material.shader == 51 and "4101268840" in nodes: # ow2 hair
@@ -295,7 +300,7 @@ tile_x = 400
 tile_y = 50
 textureMapping = textureMap["Mapping"]
 
-def buildNodeTree(textureInputs, shaderKey):
+def buildNodeTree(textureInputs, shaderKey, blendNodeGroups):
     shaderGroup = shaderKey[-2]
     if shaderKey[-1]: # check for node group variant
         shaderKeyStr = str(shaderGroup)+"_"+str(shaderKey[-1])
@@ -327,11 +332,11 @@ def buildNodeTree(textureInputs, shaderKey):
     renameNode(shaderNode, "OverwatchShader", "OWM Shader {}".format(shaderGroup))
     shaderNode["owm.shaderkey"] = shaderKeyStr
 
-    if str(shaderKeyStr) in textureMap['NodeGroups'] and textureMap['NodeGroups'][str(shaderKeyStr)] in bpy.data.node_groups:
-        shaderNode.node_tree = bpy.data.node_groups[textureMap['NodeGroups'][str(shaderKeyStr)]]
+    if str(shaderKeyStr) in textureMap['NodeGroups'] and textureMap['NodeGroups'][str(shaderKeyStr)] in blendNodeGroups:
+        shaderNode.node_tree = blendNodeGroups[textureMap['NodeGroups'][str(shaderKeyStr)]]
     else:
-        if textureMap['NodeGroups']['Default'] in bpy.data.node_groups:
-            shaderNode.node_tree = bpy.data.node_groups[textureMap['NodeGroups']['Default']]
+        if textureMap['NodeGroups']['Default'] in blendNodeGroups:
+            shaderNode.node_tree = blendNodeGroups[textureMap['NodeGroups']['Default']]
 
     shaderNode.location = (0, 0)
     shaderNode.width = 300
@@ -440,7 +445,8 @@ def generateShaderKey(material):
     textures = [texData.key for texData in material.textures]
     textures.sort()
     textures.append(material.shader)
-    if material.shader == 37: # I'll hate you forever, shader 37
+    if material.shader == 37: # I'll hate you forever, shader 37.
+        #for the record this is completely bogus and theres no way to tell which shader to use
         mode = material.staticInputs[2241837981]
         if mode == 2: #if aouvu is not 2 we need a sec layer node
             if 3120512190 not in textures: #Overlay not present

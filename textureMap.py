@@ -103,7 +103,7 @@ TextureTypes = {
         861945942: [[], [], 'Eye Mask'],
     },
     # List of names to import as sRGB
-    "Color": ["Color", "Dirt Color", "Subsurf", "Subsurf2", "Color B", "Color C", "Emission Color"],
+    "Color": ["Color", "Dirt Color", "Subsurface", "Subsurf2", "Color B", "Color C", "Emission Color"],
     # Active texture to display in the viewport
     "Active": ["Color", "Color2", "Color3"],
     "DetailTextures": {
@@ -130,11 +130,12 @@ TextureTypes = {
         565460110:StaticInput((565460110, "f", "ShaderParm", "Opacity")),  # decal opacity
         3604494376:StaticInput((3604494376, "ffff", "ShaderParm", "Hair Strand Density")),  # hardcoded
         4081294361:StaticInput((4081294361, "ffff", "Array", 8)),
+        3249912104:StaticInput((3249912104, "ffff", "Array", 8)),
         2135242209:StaticInput((2135242209, "II", "Dummy", "Scaling Mode")),
         #2241837981:StaticInput((2241837981, "I", "Dummy", "Blend2")),  # blend2 uv
         # 62081fbd overlay normal fac
     },
-    "CollisionMaterials": set(["000000000796", "000000000005", "000000000794", "0000000048EF", "0000000034A3","000000000797","0000000007A2","0000000007A0","0000000007C0","0000000007A1"]),
+    "CollisionMaterials": set(["0000000034A0","000000002DD4","000000002D77","0000000034A2","000000002D77","000000000796", "000000000005", "000000000794", "0000000048EF", "0000000034A3","000000000797","0000000007A2","0000000007A0","0000000007C0","0000000007A1"]),
     # OWM Shader remaps for shader ids
     "NodeGroups": {
         "Default": "OWM: Basic",

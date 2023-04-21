@@ -13,12 +13,14 @@ from ..readers.PathUtil import joinPath
 
 heroLabels = {"D.Va":"D.Va cheat sheet:|Gameplay3P: Pilot, Pistol|Showcase: Meka, Pilot Torso, Pilot, Pistol (Left)|HighlightIntro: Meka, Pilot Torso, Pilot, Pistol (Right)|Hero Gallery: Meka, Pilot Torso, Pilot"}
 heroDefaults = {"D.Va": "Showcase"}
-icons = {}
 
+
+ICONS = {"loaded":{}}
 HEROES = []
 SKINS = []
 VARIANTS = []
 ENTITIES = []
+VARIANTCACHE = {}
 
 
 class ImportOWSkin(bpy.types.Operator):
@@ -29,7 +31,7 @@ class ImportOWSkin(bpy.types.Operator):
 
     def listHeroes(self, context):
         global HEROES
-        HEROES = DatatoolLibUtil.categoryList("Heroes")
+        HEROES = [hero for hero in DatatoolLibUtil.categoryList("Heroes") if DatatoolLibUtil.categoryExists(joinPath("Heroes",hero[0], "Skin")) or hero[0] == "Select"]
         return HEROES
 
     def listSkins(self, context):
@@ -77,34 +79,38 @@ class ImportOWSkin(bpy.types.Operator):
         return ENTITIES
 
     def listMythicVariants(self, context):
-        global VARIANTS
-        if self.skin not in icons:
-            icons[self.skin] = bpy.utils.previews.new()
-
+        global VARIANTS,VARIANTCACHE,ICONS
+        self.modelSettings.importMatless = False
+        if self.skin not in ICONS:
+            ICONS[self.skin] = bpy.utils.previews.new()
+            ICONS["loaded"][self.skin] = {}
+            
+        VARIANTCACHE.setdefault(self.skin, DatatoolLibUtil.subCategoryList("Heroes", self.skin))
         enum = []
-        variants = DatatoolLibUtil.subCategoryList("Heroes", self.skin)
         i=0
-        for variant in variants:
+        for variant in VARIANTCACHE[self.skin]:
             if variant == "Models" or variant == "Effects" or variant == "GUI":
                 continue
-            if variant not in icons[self.skin]:
+            if variant not in ICONS["loaded"]:
                 iconPath = joinPath(DatatoolLibUtil.getRoot(), "Heroes", self.skin, variant, "Info.png")
-                icon = icons[self.skin].load(variant, iconPath, 'IMAGE')
-            else:
-                icon = icons[self.skin][variant]
-            enum.append((variant,variant,"", icon.icon_id, i))
+                icon = ICONS[self.skin].load(variant, iconPath, 'IMAGE')
+                ICONS["loaded"][variant] = int(icon.icon_id)
+
+            enum.append((variant, variant, variant, ICONS["loaded"][variant], i))
             i+=1
         VARIANTS = enum
-        return enum
+        return VARIANTS
 
     def resetSkin(self, context):
         if self.hero != "Select":
             self.mythic = False
+            self.modelSettings.importMatless = True
             self.skin = "Select"
     
     def resetEntity(self, context):
         if not self.mythic and self.skin != "Select":
             self.entity = heroDefaults.get(self.hero, "Gameplay3P")
+            self.modelSettings.importMatless = True
 
 
     modelSettings: bpy.props.PointerProperty(type=SettingTypes.OWModelSettings)
@@ -145,7 +151,6 @@ class ImportOWSkin(bpy.types.Operator):
             self.report({'ERROR'}, "No Skin selected.")
             bpy.ops.import_mesh.overtools2_skin('INVOKE_DEFAULT')
         else:
-            LibraryHandler.load_data()
             t = datetime.now()
             skinName = PathUtil.nameFromPath(self.skin)
             name = "{} {} ({})".format(self.hero, skinName, self.entity)

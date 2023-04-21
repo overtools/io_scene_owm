@@ -56,6 +56,12 @@ def init(filename, modelSettings, entitySettings, prettyName=None):
                     modelLook = ent.entityData.modelLook
                 folder["owm.modelLook"] = modelLook.GUID
                 matTree.bindModelLook(modelData, modelLook.GUID)
+                toDelete = []
+                if not modelSettings.importMatless:
+                    for mesh in modelData.meshes:
+                        if len(mesh.data.materials) == 0:
+                            toDelete.append(mesh)
+
 
             # Parent and link meshes
             for obj in modelData.meshes:
@@ -70,6 +76,8 @@ def init(filename, modelSettings, entitySettings, prettyName=None):
                 for emptyObj in modelData.empties[1].values():
                     emptyObj.parent = modelData.empties[0]
                     BLUtils.linkScene(emptyObj)
+            
+            BLUtils.bulkDelete(toDelete)
 
         for child in ent.children:
             handleEntityModel(child, entityFolder, ent)

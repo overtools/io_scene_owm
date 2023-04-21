@@ -2,6 +2,8 @@ import bpy
 from ..readers import PathUtil
 from . import LibraryHandler
 from . import Preferences
+from . import DatatoolLibHandler
+from . import DatatoolLibUtil
 from ..importer.blender.BLMaterial import BlenderMaterialTree
 
 class OWMUtilityPanel(bpy.types.Panel):
@@ -42,6 +44,12 @@ class OWMUtilityPanel(bpy.types.Panel):
         row = box.row()
         row.operator(LibraryHandler.OWMConnectAOOp.bl_idname, text="Connect AO Textures", icon="OBJECT_DATA")
         row.operator(LibraryHandler.OWMDisconnectAOOp.bl_idname, text="Disconnect AO Textures", icon="OBJECT_DATA")
+        if DatatoolLibUtil.isPathSet():
+            row = box.row()
+            row.operator(DatatoolLibHandler.OWMBuildTextureDB.bl_idname, text="Scan Texture Directories (CAN TAKE LONG)", icon="VIEWZOOM")
+            
+            row = box.row()
+            row.operator(DatatoolLibHandler.OWMFixTextures.bl_idname, text="Fix Missing Textures", icon="LINK_BLEND")
 
 class OWMCleanupOp(bpy.types.Operator):
     """Deletes empty objects with no sub objects"""

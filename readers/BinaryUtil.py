@@ -94,7 +94,7 @@ class BinaryFile(BytesIO):
                     a += self.readSingle(fmt)
                 else:
                     a.append(self.readSingle(fmt))
-        if len(a) == 1:
+        if len(a) == 1 and flat:
             return a[0]
         return a
 

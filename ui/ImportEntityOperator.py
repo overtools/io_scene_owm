@@ -30,7 +30,6 @@ class ImportOWENTITY(bpy.types.Operator, ImportHelper):
         return True
 
     def execute(self, context):
-        LibraryHandler.load_data()
         t = datetime.now()
         entity.init(self.filepath, self.modelSettings, self.entitySettings)
         print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))

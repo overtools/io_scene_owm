@@ -42,7 +42,6 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
         return {'RUNNING_MODAL'}
 
     def execute(self, context):
-        LibraryHandler.load_data()
         t = datetime.now()
         owmap.init(self.filepath, self.mapSettings, self.modelSettings, self.lightSettings, self.entitySettings)
         print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))

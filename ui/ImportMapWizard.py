@@ -25,6 +25,8 @@ MAPIDS = {
     "E6E": "Beta 2 Junker Queen Menu",
     "EFB": "New Player Menu ?",
     "EF0": "Menu",
+    "B6B": "Hanamura Cupid Hanzo Menu",
+    "DAD": "Lunar Lijiang Menu",
  }
 
 class ImportOWMapWizard(bpy.types.Operator):
@@ -105,7 +107,6 @@ class ImportOWMapWizard(bpy.types.Operator):
             self.report({'ERROR'}, "No Variation selected.")
             bpy.ops.import_mesh.overtools2_mapwiz('INVOKE_DEFAULT')
         else:
-            LibraryHandler.load_data()
             t = datetime.now()
             owmap.init(joinPath(DatatoolLibUtil.getRoot(), "Maps", self.map, self.id, self.variation), self.mapSettings, self.modelSettings, self.lightSettings, self.entitySettings)
             print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
