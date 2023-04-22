@@ -8736,7 +8736,7 @@
 				"bl_socket_idname": "NodeSocketFloat"
 			},
 			{
-				"name": "Value",
+				"name": "ROUGHNESSBLENDFAC",
 				"bl_socket_idname": "NodeSocketFloat"
 			}
 		],
@@ -9440,8 +9440,8 @@
 				"bl_idname": "ShaderNodeGroup",
 				"name": "Group.013",
 				"location": [
-					1939,
-					-1021
+					1849,
+					-960
 				],
 				"dimensions": [
 					140,
@@ -9460,7 +9460,8 @@
 						"ts": 1,
 						"to": false
 					}
-				]
+				],
+				"parent": "Frame.001"
 			},
 			"Group.016": {
 				"bl_idname": "ShaderNodeGroup",
@@ -21210,8 +21211,8 @@
 				"bl_idname": "ShaderNodeGroup",
 				"name": "Group.006",
 				"location": [
-					-52,
-					-404
+					-18,
+					-413
 				],
 				"dimensions": [
 					185,
@@ -21234,7 +21235,16 @@
 				"attributes": {
 					"node_tree": "OWM: Normal Blend"
 				},
-				"links": []
+				"links": [
+					{
+						"fn": "Group.006",
+						"fs": 0,
+						"fo": true,
+						"tn": "Principled BSDF",
+						"ts": 22,
+						"to": false
+					}
+				]
 			},
 			"Invert": {
 				"bl_idname": "ShaderNodeInvert",
@@ -21792,8 +21802,8 @@
 				"bl_idname": "ShaderNodeNormalMap",
 				"name": "Normal Map.002",
 				"location": [
-					-373,
-					-421
+					-356,
+					-411
 				],
 				"dimensions": [
 					150,
@@ -21818,14 +21828,6 @@
 						"fo": true,
 						"tn": "Group.006",
 						"ts": 1,
-						"to": false
-					},
-					{
-						"fn": "Normal Map.002",
-						"fs": 0,
-						"fo": true,
-						"tn": "Principled BSDF",
-						"ts": 22,
 						"to": false
 					}
 				]
