@@ -2,7 +2,7 @@ from enum import IntEnum
 from . import BinaryUtil
 from . import PathUtil
 from ..datatypes import MaterialTypes
-from .. import textureMap
+from .. import TextureMap
 from ..ui import UIUtil
 
 class OWMatType(IntEnum):
@@ -29,8 +29,8 @@ def readMaterial(filename, stream):
     for i in range(material.staticInputCount):
         inputHash, inputDataLength = stream.readFmt(OWMATFormat.staticInput)
     
-        if inputHash in textureMap.TextureTypes["StaticInputs"]:
-            input = textureMap.TextureTypes["StaticInputs"][inputHash]
+        if inputHash in TextureMap.TextureTypes["StaticInputs"]:
+            input = TextureMap.TextureTypes["StaticInputs"][inputHash]
             if input.type == "Array":
                 data = stream.readFmtArray(input.format, int(inputDataLength/16))
             else:

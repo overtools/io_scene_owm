@@ -6,7 +6,8 @@ from bpy_extras.io_utils import ImportHelper
 
 from . import LibraryHandler
 from . import SettingTypes
-from ..importer import entity
+from . import UIUtil
+from ..importer import ImportEntity
 
 
 class ImportOWENTITY(bpy.types.Operator, ImportHelper):
@@ -31,8 +32,8 @@ class ImportOWENTITY(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         t = datetime.now()
-        entity.init(self.filepath, self.modelSettings, self.entitySettings)
-        print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
+        ImportEntity.init(self.filepath, self.modelSettings, self.entitySettings)
+        UIUtil.log('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def draw(self, context):

@@ -11,7 +11,7 @@ class OWAnimClipFormat():
     extension = "owanimclip"
     major,minor = (2,0)
     minimum = (2,0)
-    header = "<HHIII"
+    header = "<HHIfI"
     bone = (str,"<I")
     track = "<III"
     keyframe = ["<I"]

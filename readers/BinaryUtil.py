@@ -33,7 +33,7 @@ def openStream(filename, extension):
             stream.path = PathUtil.pathRoot(filename)
     except:
         UIUtil.fileOpenError()
-        print("[owm]: BinaryUtil: failed to open file {}".format(filename))
+        UIUtil.log("failed to open file {}".format(filename))
         return None
     return stream
 

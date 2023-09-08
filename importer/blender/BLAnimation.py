@@ -1,5 +1,6 @@
 import bpy
 from mathutils import Euler, Quaternion, Matrix, Vector
+from .BLModel import rotation
 
 def preprocessLoc(track, bone):
     for keyframe in track.keyframes:
@@ -21,8 +22,9 @@ def preprocessRot(track, bone):
         if bone.parent is None:
             # I don't actually remember why this is here - probably
             # to set the root bone(s) to its rest pos / angle
-            bone.matrix_basis.identity()
+            angle.rotate(rotation)
             bone.matrix = angle.to_4x4()
+            print(bone.name)
         else:
             bone.matrix = (bone.parent.matrix.to_3x3() @ angle).to_4x4()
         keyframe.data = bone.rotation_quaternion.copy()

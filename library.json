@@ -21095,6 +21095,14 @@
 						"tn": "Group.005",
 						"ts": 0,
 						"to": false
+					},
+					{
+						"fn": "Group Input",
+						"fs": 10,
+						"fo": true,
+						"tn": "Group.006",
+						"ts": 2,
+						"to": false
 					}
 				]
 			},
@@ -21219,12 +21227,6 @@
 					100
 				],
 				"inputs": [
-					{
-						"name": "Blend Fac",
-						"type": "VALUE",
-						"default_value": 1.0,
-						"index": 2
-					},
 					{
 						"name": "Normal B Power",
 						"type": "VALUE",

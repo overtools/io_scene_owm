@@ -34,7 +34,6 @@ def init(filename, modelSettings, entitySettings, prettyName=None):
             entityFolder.parent = parentFolder
             if parentEnt and ent.childData:
                 hardpoint = ent.childData.attachment
-                #print(hardpoint)
                 if parentEnt.baseModel:
                     if hardpoint and hardpoint in parentEnt.baseModel.empties[1]:
                         constraint = entityFolder.constraints.new("COPY_TRANSFORMS")

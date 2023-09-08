@@ -3,8 +3,9 @@ import os
 import bpy
 import json
 from . import UtilityOperators
+from . import UIUtil
 
-from .. import textureMap
+from .. import TextureMap
 
 addonVersion = None
 
@@ -12,7 +13,7 @@ def get_library_path():
     return os.path.join(os.path.dirname(__file__), "..\\library.blend")
 
 def create_overwatch_shader():
-    print("[owm] attempting to import shaders")
+    UIUtil.log("attempting to import shaders")
     path = get_library_path()
     nodes = []
     existing = []
@@ -40,9 +41,9 @@ def create_overwatch_shader():
                              ".osl")]
         
         if len(data_to.node_groups) > 0:
-            print("[owm] imported node groups: %s" % (", ".join(data_to.node_groups)))
+            UIUtil.log("imported node groups: %s" % (", ".join(data_to.node_groups)))
         if len(data_to.texts) > 0:
-            print("[owm] imported scripts: %s" % (", ".join(data_to.texts)))
+            UIUtil.log("imported scripts: %s" % (", ".join(data_to.texts)))
 
     blNodeGroups = dict(zip(nodes, data_to.node_groups))
 
@@ -191,7 +192,6 @@ def load_from_json():
     groupLinks = {}
 
     def createNode(blendNodeGroup, node):
-        #print(node)
         blendNode = blendNodeGroup.nodes.new(node["bl_idname"])
         blendNode.name = node["name"]
         blendNode.width = node["dimensions"][0]
@@ -201,22 +201,18 @@ def load_from_json():
             blendNode.label = node["label"]
             
         for attr,value in node["attributes"].items():
-            #print(attr,value)
             if attr == "node_tree" and value != None:
                 blendNode.node_tree = bpy.data.node_groups[value]
             else:
                 setattr(blendNode, attr, value)
         
         for input in node["inputs"]:
-            #print(input)
             if len(blendNode.inputs) > int(input["index"]) and "default_value" in input:
                 blendNode.inputs[int(input["index"])].default_value = input["default_value"]
 
             
     def createLink(blendNodeGroup, link):
-        #print(link)
         if link["fn"] in blendNodeGroup.nodes and link["tn"] in blendNodeGroup.nodes:
-            #print(blendNodeGroup.nodes[link["tn"]].inputs.keys())
             from_node = blendNodeGroup.nodes[link["fn"]]
             to_node = blendNodeGroup.nodes[link["tn"]]
             if link["fo"]:
@@ -261,7 +257,6 @@ def load_from_json():
             
             
         for node in group["nodes"].values():
-            #print(node)
             for link in node["links"]:
                 treeLinks.append(link)
             if node["bl_idname"] == "ShaderNodeGroup":
@@ -287,7 +282,6 @@ def load_from_json():
                 groupLinks.setdefault(blendNodeGroup, [])
                 groupLinks[blendNodeGroup].append(link)
                     
-    #print(groupNodes)
     for blendNodeGroup, nodes in groupNodes.items():
         for node in nodes:
             createNode(blendNodeGroup, node)
@@ -298,7 +292,7 @@ def load_from_json():
 
 def create_overwatch_library():
     path = get_library_path()
-    print("[owm] attempting to export shaders")
+    UIUtil.log("attempting to export shaders")
     blocks_node = list([node for node in bpy.data.node_groups if node.name.startswith("OWM: ") ])
     for block_node in blocks_node:
         bpy.data.node_groups[block_node.name].use_fake_user = True
@@ -309,20 +303,20 @@ def create_overwatch_library():
     blocks = set(blocks_node + blocks_text)
     dump_json_library()
     if len(blocks) > 0:
-        print("[owm] exported: %s" % (", ".join(map(lambda x: x.name, blocks))))
+        UIUtil.log("exported: %s" % (", ".join(map(lambda x: x.name, blocks))))
     bpy.data.libraries.write(path, blocks, fake_user=True, path_remap="RELATIVE_ALL", compress=False)
-    print("[owm] saved %s" % (path))
+    UIUtil.log("saved %s" % (path))
 
 def load_data():
-    print("[owm] attempting to load texture info")
+    UIUtil.log("attempting to load texture info")
     try:
     # print("[owm] %s = %s" % (fname, json.dumps(tdata)))
         for node in [node for node in bpy.data.node_groups if node.users == 0 and node.name.startswith("OWM: ")]:
-            print("[owm] removing unused node group: %s" % (node.name))
+            UIUtil.log("removing unused node group: %s" % (node.name))
             bpy.data.node_groups.remove(node)
         return create_overwatch_shader()
     except BaseException as e:
-        print("[owm] failed to load node groups: {}".format(e))
+        UIUtil.log("failed to load node groups: {}".format(e))
 
 class OWMLoadOp(bpy.types.Operator):
     """Load OWM Material Library"""
@@ -362,7 +356,7 @@ class OWMLoadJSONOp(bpy.types.Operator):
 
 def getAOTextures():
     ao = {}
-    for tex, mapping in textureMap.TextureTypes["Mapping"].items():
+    for tex, mapping in TextureMap.TextureTypes["Mapping"].items():
         if tex == 3761386704: 
             continue
         if "AO" in mapping.colorSockets or "AO" in mapping.alphaSockets or "Blend AO" in mapping.colorSockets:

@@ -69,8 +69,8 @@ TextureTypes = {
         1716930793: [['Color'], [], 'Decal Albedo'],
         1140682086: [['Alpha'], [], 'Decal Alpha'],
         # Complex Test
-        1281400944: [['Color'], [], 'Flag Albedo'],
-        996643046: [['PBR'], [], 'Flag PBR'],
+        #1281400944: [['Color'], [], 'Flag Albedo'],
+        #996643046: [['PBR'], [], 'Flag PBR'],
         #996643046: [['Color'], [], 'Complex Albedo'],
         #996643046: [['Color'], [], 'Complex Albedo'],
         # OW1 Hair
@@ -149,6 +149,7 @@ TextureTypes = {
         "38": "OWM: Glass",
         "43_1": "OWM: OW1 Skin",
         "43_2": "OWM: OW2 Skin",
+        "167": "OWM: OW2 Skin",
         "44": "OWM: Cloth",  # not cloth actually sadge
         "50": "OWM: Complex",
         "51_1": "OWM: OW1 Hair",  # 53 tree leaves 39 bushes
@@ -160,6 +161,8 @@ TextureTypes = {
     }
 }
 
-print("[owm] initializing texture map classes")
+from . import ui
+ui.UIUtil.log("initializing texture map classes")
 for mappingID, mappingData in TextureTypes["Mapping"].items():
     TextureTypes["Mapping"][mappingID] = Mapping(mappingData)
+

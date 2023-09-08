@@ -7,7 +7,8 @@ import bpy.utils.previews
 from . import LibraryHandler
 from . import SettingTypes
 from . import DatatoolLibUtil
-from ..importer import owmap
+from . import UIUtil
+from ..importer import ImportMap
 from ..readers.PathUtil import joinPath
 from . import Preferences
 
@@ -108,8 +109,8 @@ class ImportOWMapWizard(bpy.types.Operator):
             bpy.ops.import_mesh.overtools2_mapwiz('INVOKE_DEFAULT')
         else:
             t = datetime.now()
-            owmap.init(joinPath(DatatoolLibUtil.getRoot(), "Maps", self.map, self.id, self.variation), self.mapSettings, self.modelSettings, self.lightSettings, self.entitySettings)
-            print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
+            ImportMap.init(joinPath(DatatoolLibUtil.getRoot(), "Maps", self.map, self.id, self.variation), self.mapSettings, self.modelSettings, self.lightSettings, self.entitySettings)
+            UIUtil.log('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def invoke(self, context, event):

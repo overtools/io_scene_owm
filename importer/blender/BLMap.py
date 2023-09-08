@@ -10,7 +10,7 @@ from . import BLEntity
 from . import BLModel
 from .BLMaterial import BlenderMaterialTree
 from ...readers import PathUtil
-from ...textureMap import TextureTypes
+from ...TextureMap import TextureTypes
 
 
 class QueueItem:
@@ -77,7 +77,7 @@ class BlenderTree:
         self.parentChildren[parent.name].append(obj)
 
     def startQueues(self):
-        print("[owm]: Copying objects")
+        UIUtil.log("Copying objects")
         for col in self.cloneQueue:
             for obj in self.cloneQueue[col]:
                 for instance in self.cloneQueue[col][obj]:
@@ -89,7 +89,7 @@ class BlenderTree:
         for col in self.linkQueue:
             objs+=len(self.linkQueue[col])
 
-        print("[owm]: Linking {} objects".format(objs))
+        UIUtil.log("Linking {} objects".format(objs))
         for col in self.linkQueue:
             for obj in self.linkQueue[col]:
                 col.objects.link(obj)
@@ -117,7 +117,6 @@ class BlenderTree:
         return rootFolder
 
     def createEntityHierarchy(self, entity, name):
-        # print(entity)
         if len(entity.children) > 0:
             rootFolder = BLUtils.createFolder(name)
             if entity.baseModel:
@@ -178,18 +177,10 @@ class BlenderTree:
 
 collisionMats = TextureTypes["CollisionMaterials"]
 
-def progress_bar(op, current, total, bar_length=20): #TODO find a place for this ig
-    fraction = current / total
-
-    arrow = int(fraction * bar_length - 1) * '-' + '>'
-    padding = int(bar_length - len(arrow)) * ' '
-
-    ending = '\n' if current == total    else '\r'
-
-    print(f'{op}: [{arrow}{padding}] {int(fraction*100)}%', end=ending)
-
 def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettings, lightSettings):
     blenderTree = BlenderTree(mapSettings.joinMeshes)
+    
+    UIUtil.setStatus("Loading materials")
     matTree = BlenderMaterialTree(mapTree.modelLookPaths) if modelSettings.importMaterial else None
     sceneCol = bpy.context.view_layer.active_layer_collection.collection
     rootMapCol = bpy.data.collections.new(mapName)
@@ -207,12 +198,12 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
 
     models = len(mapTree.objects)-1
     for i,objID in enumerate(mapTree.objects):
-        progress_bar("[owm]: Loading models",i,models)
+        UIUtil.consoleProgressBar("Loading models", i, models)
         # create a "folder" for this model
         objFolder = None
         isEntity = mapTree.modelFilepaths[objID].endswith(".owentity")
 
-        if isEntity:  # this is so bad ngl also TODO move this path sih
+        if isEntity:
             objModel = BLEntity.readEntity(mapTree.modelFilepaths[objID], modelSettings, entitySettings)
             modelFolder = blenderTree.createEntityHierarchy(objModel, objID)
             if modelFolder is None:
@@ -237,7 +228,7 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
                     if isEntity:
                         matTree.bindEntityLook(objModel, objLookID)
                     else:
-                        #print("Binding material look {} to model group {}".format(objLookID, objID))
+                        #UIUtil.log("Binding material look {} to model group {}".format(objLookID, objID))
                         matTree.bindModelLook(objModel, objLookID)
 
                 lookModel = blenderTree.recursiveCopy(modelFolder, lookFolder, True, objFolder)
@@ -258,7 +249,8 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
             blenderTree.queueRemoveRecursive(modelFolder)
 
     if modelSettings.importMaterial: # cleanup
-        print("[owm]: cleaning up...")
+        UIUtil.log("cleaning up...")
+        UIUtil.setStatus("Cleaning up")
         matTree.removeSkeletonNodeTrees()
         if mapSettings.removeCollision:
             for parent, children in blenderTree.parentChildren.items():
@@ -270,14 +262,13 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
                             blenderTree.removeFromQueue(child)
                             remove.add(child)
                 blenderTree.removeChildren(parent, remove)
-        #bpy.data.batch_remove(blenderTree.removeQueue) nukes perf in 3.3, thanks blender devs TODO enable when 3.4 is out
 
     if mapSettings.importLights:
         if mapTree.lights:
             lights = len(mapTree.lights)-1
             for i, lightData in enumerate(mapTree.lights):
                 if lights > 0:
-                    progress_bar("[owm]: Loading lights",i,lights)
+                    UIUtil.consoleProgressBar("Loading lights", i, lights)
                 # skip very dark lights
                 if lightData.color[0] < 0.001 and lightData.color[1] < 0.001 and lightData.color[2] < 0.001:
                     continue
@@ -300,6 +291,7 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
             UIUtil.owmap20Warning()
 
 
+    UIUtil.setStatus("Instancing objects")
     blenderTree.startQueues()
 
     if mapSettings.importObjects:
@@ -315,3 +307,4 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
     if mapSettings.importLights and mapTree.lights:
         rootMapCol.children.link(lightsCol)
 
+    UIUtil.setStatus(None)

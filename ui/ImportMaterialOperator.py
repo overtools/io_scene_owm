@@ -4,8 +4,9 @@ import bpy
 from bpy.props import StringProperty, CollectionProperty
 from bpy.utils import smpte_from_seconds
 from bpy_extras.io_utils import ImportHelper
-from ..importer import material
+from ..importer import ImportMaterial
 from ..readers import PathUtil
+from . import UIUtil
 
 from . import LibraryHandler
 
@@ -38,8 +39,8 @@ class ImportOWMAT(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         t = datetime.now()
         files = {PathUtil.nameFromPath(file.name):PathUtil.joinPath(self.directory, file.name) for file in self.files}
-        material.init(files)
-        print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
+        ImportMaterial.init(files)
+        UIUtil.log('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def draw(self, context):

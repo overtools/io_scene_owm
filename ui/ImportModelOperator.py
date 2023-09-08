@@ -7,7 +7,8 @@ from bpy_extras.io_utils import ImportHelper
 
 from . import LibraryHandler
 from . import SettingTypes
-from ..importer import model
+from . import UIUtil
+from ..importer import ImportModel
 from ..readers import PathUtil
 
 
@@ -41,8 +42,8 @@ class ImportOWMDL(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         t = datetime.now()
         files = [PathUtil.joinPath(self.directory, file.name) for file in self.files]
-        model.init(files, self.modelSettings)
-        print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
+        ImportModel.init(files, self.modelSettings)
+        UIUtil.log('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def draw(self, context):

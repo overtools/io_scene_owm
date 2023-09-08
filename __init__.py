@@ -1,7 +1,9 @@
+import bpy
+
 bl_info = {
     'name': 'OWM Import',
     'author': 'overtools',
-    'version': (3, 2, 1),
+    'version': (3, 2, 2),
     'blender': (3, 4, 0),
     'location': 'File > Import > OWM',
     'description': 'Import exported assets from TankLib or DataTool',
@@ -11,7 +13,7 @@ bl_info = {
     'category': 'Import-Export'
 }
 
-modules = ["datatypes","importer","readers","ui","textureMap"]
+modules = ["datatypes","importer","readers","ui","TextureMap"]
 if "sys" in locals():
     from importlib import reload 
     for module in modules:
@@ -26,6 +28,9 @@ else:
     for module in modules:
         import_module("."+module, __package__)
 
+if bpy.app.version < bl_info["blender"]:
+    sys.tracebacklimit = 0
+    raise SystemExit("This addon is not compatible with Blender {}.{}.{}. Update to the latest Blender version or at least {}.{}.{}.".format(*bpy.app.version, *bl_info["blender"]))
 
 def register():
     ui.BlenderManager.register()

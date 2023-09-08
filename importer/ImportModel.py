@@ -16,7 +16,6 @@ def init(filenames, modelSettings):
 
         if modelSettings.importMaterial:
             modelLook = modelData.meshData.header.material
-            #print(modelLook)
             if modelLook: #TODO make it none
                 modelFolder["owm.modelLook"] = modelLook.GUID
                 matTree = BlenderMaterialTree({modelLook.GUID: modelLook.filepath})

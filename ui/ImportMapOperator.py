@@ -6,7 +6,8 @@ from bpy.utils import smpte_from_seconds
 from bpy_extras.io_utils import ImportHelper
 
 from . import LibraryHandler
-from ..importer import owmap
+from . import UIUtil
+from ..importer import ImportMap
 from . import SettingTypes
 from . import Preferences
 
@@ -43,8 +44,8 @@ class ImportOWMAP(bpy.types.Operator, ImportHelper):
 
     def execute(self, context):
         t = datetime.now()
-        owmap.init(self.filepath, self.mapSettings, self.modelSettings, self.lightSettings, self.entitySettings)
-        print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
+        ImportMap.init(self.filepath, self.mapSettings, self.modelSettings, self.lightSettings, self.entitySettings)
+        UIUtil.log('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def draw(self, context):

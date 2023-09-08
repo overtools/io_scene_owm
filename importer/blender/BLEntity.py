@@ -11,7 +11,6 @@ def readEntity(filename, modelSettings, entitySettings, childData=None):
 
     baseModel = None
     if data.model:
-        # print(data.model)
         baseModel = BLModel.readMDL(data.model.filepath, modelSettings)
 
     if entitySettings.importChildren:

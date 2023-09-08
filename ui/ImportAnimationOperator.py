@@ -7,7 +7,8 @@ from bpy_extras.io_utils import ImportHelper
 
 from . import LibraryHandler
 from . import SettingTypes
-from ..importer import animation
+from . import UIUtil
+from ..importer import ImportAnimation
 from ..readers import PathUtil
 
 
@@ -47,9 +48,9 @@ class ImportOWANIMCLIP(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         t = datetime.now()
         files = [PathUtil.joinPath(self.directory, file.name) for file in self.files]
-        animation.init(files, context)
+        ImportAnimation.init(files, context)
 
-        print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
+        UIUtil.log('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def draw(self, context):

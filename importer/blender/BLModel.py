@@ -102,9 +102,9 @@ def importArmature(meshData):  # honestly fuck this 2x
     for bone in armature.pose.bones:
         bone.matrix_basis.identity()
         bone.matrix = matrices[bone.name]
-        if "cloth" in bone.name:
+        """if "cloth" in bone.name:
             bone.bone.layers[1] = True
-            bone.bone.layers[0] = False
+            bone.bone.layers[0] = False"""
     
     bpy.ops.pose.armature_apply()
     bpy.ops.object.mode_set(mode='OBJECT', toggle=False)

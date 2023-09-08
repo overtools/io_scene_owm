@@ -7,7 +7,8 @@ import bpy.utils.previews
 from . import LibraryHandler
 from . import SettingTypes
 from . import DatatoolLibUtil
-from ..importer import entity
+from . import UIUtil
+from ..importer import ImportEntity
 from ..readers import PathUtil
 from ..readers.PathUtil import joinPath
 
@@ -157,8 +158,8 @@ class ImportOWSkin(bpy.types.Operator):
             entityPath = joinPath(DatatoolLibUtil.getRoot(), "Heroes", self.skin,
                 self.variant if self.mythic else "", "Entities",
                 self.entity, self.entity+".owentity")
-            entity.init(entityPath, self.modelSettings, self.entitySettings, name)
-            print('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
+            ImportEntity.init(entityPath, self.modelSettings, self.entitySettings, name)
+            UIUtil.log('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def invoke(self, context, event):

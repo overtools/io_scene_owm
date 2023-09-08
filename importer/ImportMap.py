@@ -1,6 +1,6 @@
 from .blender import BLMap as blenderMap
 from ..readers import OWMapReader
-
+from ..ui import UIUtil
 
 class MapTree:
     def __init__(self):
@@ -38,14 +38,17 @@ class MapTree:
 
 
 def init(filename, mapSettings, modelSettings, lightSettings, entitySettings):
-    print("[owm]: Reading map data")
+    UIUtil.log("Reading map data")
+    UIUtil.setStatus("Reading map")
     data = OWMapReader.read(filename)
-    if not data: return None
+    if not data: 
+        UIUtil.setStatus(None)
+        return None
     mapName = data.header.name
     if len(mapName) == 0:
         mapName = data.GUID
 
-    print("[owm]: Building map tree")
+    UIUtil.log("Building map tree")
     mapTree = MapTree()
 
     if mapSettings.importObjects:
@@ -57,12 +60,6 @@ def init(filename, mapSettings, modelSettings, lightSettings, entitySettings):
     if mapSettings.importLights:
         mapTree.loadLights(data)
     
-    print("[owm]: {} Models to load, {} material looks".format(len(mapTree.modelFilepaths),len(mapTree.modelLookPaths)))
-
-    # print(mapTree.modelLookPaths)
+    UIUtil.log("{} Models to load, {} material looks".format(len(mapTree.modelFilepaths),len(mapTree.modelLookPaths)))
 
     blenderMap.init(mapTree, mapName, data.filepath, mapSettings, modelSettings, entitySettings, lightSettings)
-
-    """name = data.header.name
-    if len(name) == 0:
-        name = os.path.splitext(file)[0]"""
