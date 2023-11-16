@@ -95,10 +95,7 @@ class BlenderTree:
                 col.objects.link(obj)
 
     def createModelHierarchy(self, model, name):
-        if self.joinMeshes:
-            rootFolder = model.armature if model.armature else model.meshes[0]
-        else:
-            rootFolder = model.armature if model.armature else BLUtils.createFolder(name, False)
+        rootFolder = model.armature if model.armature else BLUtils.createFolder(name, False)
         self.parentChildren.setdefault(rootFolder.name, [])
 
         for mesh in model.meshes:
@@ -115,15 +112,44 @@ class BlenderTree:
                 if len(emptyObj.constraints) > 0:
                     emptyObj.constraints[0].targets[0].target = rootFolder
         return rootFolder
+    
+    def joinModelMeshes(self, lookModel):
+        if len(self.parentChildren[lookModel.name]) > 0:
+            meshes = [obj for obj in self.parentChildren[lookModel.name] if obj.type == 'MESH']
+            empty = [obj for obj in self.parentChildren[lookModel.name] if obj.type == 'EMPTY']
+            with bpy.context.temp_override(active_object=self.parentChildren[lookModel.name][0], selected_editable_objects=meshes):
+                bpy.ops.object.join()
+                self.queueRemove(lookModel)
+                for obj in empty:
+                    self.parent(obj, self.parentChildren[lookModel.name][0])
+                return self.parentChildren[lookModel.name][0]
+        return lookModel
+    
+
+    def joinEntityMeshes(self, entity, lookModel):
+        if len(entity.children) > 0:
+            if entity.baseModel:
+                self.joinModelMeshes(self.parentChildren[lookModel.name][0])
+                meshes = self.parentChildren[lookModel.name][1:]
+            else:
+                meshes = self.parentChildren[lookModel.name]
+            for child in meshes:
+                self.joinEntityMeshes(entity.children[child["owm.child"]], child)
+            return lookModel
+        else:
+            if entity.baseModel:
+                return self.joinModelMeshes(lookModel)
+
 
     def createEntityHierarchy(self, entity, name):
         if len(entity.children) > 0:
             rootFolder = BLUtils.createFolder(name)
             if entity.baseModel:
                 self.parent(self.createModelHierarchy(entity.baseModel, entity.baseModel.meshData.header.name), rootFolder)
-            for child in entity.children:
+            for i, child in enumerate(entity.children):
                 childFolder = self.createEntityHierarchy(child, child.name)
                 if childFolder:
+                    childFolder["owm.child"] = i
                     self.parent(childFolder, rootFolder)
             return rootFolder
         else:
@@ -153,7 +179,7 @@ class BlenderTree:
         new_obj.parent = parent
 
         if original:
-            self.parentChildren[new_obj.name] = set()
+            self.parentChildren[new_obj.name] = []
             #self.queueRemove(obj, True)
             #self.queueRemove(new_obj)
 
@@ -164,7 +190,7 @@ class BlenderTree:
             for child in self.parentChildren.get(obj.name, []):
                 new_child = self.recursiveCopy(child, new_obj, original, col) #TODO maybe change this to references
                 if original:
-                    self.parentChildren[new_obj.name].add(new_child)
+                    self.parentChildren[new_obj.name].append(new_child)
         return new_obj
 
     def applyRec(self, obj, rec, queueLink=False, col=None):
@@ -232,6 +258,15 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
                         matTree.bindModelLook(objModel, objLookID)
 
                 lookModel = blenderTree.recursiveCopy(modelFolder, lookFolder, True, objFolder)
+
+                if mapSettings.joinMeshes:
+                    if not isEntity:
+                        lookModel = blenderTree.joinModelMeshes(lookModel)
+                        lookModel.parent = lookFolder
+                    else:
+                        lookModel = blenderTree.joinEntityMeshes(objModel, lookModel)
+                        lookModel.parent = lookFolder
+                    
 
                 for i, rec in enumerate(mapTree.objects[objID][objLookID]):
                     if i == 0:

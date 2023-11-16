@@ -29,10 +29,10 @@ class OWMPreferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
-        #layout.prop(self, "experimental")
         row = layout.row()
         row.prop(self, "datatoolOutPath")
         layout.separator()
+        #row.prop(self, "experimental")
         layout.label(text="Developer Options (leave these alone if you don't know what you're doing)")
         row = layout.row()
         row.prop(self, "devMode")

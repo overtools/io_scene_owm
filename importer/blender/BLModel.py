@@ -82,6 +82,7 @@ def importArmature(meshData):  # honestly fuck this 2x
     blendBoneNames = []
     for bone in restPoseBones:
         blendBone = armData.edit_bones.new(bone.name)
+        blendBone.inherit_scale = 'NONE'
         blendBone.tail = 0, 0.05, 0  # Blender removes zero-length bones
         blendBoneNames.append(blendBone.name)
 
@@ -102,9 +103,6 @@ def importArmature(meshData):  # honestly fuck this 2x
     for bone in armature.pose.bones:
         bone.matrix_basis.identity()
         bone.matrix = matrices[bone.name]
-        """if "cloth" in bone.name:
-            bone.bone.layers[1] = True
-            bone.bone.layers[0] = False"""
     
     bpy.ops.pose.armature_apply()
     bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -150,20 +148,31 @@ def importMesh(meshData, modelSettings, armature, blendBoneNames):
 
         makeVertexGroups(obj, meshData, blendBoneNames)
 
-        # TODO wots this
         current_theme = bpy.context.preferences.themes.items()[0][0]
         theme = bpy.context.preferences.themes[current_theme]
 
-        bgrp = armature.pose.bone_groups.new(name=obj.name)
-        bgrp.color_set = 'CUSTOM'
-        bgrp.colors.normal = (randomColor())
-        bgrp.colors.select = theme.view_3d.bone_pose
-        bgrp.colors.active = theme.view_3d.bone_pose_active
+        if bpy.app.version[0] >= 4:
 
-        vgrps = obj.vertex_groups.keys()
-        pbones = armature.pose.bones
-        for bname in vgrps:
-            pbones[bname].bone_group = bgrp
+            vertexGroups = obj.vertex_groups.keys()
+            poseBones = armature.pose.bones
+            boneCollection = armature.data.collections.new(mesh.name)
+
+            boneColor = randomColor()
+            for boneName in vertexGroups:
+                poseBones[boneName].color.palette = 'CUSTOM'
+                poseBones[boneName].color.custom.normal = (boneColor)
+                boneCollection.assign(poseBones[boneName])
+        else:
+            boneGroup = armature.pose.bone_groups.new(name=obj.name)
+            boneGroup.color_set = 'CUSTOM'
+            boneGroup.colors.normal = (randomColor())
+            boneGroup.colors.select = theme.view_3d.bone_pose
+            boneGroup.colors.active = theme.view_3d.bone_pose_active
+
+            vertexGroups = obj.vertex_groups.keys()
+            poseBones = armature.pose.bones
+            for boneName in vertexGroups:
+                poseBones[boneName].bone_group = boneGroup
 
     for i in range(meshData.uvCount):
         layer = mesh.uv_layers.new(name='UVMap%d' % (i + 1))

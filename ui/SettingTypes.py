@@ -108,8 +108,8 @@ class OWMapSettings(bpy.types.PropertyGroup):
     )
 
     joinMeshes: BoolProperty(
-        name='Join Meshes',
-        description='Join Separate meshes into a single object, faster for viewport operations and import',
+        name='Join Meshes (EXPERIMENTAL)',
+        description='Join Separate meshes into a single object, faster for viewport operations',
         default=False,
     )
 
@@ -119,6 +119,7 @@ class OWMapSettings(bpy.types.PropertyGroup):
         layout.prop(me, 'importDetails')
         layout.prop(me, 'importLights')
         layout.prop(me, 'removeCollision')
+        layout.prop(me, 'joinMeshes')
 
 
 class OWLightSettings(bpy.types.PropertyGroup):
