@@ -95,6 +95,8 @@ class BlenderTree:
                 col.objects.link(obj)
 
     def createModelHierarchy(self, model, name):
+        if model is None:
+            return None
         rootFolder = model.armature if model.armature else BLUtils.createFolder(name, False)
         self.parentChildren.setdefault(rootFolder.name, [])
 
@@ -142,6 +144,8 @@ class BlenderTree:
 
 
     def createEntityHierarchy(self, entity, name):
+        if entity is None:
+            return None
         if len(entity.children) > 0:
             rootFolder = BLUtils.createFolder(name)
             if entity.baseModel:
@@ -232,11 +236,11 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
         if isEntity:
             objModel = BLEntity.readEntity(mapTree.modelFilepaths[objID], modelSettings, entitySettings)
             modelFolder = blenderTree.createEntityHierarchy(objModel, objID)
-            if modelFolder is None:
-                continue
         else:
             objModel = BLModel.readMDL(mapTree.modelFilepaths[objID], modelSettings)
             modelFolder = blenderTree.createModelHierarchy(objModel, objID)
+        if modelFolder is None:
+            continue
 
         for objLookID in mapTree.objects[objID]:
             if objFolder is None:

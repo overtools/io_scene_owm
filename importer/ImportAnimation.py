@@ -3,6 +3,7 @@ from ..readers import OWAnimReader
 import bpy
 
 def init(filenames, context):
+    UIUtil.lock_open_notification = False
     armature = context.active_object
 
     if not getattr(armature, "animation_data", False):

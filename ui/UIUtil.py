@@ -1,5 +1,8 @@
 import bpy
 import inspect
+
+lock_open_notification = False
+
 def createPopup(title, label, icon='ERROR'):
     bpy.context.window_manager.popup_menu(lambda self, context: self.layout.label(text=" "+label), title = title, icon = icon)
 
@@ -13,6 +16,8 @@ def newerFileError():
     createPopup("Newer Unsupported file","File has a newer format than supported. Please update the addon.")
 
 def fileOpenError():
+    if lock_open_notification:
+        return
     createPopup("Unable to open file","¯\_(ツ)_/¯")
 
 def fileFormatError(extension):

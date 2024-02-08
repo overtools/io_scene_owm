@@ -3,6 +3,7 @@ from mathutils import Matrix
 from .blender import BLUtils
 from .blender import BLEntity
 from .blender.BLMaterial import BlenderMaterialTree
+from ..ui import UIUtil
 
 
 def buildMatPaths(entity):
@@ -24,6 +25,7 @@ def buildMatPaths(entity):
 
 
 def init(filename, modelSettings, entitySettings, prettyName=None):
+    UIUtil.lock_open_notification = False
     def handleEntityModel(ent, parentFolder, parentEnt=None):
         modelData = ent.baseModel
         folderName = ("" if prettyName else "Entity ")+ent.name

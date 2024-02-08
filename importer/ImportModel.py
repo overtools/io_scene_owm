@@ -1,9 +1,11 @@
 from .blender import BLUtils
 from .blender import BLModel
 from .blender.BLMaterial import BlenderMaterialTree
+from ..ui import UIUtil
 
 
 def init(filenames, modelSettings):
+    UIUtil.lock_open_notification = False
     for filename in filenames:
         modelData = BLModel.readMDL(filename, modelSettings)
         if not modelData:
