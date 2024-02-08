@@ -17,6 +17,7 @@ def euler(rot):
     return rot
 
 rotation = Euler(map(radians, (90, 0, 0)), 'XYZ').to_matrix().to_4x4()
+is_bpy_40_or_older = bpy.app.version < (4, 1, 0)
 
 def xzy(pos):
     pos = Vector(pos).xzy
@@ -187,9 +188,11 @@ def importMesh(meshData, modelSettings, armature, blendBoneNames):
 
     mesh.update()
 
-    mesh.use_auto_smooth = modelSettings.autoSmoothNormals
+    if is_bpy_40_or_older:
+        mesh.use_auto_smooth = modelSettings.autoSmoothNormals
     if modelSettings.importNormals:
-        mesh.create_normals_split()
+        if is_bpy_40_or_older:
+            mesh.create_normals_split()
         mesh.validate(clean_customdata=False)
         mesh.update(calc_edges=True)
         mesh.normals_split_custom_set_from_vertices(meshData.normals)
