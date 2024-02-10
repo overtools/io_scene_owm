@@ -81,12 +81,13 @@ def getModelFolder(obj):
     if obj.type == 'MESH':
         return obj.parent
     elif obj.type == 'EMPTY':
-        if "owm.modelPath" in obj.parent:
-            return obj.parent
-        elif "owm.modelPath" in obj.parent.parent:
-            return obj.parent.parent
-        else: #fuck this
-            return None
+        if obj.parent is not None:
+            if "owm.modelPath" in obj.parent:
+                return obj.parent
+            if obj.parent.parent is not None:
+                if "owm.modelPath" in obj.parent.parent:
+                    return obj.parent.parent
+        return None
     elif obj.type == 'ARMATURE': #???
         return obj
     return None
