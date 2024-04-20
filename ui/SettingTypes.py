@@ -55,7 +55,8 @@ class OWModelSettings(bpy.types.PropertyGroup):
         layout.prop(me, 'importMaterial')
         layout.prop(me, 'importColor')
         layout.prop(me, 'importNormals')
-        layout.prop(me, 'autoSmoothNormals')
+        if bpy.app.version < (4,1,0):
+            layout.prop(me, 'autoSmoothNormals')
         layout.prop(me, 'importEmpties')
 
     def draw_armature(cls, me, layout, label=True):

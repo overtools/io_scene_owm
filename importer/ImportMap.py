@@ -38,14 +38,12 @@ class MapTree:
 
 
 def init(filename, mapSettings, modelSettings, lightSettings, entitySettings):
-    UIUtil.lock_open_notification = False
     UIUtil.log("Reading map data")
     UIUtil.setStatus("Reading map")
     data = OWMapReader.read(filename)
     if not data: 
         UIUtil.setStatus(None)
         return None
-    UIUtil.lock_open_notification = True
     mapName = data.header.name
     if len(mapName) == 0:
         mapName = data.GUID
@@ -64,5 +62,4 @@ def init(filename, mapSettings, modelSettings, lightSettings, entitySettings):
     
     UIUtil.log("{} Models to load, {} material looks".format(len(mapTree.modelFilepaths),len(mapTree.modelLookPaths)))
 
-    UIUtil.lock_open_notification = False
     blenderMap.init(mapTree, mapName, data.filepath, mapSettings, modelSettings, entitySettings, lightSettings)

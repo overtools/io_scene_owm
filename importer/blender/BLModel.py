@@ -17,7 +17,6 @@ def euler(rot):
     return rot
 
 rotation = Euler(map(radians, (90, 0, 0)), 'XYZ').to_matrix().to_4x4()
-is_bpy_40_or_older = bpy.app.version < (4, 1, 0)
 
 def xzy(pos):
     pos = Vector(pos).xzy
@@ -26,9 +25,12 @@ def xzy(pos):
 
 
 def wxzy(rot):
-    quat = Quaternion(rot[0:3], rot[3])
-    if rot[3] != 1:
-        quat.rotate(rotation)
+    # (this is needed, the other is wrong)
+    quat = Quaternion()
+    quat.x = rot[0]
+    quat.y = rot[1]
+    quat.z = rot[2]
+    quat.w = rot[3]
     return quat
 
 
@@ -51,7 +53,12 @@ def importEmpties(meshData, armature=None, blendBones=[]):
         empty.empty_display_type = "SPHERE"
         empty.location = xzy(emp.position)
         empty.rotation_mode = 'QUATERNION'
-        empty.rotation_quaternion = wxzy(emp.rotation)
+        qt = wxzy(emp.rotation)
+        qt.rotate(rotation) # (rotation = global variable, rx90)
+        local_x = Vector((1.0, 0.0, 0.0))
+        local_x.rotate(qt)
+        qt.rotate(Quaternion(local_x, radians(-90.0)))
+        empty.rotation_quaternion = qt
         empty['owm.hardpoint.bone'] = emp.hardpoint
 
         if armature is not None and emp.hardpoint in blendBones:
@@ -135,7 +142,7 @@ def makeVertexGroups(mesh, meshData, blendBoneNames):
             vgrp.add(boneMap[boneName][boneWeight], boneWeight, 'REPLACE')
 
 
-def importMesh(meshData, modelSettings, armature, blendBoneNames):
+def importMesh(meshData, modelSettings, armature, blendBoneNames, themeI):
     mesh = bpy.data.meshes.new(meshData.name)
     mesh["owm.materialKey"] = str(meshData.materialKey)
     obj = bpy.data.objects.new(mesh.name, mesh)
@@ -158,10 +165,8 @@ def importMesh(meshData, modelSettings, armature, blendBoneNames):
             poseBones = armature.pose.bones
             boneCollection = armature.data.collections.new(mesh.name)
 
-            boneColor = randomColor()
             for boneName in vertexGroups:
-                poseBones[boneName].color.palette = 'CUSTOM'
-                poseBones[boneName].color.custom.normal = (boneColor)
+                poseBones[boneName].color.palette = 'THEME{:02d}'.format(themeI+1)
                 boneCollection.assign(poseBones[boneName])
         else:
             boneGroup = armature.pose.bone_groups.new(name=obj.name)
@@ -178,7 +183,7 @@ def importMesh(meshData, modelSettings, armature, blendBoneNames):
     for i in range(meshData.uvCount):
         layer = mesh.uv_layers.new(name='UVMap%d' % (i + 1))
         uv = meshData.uvs[i]
-        layer.data.foreach_set("uv", list(itertools.chain.from_iterable(uv)))
+        layer.uv.foreach_set("vector", list(itertools.chain.from_iterable(uv)))
 
     if modelSettings.importColor and len(meshData.color1) > 0:
         layer = mesh.color_attributes.new("ColorMap1", 'BYTE_COLOR', 'POINT')
@@ -188,10 +193,10 @@ def importMesh(meshData, modelSettings, armature, blendBoneNames):
 
     mesh.update()
 
-    if is_bpy_40_or_older:
+    if bpy.app.version < (4,1,0):
         mesh.use_auto_smooth = modelSettings.autoSmoothNormals
     if modelSettings.importNormals:
-        if is_bpy_40_or_older:
+        if bpy.app.version < (4,1,0):
             mesh.create_normals_split()
         mesh.validate(clean_customdata=False)
         mesh.update(calc_edges=True)
@@ -215,7 +220,7 @@ def readMDL(filename, modelSettings):
         armature['owm.skeleton.name'] = armature.name
         armature['owm.skeleton.model'] = data.GUID
         
-    meshes = [importMesh(meshData, modelSettings, armature, blendBoneNames) for meshData in data.meshes]
+    meshes = [importMesh(meshData, modelSettings, armature, blendBoneNames, theme) for theme, meshData in enumerate(data.meshes)]
 
     empties = (None, [])
     if modelSettings.importEmpties:

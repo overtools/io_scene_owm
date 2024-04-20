@@ -1,8 +1,5 @@
 import bpy
 import inspect
-
-lock_open_notification = False
-
 def createPopup(title, label, icon='ERROR'):
     bpy.context.window_manager.popup_menu(lambda self, context: self.layout.label(text=" "+label), title = title, icon = icon)
 
@@ -16,8 +13,6 @@ def newerFileError():
     createPopup("Newer Unsupported file","File has a newer format than supported. Please update the addon.")
 
 def fileOpenError():
-    if lock_open_notification:
-        return
     createPopup("Unable to open file","¯\_(ツ)_/¯")
 
 def fileFormatError(extension):
@@ -41,7 +36,7 @@ def log(text):
     caller = inspect.stack()[1].filename.split("\\")[-1].replace(".py", "")
     print("[owm]", caller+":", text)
 
-def consoleProgressBar(op, current, total, bar_length=20):
+def consoleProgressBar(op, current, total, bar_length=20, caller=""):
     updateProgressbar(current, total)
     fraction = current / total
 
@@ -49,6 +44,4 @@ def consoleProgressBar(op, current, total, bar_length=20):
     padding = int(bar_length - len(arrow)) * ' '
 
     ending = '\n' if current == total    else '\r'
-
-    caller = inspect.stack()[1].filename.split("\\")[-1].replace(".py", "")
     print(f'[owm] {caller}: {op} [{arrow}{padding}] {int(fraction*100)}%', end=ending)

@@ -95,8 +95,6 @@ class BlenderTree:
                 col.objects.link(obj)
 
     def createModelHierarchy(self, model, name):
-        if model is None:
-            return None
         rootFolder = model.armature if model.armature else BLUtils.createFolder(name, False)
         self.parentChildren.setdefault(rootFolder.name, [])
 
@@ -144,8 +142,6 @@ class BlenderTree:
 
 
     def createEntityHierarchy(self, entity, name):
-        if entity is None:
-            return None
         if len(entity.children) > 0:
             rootFolder = BLUtils.createFolder(name)
             if entity.baseModel:
@@ -228,7 +224,7 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
 
     models = len(mapTree.objects)-1
     for i,objID in enumerate(mapTree.objects):
-        UIUtil.consoleProgressBar("Loading models", i, models)
+        UIUtil.consoleProgressBar("Loading models", i, models, caller="BLMap")
         # create a "folder" for this model
         objFolder = None
         isEntity = mapTree.modelFilepaths[objID].endswith(".owentity")
@@ -236,11 +232,11 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
         if isEntity:
             objModel = BLEntity.readEntity(mapTree.modelFilepaths[objID], modelSettings, entitySettings)
             modelFolder = blenderTree.createEntityHierarchy(objModel, objID)
+            if modelFolder is None:
+                continue
         else:
             objModel = BLModel.readMDL(mapTree.modelFilepaths[objID], modelSettings)
             modelFolder = blenderTree.createModelHierarchy(objModel, objID)
-        if modelFolder is None:
-            continue
 
         for objLookID in mapTree.objects[objID]:
             if objFolder is None:
@@ -307,7 +303,7 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
             lights = len(mapTree.lights)-1
             for i, lightData in enumerate(mapTree.lights):
                 if lights > 0:
-                    UIUtil.consoleProgressBar("Loading lights", i, lights)
+                    UIUtil.consoleProgressBar("Loading lights", i, lights, caller="BLMap")
                 # skip very dark lights
                 if lightData.color[0] < 0.001 and lightData.color[1] < 0.001 and lightData.color[2] < 0.001:
                     continue
