@@ -90,7 +90,7 @@ class ImportOWSkin(bpy.types.Operator):
         enum = []
         i=0
         for variant in VARIANTCACHE[self.skin]:
-            if variant == "Models" or variant == "Effects" or variant == "GUI":
+            if variant == "Models" or variant == "Effects" or variant == "GUI" or variant == "Sound":
                 continue
             if variant not in ICONS["loaded"]:
                 iconPath = joinPath(DatatoolLibUtil.getRoot(), "Heroes", self.skin, variant, "Info.png")

@@ -150,6 +150,8 @@ def importMesh(meshData, modelSettings, armature, blendBoneNames, themeI):
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
 
     if armature:
+        if themeI > 19:
+            themeI-=18
         mod = obj.modifiers.new(type='ARMATURE', name='OWM Skeleton')
         mod.use_vertex_groups = True
         mod.object = armature

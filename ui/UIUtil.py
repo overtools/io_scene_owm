@@ -1,5 +1,20 @@
 import bpy
 import inspect
+mute = False
+filesErrored = 0
+
+def startMapLoad():
+    global mute, filesErrored
+    mute = True
+    filesErrored = 0
+
+def finishMapLoad():
+    global mute, filesErrored
+    mute = False
+    if filesErrored > 0:
+        createPopup("Failed to open {} files".format(filesErrored),"¯\_(ツ)_/¯")
+        filesErrored=0
+
 def createPopup(title, label, icon='ERROR'):
     bpy.context.window_manager.popup_menu(lambda self, context: self.layout.label(text=" "+label), title = title, icon = icon)
 
@@ -13,7 +28,10 @@ def newerFileError():
     createPopup("Newer Unsupported file","File has a newer format than supported. Please update the addon.")
 
 def fileOpenError():
-    createPopup("Unable to open file","¯\_(ツ)_/¯")
+    if not mute:
+        createPopup("Unable to open file","¯\_(ツ)_/¯")
+    else:
+        filesErrored+=1
 
 def fileFormatError(extension):
     createPopup("Error reading file", "File format not recognized; This might not be an .{} file".format(extension))

@@ -49,6 +49,7 @@ def init(filename, mapSettings, modelSettings, lightSettings, entitySettings):
         mapName = data.GUID
 
     UIUtil.log("Building map tree")
+    UIUtil.startMapLoad()
     mapTree = MapTree()
 
     if mapSettings.importObjects:
@@ -63,3 +64,6 @@ def init(filename, mapSettings, modelSettings, lightSettings, entitySettings):
     UIUtil.log("{} Models to load, {} material looks".format(len(mapTree.modelFilepaths),len(mapTree.modelLookPaths)))
 
     blenderMap.init(mapTree, mapName, data.filepath, mapSettings, modelSettings, entitySettings, lightSettings)
+
+    
+    UIUtil.finishMapLoad()
