@@ -3,10 +3,10 @@ import bpy
 bl_info = {
     'name': 'OWM Import',
     'author': 'overtools',
-    'version': (3, 2, 5),
+    'version': (3, 2, 6),
     'blender': (3, 5, 0),
-    'location': 'File > Import > OWM',
-    'description': 'Import exported assets from TankLib or DataTool',
+    'location': 'File > Import > Overtools',
+    'description': 'Import exported assets from DataTool or TankLib',
     'wiki_url': '',
     'tracker_url': 'https://github.com/overtools/io_scene_owm/issues',
     "support": "COMMUNITY",
