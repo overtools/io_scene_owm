@@ -13,24 +13,11 @@ bl_info = {
     'category': 'Import-Export'
 }
 
-modules = ["datatypes","importer","readers","ui","TextureMap"]
-if "sys" in locals():
-    from importlib import reload 
-    for module in modules:
-        module = __package__+"."+module
-        if module in sys.modules:
-            reload(sys.modules[module])
-        else:
-            import_module("."+module, __package__)
-else:
-    import sys
-    from importlib import import_module
-    for module in modules:
-        import_module("."+module, __package__)
-
-if bpy.app.version < bl_info["blender"]:
-    sys.tracebacklimit = 0
-    raise SystemExit("This addon is not compatible with Blender {}.{}.{}. Update to the latest Blender version or at least {}.{}.{}.".format(*bpy.app.version, *bl_info["blender"]))
+from . import datatypes
+from . import importer
+from . import readers
+from . import ui
+from . import TextureMap
 
 def register():
     ui.BlenderManager.register()
