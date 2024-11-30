@@ -142,7 +142,7 @@ def makeVertexGroups(mesh, meshData, blendBoneNames):
             vgrp.add(boneMap[boneName][boneWeight], boneWeight, 'REPLACE')
 
 
-def importMesh(meshData, modelSettings, armature, blendBoneNames, themeI):
+def importMesh(meshData, modelSettings, armature, blendBoneNames, index):
     mesh = bpy.data.meshes.new(meshData.name)
     mesh["owm.materialKey"] = str(meshData.materialKey)
     obj = bpy.data.objects.new(mesh.name, mesh)
@@ -150,8 +150,6 @@ def importMesh(meshData, modelSettings, armature, blendBoneNames, themeI):
     mesh.polygons.foreach_set('use_smooth', [True] * len(mesh.polygons))
 
     if armature:
-        if themeI > 19:
-            themeI-=18
         mod = obj.modifiers.new(type='ARMATURE', name='OWM Skeleton')
         mod.use_vertex_groups = True
         mod.object = armature
@@ -166,6 +164,10 @@ def importMesh(meshData, modelSettings, armature, blendBoneNames, themeI):
             vertexGroups = obj.vertex_groups.keys()
             poseBones = armature.pose.bones
             boneCollection = armature.data.collections.new(mesh.name)
+
+            # https://docs.blender.org/api/current/bpy.types.BoneColor.html, only goes up to THEME20
+            # max((n%20) + 1) gives 20
+            themeI = index % 20
 
             for boneName in vertexGroups:
                 poseBones[boneName].color.palette = 'THEME{:02d}'.format(themeI+1)
@@ -222,7 +224,7 @@ def readMDL(filename, modelSettings):
         armature['owm.skeleton.name'] = armature.name
         armature['owm.skeleton.model'] = data.GUID
         
-    meshes = [importMesh(meshData, modelSettings, armature, blendBoneNames, theme) for theme, meshData in enumerate(data.meshes)]
+    meshes = [importMesh(meshData, modelSettings, armature, blendBoneNames, index) for index, meshData in enumerate(data.meshes)]
 
     empties = (None, [])
     if modelSettings.importEmpties:
