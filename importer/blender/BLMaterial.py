@@ -309,7 +309,8 @@ def buildNodeTree(textureInputs, shaderKey, blendNodeGroups):
     blendMaterial = bpy.data.materials.new(name="".join([str(key) if key else "" for key in shaderKey]))
     blendMaterial.use_nodes = True
     blendMaterial.blend_method = 'HASHED'
-    blendMaterial.shadow_method = 'HASHED'
+    if bpy.app.version < (4,3,0):
+        blendMaterial.shadow_method = 'HASHED'
 
     nodes = blendMaterial.node_tree.nodes
     links = blendMaterial.node_tree.links
