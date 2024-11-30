@@ -16,20 +16,6 @@ MAPS = []
 IDS = []
 VARIANTS = []
 
-MAPIDS = {
-    "F2B": "Menu",
-    "EF3": "Kiriko Menu",
-    "EFA": "Mythic Genji Menu",
-    "F11": "Mythic Genji Menu 2",
-    "F12": "Mythic Genji Menu 3",
-    "D6C": "Beta 1 Sojourn Menu",
-    "E6E": "Beta 2 Junker Queen Menu",
-    "EFB": "New Player Menu ?",
-    "EF0": "Menu",
-    "B6B": "Hanamura Cupid Hanzo Menu",
-    "DAD": "Lunar Lijiang Menu",
- }
-
 class ImportOWMapWizard(bpy.types.Operator):
     bl_idname = 'import_mesh.overtools2_mapwiz'
     bl_label = 'Import Map Wizard'
@@ -45,9 +31,7 @@ class ImportOWMapWizard(bpy.types.Operator):
         if self.map == "Select":
             return DatatoolLibUtil.DUMMY
         enum = DatatoolLibUtil.subCategoryList("Maps", self.map, True)
-        newEnum = [item if item[1] not in MAPIDS else (item[0], "{} ({})".format(item[1], MAPIDS[item[1]]), *item[2:]) for item in enum]
-        global IDS
-        IDS = newEnum
+        IDS = enum
         return IDS
 
     def listVariants(self, context):
