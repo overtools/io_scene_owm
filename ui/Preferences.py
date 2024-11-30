@@ -31,6 +31,7 @@ class OWMPreferences(bpy.types.AddonPreferences):
         layout = self.layout
         row = layout.row()
         row.prop(self, "datatoolOutPath")
+        layout.label(text="(should be the root folder, not the \"Heroes\" or \"Maps\" folder created by DataTool)")
         
         developerOptionsBox = layout.box()
         developerOptionsBox.label(text="Developer Options:")
