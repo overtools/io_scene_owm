@@ -22,7 +22,7 @@ def ow1FileError():
     createPopup("Unsupported file","Overwatch 1 exports are not supported")
 
 def legacyFileError():
-    createPopup("Phased out format", "Please re-export using the latest datatool")
+    createPopup("Phased out format", "Please re-export using the latest DataTool")
 
 def newerFileError():
     createPopup("Newer Unsupported file","File has a newer format than supported. Please update the addon.")

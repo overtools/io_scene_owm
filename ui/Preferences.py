@@ -22,8 +22,8 @@ class OWMPreferences(bpy.types.AddonPreferences):
     )
 
     datatoolOutPath: bpy.props.StringProperty(
-        name="Datatool output path",
-        description="Path to the datatool output folder",
+        name="DataTool output path",
+        description="Path to the DataTool output folder",
         subtype='DIR_PATH',
         default='')
 
@@ -31,9 +31,10 @@ class OWMPreferences(bpy.types.AddonPreferences):
         layout = self.layout
         row = layout.row()
         row.prop(self, "datatoolOutPath")
-        layout.separator()
-        #row.prop(self, "experimental")
-        layout.label(text="Developer Options (leave these alone if you don't know what you're doing)")
-        row = layout.row()
-        row.prop(self, "devMode")
-        #row.prop(self, "debugLogging")
+        
+        developerOptionsBox = layout.box()
+        developerOptionsBox.label(text="Developer Options:")
+        developerOptionsBox.label(text="(leave these alone unless you know what you're doing)")
+        #developerOptionsBox.prop(self, "experimental")
+        developerOptionsBox.prop(self, "devMode")
+        #developerOptionsBox.prop(self, "debugLogging")
