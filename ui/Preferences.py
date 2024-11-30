@@ -28,12 +28,10 @@ class OWMPreferences(bpy.types.AddonPreferences):
         default='')
 
     def draw(self, context):
-        layout = self.layout
-        row = layout.row()
-        row.prop(self, "datatoolOutPath")
-        layout.label(text="(should be the root folder, not the \"Heroes\" or \"Maps\" folder created by DataTool)")
+        self.layout.prop(self, "datatoolOutPath")
+        self.layout.label(text="(should be the root folder, not the \"Heroes\" or \"Maps\" folder created by DataTool)")
         
-        developerOptionsBox = layout.box()
+        developerOptionsBox = self.layout.box()
         developerOptionsBox.label(text="Developer Options:")
         developerOptionsBox.label(text="(leave these alone unless you know what you're doing)")
         #developerOptionsBox.prop(self, "experimental")
