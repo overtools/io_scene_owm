@@ -16,7 +16,7 @@ def euler(rot):
     rot = Euler(rot[0:3])
     return rot
 
-rotation = Euler(map(radians, (90, 0, 0)), 'XYZ').to_matrix().to_4x4()
+GLOBAL_ROTATION = Euler(map(radians, (90, 0, 0)), 'XYZ').to_matrix().to_4x4()
 
 def xzy(pos):
     pos = Vector(pos).xzy
@@ -54,7 +54,7 @@ def importEmpties(meshData, armature=None, blendBones=[]):
         empty.location = xzy(emp.position)
         empty.rotation_mode = 'QUATERNION'
         qt = wxzy(emp.rotation)
-        qt.rotate(rotation) # (rotation = global variable, rx90)
+        qt.rotate(GLOBAL_ROTATION)
         local_x = Vector((1.0, 0.0, 0.0))
         local_x.rotate(qt)
         qt.rotate(Quaternion(local_x, radians(-90.0)))
@@ -111,10 +111,15 @@ def importArmature(meshData):  # honestly fuck this 2x
     for bone in armature.pose.bones:
         bone.matrix_basis.identity()
         bone.matrix = matrices[bone.name]
-    
+
     bpy.ops.pose.armature_apply()
     bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-    armature.data.transform(rotation)
+    armature.data.transform(GLOBAL_ROTATION)
+
+    # convince blender 4.x that it has actually rotated :D
+    bpy.ops.object.mode_set(mode='EDIT', toggle=False)
+    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
     BLUtils.unlinkScene(armature)
     return armature, blendBoneNames
 

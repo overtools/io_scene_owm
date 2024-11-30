@@ -1,6 +1,6 @@
 import bpy
 from mathutils import Euler, Quaternion, Matrix, Vector
-from .BLModel import rotation
+from .BLModel import GLOBAL_ROTATION
 
 def preprocessLoc(track, bone):
     for keyframe in track.keyframes:
@@ -22,7 +22,7 @@ def preprocessRot(track, bone):
         if bone.parent is None:
             # I don't actually remember why this is here - probably
             # to set the root bone(s) to its rest pos / angle
-            angle.rotate(rotation)
+            angle.rotate(GLOBAL_ROTATION)
             bone.matrix = angle.to_4x4()
             print(bone.name)
         else:
