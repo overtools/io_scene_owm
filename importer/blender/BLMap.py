@@ -231,11 +231,13 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
 
         if isEntity:
             objModel = BLEntity.readEntity(mapTree.modelFilepaths[objID], modelSettings, entitySettings)
+            if objModel is None: continue # not found
             modelFolder = blenderTree.createEntityHierarchy(objModel, objID)
             if modelFolder is None:
                 continue
         else:
             objModel = BLModel.readMDL(mapTree.modelFilepaths[objID], modelSettings)
+            if objModel is None: continue # not found
             modelFolder = blenderTree.createModelHierarchy(objModel, objID)
 
         for objLookID in mapTree.objects[objID]:

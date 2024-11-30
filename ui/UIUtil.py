@@ -28,6 +28,7 @@ def newerFileError():
     createPopup("Newer Unsupported file","File has a newer format than supported. Please update the addon.")
 
 def fileOpenError():
+    global filesErrored
     if not mute:
         createPopup("Unable to open file","¯\_(ツ)_/¯")
     else:
