@@ -10,6 +10,7 @@ def init(filenames, context):
 
     if len(filenames) == 1:
         animData = OWAnimReader.read(filenames[0])
+        if animData is None: return
         
         armature.animation_data.action = BLAnimation.importAction(animData, armature)
         context.scene.frame_end = animData.header.duration
@@ -21,6 +22,7 @@ def init(filenames, context):
         frameOffset = 0
         for filename in filenames:
             animData = OWAnimReader.read(filename)
+            if animData is None: continue
         
             action = BLAnimation.importAction(animData, armature)
             track.strips.new(action.name, frameOffset, action)
