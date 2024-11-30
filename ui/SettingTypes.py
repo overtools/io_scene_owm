@@ -79,14 +79,14 @@ class OWEntitySettings(bpy.types.PropertyGroup):
 
 class OWMapSettings(bpy.types.PropertyGroup):
     importObjects: BoolProperty(
-        name='Import Objects',
-        description='Import Map Objects',
+        name='Import Models',
+        description='Import Map Models',
         default=True,
     )
 
     importDetails: BoolProperty(
-        name='Import Props',
-        description='Import Map Props',
+        name='Import Entities',
+        description='Import Map Entities',
         default=True,
     )
 
@@ -159,7 +159,6 @@ class OWLightSettings(bpy.types.PropertyGroup):
 
     def draw(cls, me, layout):
         layout.label(text='Lights')
-        layout.enabled = cls.mapSettings.importLights
         layout.prop(me, 'multipleImportance')
         layout.prop(me, 'shadowSoftBias')
         # layout.prop(me, 'adjustLightValue')

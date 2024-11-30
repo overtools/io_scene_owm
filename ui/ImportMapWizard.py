@@ -135,8 +135,13 @@ class ImportOWMapWizard(bpy.types.Operator):
             col2.enabled = self.modelSettings.importMaterial
             col2.prop(self.modelSettings, 'saveMaterialDB')
 
-        col = bottomCol.column()
-        SettingTypes.OWEntitySettings.draw(self, self.entitySettings, col)
+        entityAndLightsCol = bottomCol.column()
+        
+        entitySettingsLayout = entityAndLightsCol.column()
+        entitySettingsLayout.enabled = self.mapSettings.importDetails
+        SettingTypes.OWEntitySettings.draw(self, self.entitySettings, entitySettingsLayout)
 
-        SettingTypes.OWLightSettings.draw(self, self.lightSettings, col)
+        lightSettingsLayout = entityAndLightsCol.column()
+        lightSettingsLayout.enabled = self.mapSettings.importLights
+        SettingTypes.OWLightSettings.draw(self, self.lightSettings, lightSettingsLayout)
         
