@@ -4,7 +4,7 @@ bl_info = {
     'name': 'OWM Import',
     'author': 'overtools',
     'version': (3, 2, 5),
-    'blender': (3, 4, 0),
+    'blender': (3, 5, 0),
     'location': 'File > Import > OWM',
     'description': 'Import exported assets from TankLib or DataTool',
     'wiki_url': '',
