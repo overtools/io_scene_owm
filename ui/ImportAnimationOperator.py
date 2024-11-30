@@ -38,7 +38,7 @@ class ImportOWANIMCLIP(bpy.types.Operator, ImportHelper):
         if context.active_object is not None:
             if context.active_object.type == 'ARMATURE':
                 return True
-        self.poll_message_set('No Armature selected')
+        self.poll_message_set('No Armature selected.\nBefore importing an animation you have to select the target Armature/Skeleton. (the black dots)')
             
     def invoke(self, context, event):
         if "owm.modelPath" in context.active_object:

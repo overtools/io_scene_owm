@@ -138,10 +138,10 @@ class ImportOWSkin(bpy.types.Operator):
             if DatatoolLibUtil.categoryExists("Heroes"):
                 return True
             else:
-                cls.poll_message_set('Heroes folder not found')
+                cls.poll_message_set('\'Heroes\' folder not found.\nExtract some skins (extract-unlocks) or check the DataTool output path is set correctly in the addon preferences.')
                 return False
         else:
-            cls.poll_message_set('Datatool output path not set')
+            cls.poll_message_set('DataTool output path not set.\nTo use this wizard (not required), set the DataTool output path in the addon preferences.')
             return False
 
     def execute(self, context):
