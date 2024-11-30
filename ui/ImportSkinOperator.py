@@ -81,7 +81,6 @@ class ImportOWSkin(bpy.types.Operator):
 
     def listMythicVariants(self, context):
         global VARIANTS,VARIANTCACHE,ICONS
-        self.modelSettings.importMatless = False
         if self.skin not in ICONS:
             ICONS[self.skin] = bpy.utils.previews.new()
             ICONS["loaded"][self.skin] = {}
@@ -105,13 +104,14 @@ class ImportOWSkin(bpy.types.Operator):
     def resetSkin(self, context):
         if self.hero != "Select":
             self.mythic = False
-            self.modelSettings.importMatless = True
             self.skin = "Select"
     
     def resetEntity(self, context):
-        if not self.mythic and self.skin != "Select":
-            self.entity = heroDefaults.get(self.hero, "Gameplay3P")
-            self.modelSettings.importMatless = True
+        if self.skin != "Select":
+            defaultEntity = heroDefaults.get(self.hero, "Gameplay3P")
+            self.entity = defaultEntity
+            # setting a second time helps mythics.. (first doesn't stick)
+            self.entity = defaultEntity
 
 
     modelSettings: bpy.props.PointerProperty(type=SettingTypes.OWModelSettings)
@@ -145,6 +145,7 @@ class ImportOWSkin(bpy.types.Operator):
             return False
 
     def execute(self, context):
+        self.modelSettings.importMatless = not self.mythic
         if self.hero == "Select":
             self.report({'ERROR'}, "No Hero selected.")
             bpy.ops.import_mesh.overtools2_skin('INVOKE_DEFAULT')
