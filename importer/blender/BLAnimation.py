@@ -1,6 +1,7 @@
 import bpy
 from mathutils import Euler, Quaternion, Matrix, Vector
 from .BLModel import GLOBAL_ROTATION
+from ... import BoneUtil
 
 def preprocessLoc(track, bone):
     for keyframe in track.keyframes:
@@ -54,8 +55,12 @@ def importAction(animData, armature):
     armature.animation_data.action = action
 
     for bone in animData.bones:
-        if bone.name in armature.pose.bones:
-            
+        dictName = BoneUtil.getBoneName(bone.name)
+        containsNamed = dictName in armature.pose.bones
+        if bone.name in armature.pose.bones or containsNamed:
+            if containsNamed:
+                bone.name = dictName
+
             armature.pose.bones[bone.name].matrix_basis.identity()
             if bone.positions.keyframeCount:
                 track = preprocessLoc(bone.positions, armature.pose.bones[bone.name])

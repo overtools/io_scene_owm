@@ -1,4 +1,5 @@
 from . import BinaryUtil
+from .. import BoneUtil
 from ..datatypes import ModelTypes
 
 class OWMDLFormat():
@@ -34,6 +35,9 @@ def read(filename):
     if header.boneCount:
         data.refPoseBones = stream.readClassArray(OWMDLFormat.boneRef, ModelTypes.OWMDLBone, header.boneCount, flat=False)
 
+        for bone in data.refPoseBones:
+            bone.name = BoneUtil.getBoneName(bone.name)
+
     for i in range(header.meshCount):
         mesh = stream.readClass(OWMDLFormat.mesh, ModelTypes.OWMDLMesh)
 
@@ -61,5 +65,6 @@ def read(filename):
         data.meshes.append(mesh)
 
     data.empties = stream.readClassArray(OWMDLFormat.empty, ModelTypes.OWMDLEmpty, header.emptyCount, flat=False)
-
+    for empty in data.empties:
+        empty.hardpoint = BoneUtil.getBoneName(empty.hardpoint)
     return data
