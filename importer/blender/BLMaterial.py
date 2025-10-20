@@ -43,7 +43,7 @@ class BlenderMaterialTree:
                         continue
                     self.materials.setdefault(material.GUID, material)
                     for texture in material.textures:
-                        self.texPaths.setdefault(texture.GUID, texture.filepath)
+                        self.texPaths.setdefault(texture.GUID, PathUtil.joinPath(material.filepath, "..", texture.filepath))
 
                     modelLookData.materials[key] = material.GUID
 
