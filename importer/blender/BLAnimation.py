@@ -25,7 +25,7 @@ def preprocessRot(track, bone):
             # to set the root bone(s) to its rest pos / angle
             angle.rotate(GLOBAL_ROTATION)
             bone.matrix = angle.to_4x4()
-            print(bone.name)
+            # print(bone.name)
         else:
             bone.matrix = (bone.parent.matrix.to_3x3() @ angle).to_4x4()
         keyframe.data = bone.rotation_quaternion.copy()
@@ -54,24 +54,27 @@ def importAction(animData, armature):
     
     armature.animation_data.action = action
 
-    for bone in animData.bones:
-        dictName = BoneUtil.getBoneName(bone.name)
-        containsNamed = dictName in armature.pose.bones
-        if bone.name in armature.pose.bones or containsNamed:
-            if containsNamed:
-                bone.name = dictName
+    for animBone in animData.bones:
+        remappedName = BoneUtil.getBoneName(animBone.name)
+        if remappedName in armature.pose.bones:
+            # was imported in version of addon with name remap
+            animBone.name = remappedName
 
-            armature.pose.bones[bone.name].matrix_basis.identity()
-            if bone.positions.keyframeCount:
-                track = preprocessLoc(bone.positions, armature.pose.bones[bone.name])
-                importTrack(track, armature.pose.bones[bone.name], "location", action)
+        if animBone.name not in armature.pose.bones:
+            continue
 
-            if bone.rotations.keyframeCount:
-                track = preprocessRot(bone.rotations, armature.pose.bones[bone.name])
-                importTrack(track, armature.pose.bones[bone.name], "rotation_quaternion", action)
+        armatureBone = armature.pose.bones[animBone.name]
+        armatureBone.matrix_basis.identity()
+        if animBone.positions.keyframeCount:
+            track = preprocessLoc(animBone.positions, armatureBone)
+            importTrack(track, armatureBone, "location", action)
 
-            if bone.scale.keyframeCount:
-                importTrack(bone.scale, armature.pose.bones[bone.name], "scale", action)
+        if animBone.rotations.keyframeCount:
+            track = preprocessRot(animBone.rotations, armatureBone)
+            importTrack(track, armatureBone, "rotation_quaternion", action)
+
+        if animBone.scale.keyframeCount:
+            importTrack(animBone.scale, armatureBone, "scale", action)
 
     armature.animation_data.action = None
     
