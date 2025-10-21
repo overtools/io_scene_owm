@@ -53,7 +53,7 @@ class BinaryFile(BytesIO):
 
         if s == "null":
             return None
-        if "\\" in s and absPaths:
+        if absPaths and ("\\" in s or "/" in s):
             return PathUtil.makePathAbsolute(self.path, s)
         return s
 
