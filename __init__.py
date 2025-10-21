@@ -3,7 +3,7 @@ import bpy
 bl_info = {
     'name': 'OWM Import',
     'author': 'overtools',
-    'version': (3, 2, 6),
+    'version': (3, 2, 7),
     'blender': (3, 5, 0),
     'location': 'File > Import > Overtools',
     'description': 'Import exported assets from DataTool or TankLib',
