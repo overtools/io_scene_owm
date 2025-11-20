@@ -55,15 +55,14 @@ classes = (
     UtilityOperators.OWMCleanupTexOp,
     UtilityOperators.OWMChangeModelLookOp,
     DatatoolLibHandler.OWMBuildTextureDB,
-    DatatoolLibHandler.OWMFixTextures,
-    #Independent import
-    ImportAnimationOperator.ImportOWANIMCLIP,
+    DatatoolLibHandler.OWMFixTextures
 )
 classes_importers = (
     ImportModelOperator.ImportOWMDL,
     ImportMaterialOperator.ImportOWMAT,
     ImportEntityOperator.ImportOWENTITY,
     ImportMapOperator.ImportOWMAP,
+    ImportAnimationOperator.ImportOWANIMCLIP,
     ImportMapWizard.ImportOWMapWizard,
     ImportSkinOperator.ImportOWSkin
     # ImportOWEFFECT
