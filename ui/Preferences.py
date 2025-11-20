@@ -1,10 +1,11 @@
 import bpy
+from .. import __package__ as base_package
 
 def getPreferences():
-    return bpy.context.preferences.addons[__package__.split(".")[0]].preferences
+    return bpy.context.preferences.addons[base_package].preferences
 
 class OWMPreferences(bpy.types.AddonPreferences):
-    bl_idname = __package__.split(".")[0] # ¯\_(ツ)_/¯
+    bl_idname = base_package
 
     devMode: bpy.props.BoolProperty(
         name="Enable Developer Mode",
