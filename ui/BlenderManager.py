@@ -64,6 +64,8 @@ classes_importers = (
     ImportMaterialOperator.ImportOWMAT,
     ImportEntityOperator.ImportOWENTITY,
     ImportMapOperator.ImportOWMAP,
+    ImportMapWizard.ImportOWMapWizard,
+    ImportSkinOperator.ImportOWSkin
     # ImportOWEFFECT
 )
 
@@ -71,24 +73,15 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
 
-    bpy.utils.register_class(ImportModelOperator.ImportOWMDL)
-    bpy.utils.register_class(ImportMaterialOperator.ImportOWMAT)
-    bpy.utils.register_class(ImportEntityOperator.ImportOWENTITY)
-    bpy.utils.register_class(ImportMapOperator.ImportOWMAP)
-    bpy.utils.register_class(ImportMapWizard.ImportOWMapWizard)
-    bpy.utils.register_class(ImportSkinOperator.ImportOWSkin)
+    for cls in classes_importers:
+        bpy.utils.register_class(cls)
 
     bpy.types.TOPBAR_MT_file_import.append(overtoolsMenuDraw)
 
 
 def unregister():
-    #do not change this order or reloading will break
-    bpy.utils.unregister_class(ImportSkinOperator.ImportOWSkin)
-    bpy.utils.unregister_class(ImportMapWizard.ImportOWMapWizard)
-    bpy.utils.unregister_class(ImportMapOperator.ImportOWMAP)
-    bpy.utils.unregister_class(ImportEntityOperator.ImportOWENTITY)
-    bpy.utils.unregister_class(ImportMaterialOperator.ImportOWMAT)
-    bpy.utils.unregister_class(ImportModelOperator.ImportOWMDL)
+    for cls in classes_importers:
+        bpy.utils.unregister_class(cls)
 
     for cls in classes:
         bpy.utils.unregister_class(cls)
