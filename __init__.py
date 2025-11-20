@@ -1,5 +1,9 @@
-import bpy
+import addon_utils
+import sys
 
+# legacy info for publishing as addon only
+# loading from extension will ignore this
+# please keep in sync
 bl_info = {
     'name': 'OWM Import',
     'author': 'overtools',
@@ -13,16 +17,13 @@ bl_info = {
     'category': 'Import-Export'
 }
 
-from . import datatypes
-from . import importer
-from . import readers
 from . import ui
-from . import TextureMap
 
 def register():
-    ui.BlenderManager.register()
+    bl_info = addon_utils.module_bl_info(sys.modules[__package__])
     ui.LibraryHandler.addonVersion = ".".join([str(i) for i in bl_info['version']])
 
+    ui.BlenderManager.register()
 
 def unregister():
     ui.BlenderManager.unregister()

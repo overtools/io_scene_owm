@@ -1,0 +1,19 @@
+schema_version = "1.0.0"
+
+id = "io_scene_owm"
+version = "3.2.7"
+name = "OWM Import"
+tagline = "Import exported assets from DataTool or TankLib"
+maintainer = "overtools"
+type = "add-on"
+tags = ["Import-Export"]
+website = "https://github.com/overtools/io_scene_owm"
+
+blender_version_min = "3.5.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+
+[permissions]
+files = "Importing files from disk"
