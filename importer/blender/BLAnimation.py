@@ -40,7 +40,7 @@ def importTrack(armature, track, bone, channel, action):
     for i, n in enumerate(track.keyframes[0].data):
         fcurve: bpy.types.FCurve
 
-        if hasattr(action, "fcurves"):  # Blender <= 4.4
+        if bpy.app.version < (5,0,0):
             fcurve = action.fcurves.new(path, index=i)
         else:
             fcurve = action.fcurve_ensure_for_datablock(armature, path, index=i)
