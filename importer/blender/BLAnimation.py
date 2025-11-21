@@ -51,7 +51,10 @@ def importAction(animData, armature):
     bpy.ops.object.mode_set(mode='POSE')
 
     action = bpy.data.actions.new(animData.GUID)
-    
+
+    if armature.animation_data == None:
+        armature.animation_data_create()
+
     armature.animation_data.action = action
 
     for animBone in animData.bones:
