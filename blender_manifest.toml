@@ -9,7 +9,7 @@ type = "add-on"
 tags = ["Import-Export"]
 website = "https://github.com/overtools/io_scene_owm"
 
-blender_version_min = "3.5.0"
+blender_version_min = "4.2.0"
 
 license = [
   "SPDX:GPL-3.0-or-later",
