@@ -10,3 +10,6 @@ venv
 __data__
 __pyenv__
 *.code-workspace
+
+# extension build outputs
+io_scene_owm-*.zip

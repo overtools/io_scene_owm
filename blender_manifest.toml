@@ -17,3 +17,15 @@ license = [
 
 [permissions]
 files = "Importing files from disk"
+
+[build]
+paths_exclude_pattern = [
+  "__pycache__/",
+  "/.idea/",
+  "/.vscode/",
+  "/.git/",
+  ".gitignore",
+  ".gitattributes",
+  "build.bat",
+  "/*.zip", # build outputs
+]

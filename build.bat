@@ -1,0 +1,1 @@
+"C:\Program Files\Blender Foundation\Blender 5.0\blender" --command extension build
