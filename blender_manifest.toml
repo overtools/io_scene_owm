@@ -1,9 +1,9 @@
 schema_version = "1.0.0"
 
 id = "io_scene_owm"
-version = "3.2.7"
+version = "3.2.8"
 name = "OWM Import"
-tagline = "Import exported assets from DataTool or TankLib"
+tagline = "Import files from the Overwatch extraction tools (DataTool)"
 maintainer = "overtools"
 type = "add-on"
 tags = ["Import-Export"]
