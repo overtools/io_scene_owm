@@ -33,11 +33,18 @@ def preprocessRot(track, bone):
 
     return track
 
-def importTrack(track, bone, channel, action):
+
+def importTrack(armature, track, bone, channel, action):
     path = bone.path_from_id(channel)
 
     for i, n in enumerate(track.keyframes[0].data):
-        fcurve = action.fcurves.new(path, index=i)
+        fcurve: bpy.types.FCurve
+
+        if bpy.app.version < (5,0,0):
+            fcurve = action.fcurves.new(path, index=i)
+        else:
+            fcurve = action.fcurve_ensure_for_datablock(armature, path, index=i)
+
         fcurve.keyframe_points.add(track.keyframeCount)
         
         
@@ -51,7 +58,10 @@ def importAction(animData, armature):
     bpy.ops.object.mode_set(mode='POSE')
 
     action = bpy.data.actions.new(animData.GUID)
-    
+
+    if armature.animation_data == None:
+        armature.animation_data_create()
+
     armature.animation_data.action = action
 
     for animBone in animData.bones:
@@ -67,14 +77,14 @@ def importAction(animData, armature):
         armatureBone.matrix_basis.identity()
         if animBone.positions.keyframeCount:
             track = preprocessLoc(animBone.positions, armatureBone)
-            importTrack(track, armatureBone, "location", action)
+            importTrack(armature, track, armatureBone, "location", action)
 
         if animBone.rotations.keyframeCount:
             track = preprocessRot(animBone.rotations, armatureBone)
-            importTrack(track, armatureBone, "rotation_quaternion", action)
+            importTrack(armature, track, armatureBone, "rotation_quaternion", action)
 
         if animBone.scale.keyframeCount:
-            importTrack(animBone.scale, armatureBone, "scale", action)
+            importTrack(armature, animBone.scale, armatureBone, "scale", action)
 
     armature.animation_data.action = None
     
