@@ -52,7 +52,6 @@ classes = (
     LibraryHandler.OWMConnectAOOp,
     LibraryHandler.OWMDisconnectAOOp,
     UtilityOperators.OWMCleanupOp,
-    UtilityOperators.OWMCleanupTexOp,
     UtilityOperators.OWMChangeModelLookOp,
     DatatoolLibHandler.OWMBuildTextureDB,
     DatatoolLibHandler.OWMFixTextures
