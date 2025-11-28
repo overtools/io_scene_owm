@@ -140,7 +140,7 @@ class BlenderMaterialTree:
         # parms
         shaderGroup = nodes["OverwatchShader"]
         for input in self.static_inputs_by_type["ShaderParm"]:
-            if not input in material.staticInputs:
+            if input not in material.staticInputs:
                 continue
 
             shader_group_input = shaderGroup.inputs.get(self.all_static_inputs[input].field, None)
