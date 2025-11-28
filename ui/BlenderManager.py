@@ -13,7 +13,7 @@ from . import UtilityOperators
 from . import ImportMapWizard
 from . import ImportAnimationOperator
 from . import DatatoolLibHandler
-from ..importer.blender import shader_library_handler
+from . import shader_library_operators
 
 class OvertoolsMenu(bpy.types.Menu):
     bl_idname = 'OWM_MT_overtools_menu'
@@ -46,8 +46,8 @@ classes = (
     #Menu
     OvertoolsMenu,
     #Operators
-    shader_library_handler.OWMLoadOp,
-    shader_library_handler.OWMSaveOp,
+    shader_library_operators.OWMShaderLoadOp,
+    shader_library_operators.OWMShaderSaveOp,
     UtilityOperators.OWMConnectAOOp,
     UtilityOperators.OWMDisconnectAOOp,
     UtilityOperators.OWMCleanupOp,

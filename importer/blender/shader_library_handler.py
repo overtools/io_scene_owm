@@ -104,27 +104,3 @@ def export_overwatch_shaders():
         log("exported: %s" % (", ".join(map(lambda x: x.name, blocks))))
     bpy.data.libraries.write(path, blocks, fake_user=True, path_remap="RELATIVE_ALL", compress=False)
     log("saved %s" % (path))
-
-class OWMLoadOp(bpy.types.Operator):
-    """Load OWM Material Library"""
-    bl_idname = "owm3.load_library"
-    bl_label = "Import OWM Library"
-
-    def execute(self, context):
-        load_data()
-        return {"FINISHED"}
-
-    def invoke(self, context, event):
-        return self.execute(context)
-
-class OWMSaveOp(bpy.types.Operator):
-    """Export OWM Material Library"""
-    bl_idname = "owm3.save_library"
-    bl_label = "Export OWM Library"
-
-    def execute(self, context):
-        export_overwatch_shaders()
-        return {"FINISHED"}
-
-    def invoke(self, context, event):
-        return self.execute(context)

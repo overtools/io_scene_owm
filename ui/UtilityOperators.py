@@ -3,9 +3,9 @@ from ..readers import PathUtil
 from . import Preferences
 from . import DatatoolLibHandler
 from . import DatatoolLibUtil
-from ..importer.blender import shader_library_handler
 from ..importer.blender.BLMaterial import BlenderMaterialTree
 from .. import shader_metadata
+from shader_library_operators import OWMShaderLoadOp, OWMShaderSaveOp
 
 class OWMUtilityPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_owm_panel2"
@@ -24,9 +24,9 @@ class OWMUtilityPanel(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row()
-        row.operator(shader_library_handler.OWMLoadOp.bl_idname, text="Import OWM Library", icon="LINK_BLEND")
+        row.operator(OWMShaderLoadOp.bl_idname, text="Import OWM Library", icon="LINK_BLEND")
         if Preferences.getPreferences().devMode:
-            row.operator(shader_library_handler.OWMSaveOp.bl_idname, text="Export OWM Library", icon="APPEND_BLEND")
+            row.operator(OWMShaderSaveOp.bl_idname, text="Export OWM Library", icon="APPEND_BLEND")
         #row = layout.row()
         #row.prop(bpy.context.scene.owm3_internal_settings, "b_logsalot", text="Log Map Progress")
 
