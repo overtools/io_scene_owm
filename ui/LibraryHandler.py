@@ -15,57 +15,76 @@ def get_library_path():
 def create_overwatch_shader():
     UIUtil.log("attempting to import shaders")
     path = get_library_path()
-    nodes = []
-    existing = []
-    with bpy.data.libraries.load(path, link=False, relative=True) as (data_from, data_to):
-        #data_to.node_groups = [node_name for node_name in data_from.node_groups if node_name.startswith("OWM: ")]
-        for node_name in data_from.node_groups:
-            if node_name.startswith("OWM: "):
-                if node_name in bpy.data.node_groups:
-                    if bpy.data.node_groups[node_name].get("owm.libVersion", "0.0.0") == addonVersion:
-                        existing.append(node_name)
-                        continue
-                    else:
-                        data_to.node_groups.append(node_name)
-                        nodes.append(node_name)
-                else:
-                    if "{} ({})".format(node_name,addonVersion) in bpy.data.node_groups:
-                        if bpy.data.node_groups["{} ({})".format(node_name,addonVersion)].get("owm.libVersion", "0.0.0") == addonVersion:
-                            existing.append("{} ({})".format(node_name,addonVersion))
-                            continue
-                    data_to.node_groups.append(node_name)
-                    nodes.append(node_name)
-                    
-        data_to.texts = [text_name for text_name in data_from.texts if
-                         not text_name in bpy.data.texts and text_name.startswith("OWM: ") and text_name.endswith(
-                             ".osl")]
+
+    already_appended_nodes = {}
+    def check_existing_name(original_name, name):
+        if name not in bpy.data.node_groups:
+            # doesn't exist
+            return False
+
+        node_group = bpy.data.node_groups[name]
+        if node_group.get("owm.libVersion", "0.0.0") == addonVersion:
+            # we already imported this exact version at some other time
+            # use it
+            already_appended_nodes[original_name] = node_group
+            return True
         
-        if len(data_to.node_groups) > 0:
-            UIUtil.log("imported node groups: %s" % (", ".join(data_to.node_groups)))
-        if len(data_to.texts) > 0:
-            UIUtil.log("imported scripts: %s" % (", ".join(data_to.texts)))
-
-    blNodeGroups = dict(zip(nodes, data_to.node_groups))
-
-    #blocks = [node for node in bpy.data.node_groups if node.name.startswith("OWM: ")]
-    for origName, block in blNodeGroups.items():
-        bpy.data.node_groups[block.name].use_fake_user = True
-
-        bpy.data.node_groups[block.name]["owm.libVersion"] = addonVersion
-
-        if origName != block.name:
-            newName = "{} ({})".format(origName,addonVersion)
-            bpy.data.node_groups[block.name].name = newName
-            blNodeGroups[origName] = bpy.data.node_groups[newName]
-        else:
-            blNodeGroups[origName] = bpy.data.node_groups[block.name]
+        return False
     
-    for node in existing:
-        blNodeGroups[node] = bpy.data.node_groups[node]
+    original_node_names = []
+    original_text_names = []
 
-    blocks = [text for text in bpy.data.texts if text.name.startswith("OWM: ") and text.name.endswith(".osl")]
-    for block in blocks:
-        bpy.data.texts[block.name].use_fake_user = True
+    with bpy.data.libraries.load(path, link=False, relative=True) as (data_from, data_to):
+        for node_name in data_from.node_groups:
+            if not node_name.startswith("OWM: "):
+                continue
+
+            if check_existing_name(node_name, node_name):
+                continue
+            
+            # alternate naming scheme for conflicts
+            versioned_name = "{} ({})".format(node_name, addonVersion)
+            if check_existing_name(node_name, versioned_name):
+                continue
+
+            # didn't find it anywhere.
+            # so we need to copy across this node group
+            data_to.node_groups.append(node_name)
+            original_node_names.append(node_name)
+
+        for text_name in data_from.texts:
+            if not text_name.startswith("OWM: "):
+                continue
+
+            if not text_name.endswith(".osl"):
+                # we only intend to import shaders
+                continue
+                    
+            data_to.texts.append(text_name)
+            original_text_names.append(text_name)
+        
+        UIUtil.log("newly loaded node groups: %s" % (", ".join(data_to.node_groups)))
+        UIUtil.log("newly loaded shader scripts: %s" % (", ".join(data_to.texts)))
+        UIUtil.log("existing node groups: %s" % (", ".join(already_appended_nodes.keys())))
+
+    blNodeGroups = dict(zip(original_node_names, data_to.node_groups))
+    for original_name, block in blNodeGroups.items():
+        block.use_fake_user = True
+        block["owm.libVersion"] = addonVersion
+
+        if original_name != block.name:
+            # blender renamed the block due to conflicts
+            # specify exactly which version of the addon this is from
+            versioned_name = "{} ({})".format(original_name, addonVersion)
+            block.name = versioned_name
+    
+    for original_name, block in already_appended_nodes.items():
+        blNodeGroups[original_name] = block
+
+    blTexts = dict(zip(original_text_names, data_to.texts))
+    for original_name, block in blTexts.items():
+        block.use_fake_user = True
+    
     return blNodeGroups
 
 def dump_json_library():
@@ -308,12 +327,7 @@ def create_overwatch_library():
     UIUtil.log("saved %s" % (path))
 
 def load_data():
-    UIUtil.log("attempting to load texture info")
     try:
-    # print("[owm] %s = %s" % (fname, json.dumps(tdata)))
-        for node in [node for node in bpy.data.node_groups if node.users == 0 and node.name.startswith("OWM: ")]:
-            UIUtil.log("removing unused node group: %s" % (node.name))
-            bpy.data.node_groups.remove(node)
         return create_overwatch_shader()
     except BaseException as e:
         UIUtil.log("failed to load node groups: {}".format(e))
