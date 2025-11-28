@@ -1,5 +1,5 @@
 import bpy
-from .. import __package__ as base_package
+from ..importer.blender.addon_helper import base_package
 
 def getPreferences():
     return bpy.context.preferences.addons[base_package].preferences
