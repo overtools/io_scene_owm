@@ -65,7 +65,6 @@ classes_importers = (
     ImportAnimationOperator.ImportOWANIMCLIP,
     ImportMapWizard.ImportOWMapWizard,
     ImportSkinOperator.ImportOWSkin
-    # ImportOWEFFECT
 )
 
 def register():

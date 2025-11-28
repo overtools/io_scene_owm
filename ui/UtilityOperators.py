@@ -182,15 +182,3 @@ class OWMChangeModelLookOp(bpy.types.Operator):
 
     def invoke(self, context, event): # uh idk
         return self.execute(context)
-
-class OWMCleanupTexOp(bpy.types.Operator): #TODO remake this
-    """Deletes materials with no owners"""
-    bl_idname = "owm3.delete_unused_materials"
-    bl_label = "Delete Unused Materials"
-
-    def execute(self, context):
-        bpyhelper.clean_materials()
-        return {"FINISHED"}
-
-    def invoke(self, context, event):
-        return self.execute(context)
