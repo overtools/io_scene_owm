@@ -4,7 +4,6 @@ import bpy
 from bpy.utils import smpte_from_seconds
 import bpy.utils.previews
 
-from . import LibraryHandler
 from . import SettingTypes
 from . import DatatoolLibUtil
 from . import UIUtil

@@ -5,7 +5,6 @@ from bpy.props import StringProperty, CollectionProperty
 from bpy.utils import smpte_from_seconds
 from bpy_extras.io_utils import ImportHelper
 
-from . import LibraryHandler
 from . import SettingTypes
 from . import UIUtil
 from ..importer import ImportModel

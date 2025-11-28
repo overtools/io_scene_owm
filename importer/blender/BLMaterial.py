@@ -1,5 +1,5 @@
 import bpy
-import json 
+import json
 
 from ...readers import OWMaterialReader, PathUtil
 from ...TextureMap import TextureTypes as TextureMap

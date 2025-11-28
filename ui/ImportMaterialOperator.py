@@ -8,8 +8,6 @@ from ..importer import ImportMaterial
 from ..readers import PathUtil
 from . import UIUtil
 
-from . import LibraryHandler
-
 
 class ImportOWMAT(bpy.types.Operator, ImportHelper):
     bl_idname = 'import_material.overtools2_material'

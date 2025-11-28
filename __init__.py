@@ -1,6 +1,3 @@
-import addon_utils
-import sys
-
 # legacy info for publishing as addon only
 # loading from extension will ignore this
 # please keep in sync
@@ -20,9 +17,6 @@ bl_info = {
 from . import ui
 
 def register():
-    bl_info = addon_utils.module_bl_info(sys.modules[__package__])
-    ui.LibraryHandler.addonVersion = ".".join([str(i) for i in bl_info['version']])
-
     ui.BlenderManager.register()
 
 def unregister():

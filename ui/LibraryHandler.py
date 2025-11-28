@@ -1,13 +1,8 @@
 import os
-
 import bpy
-import json
-from . import UtilityOperators
 from . import UIUtil
-
 from .. import TextureMap
-
-addonVersion = None
+from ..importer.blender.version_helper import get_addon_version
 
 def get_library_path():
     return os.path.join(os.path.dirname(__file__), "..\\library.blend")
@@ -21,6 +16,7 @@ def load_data():
 def import_overwatch_shaders():
     UIUtil.log("attempting to import shaders")
     path = get_library_path()
+    addon_version = get_addon_version()
 
     already_appended_nodes = {}
     def check_existing_name(original_name, name):
@@ -29,7 +25,7 @@ def import_overwatch_shaders():
             return False
 
         node_group = bpy.data.node_groups[name]
-        if node_group.get("owm.libVersion", "0.0.0") == addonVersion:
+        if node_group.get("owm.libVersion", "0.0.0") == addon_version:
             # we already imported this exact version at some other time
             # use it
             already_appended_nodes[original_name] = node_group
@@ -49,7 +45,7 @@ def import_overwatch_shaders():
                 continue
             
             # alternate naming scheme for conflicts
-            versioned_name = "{} ({})".format(node_name, addonVersion)
+            versioned_name = "{} ({})".format(node_name, addon_version)
             if check_existing_name(node_name, versioned_name):
                 continue
 
@@ -76,12 +72,12 @@ def import_overwatch_shaders():
     blNodeGroups = dict(zip(original_node_names, data_to.node_groups))
     for original_name, block in blNodeGroups.items():
         block.use_fake_user = True
-        block["owm.libVersion"] = addonVersion
+        block["owm.libVersion"] = addon_version
 
         if original_name != block.name:
             # blender renamed the block due to conflicts
             # specify exactly which version of the addon this is from
-            versioned_name = "{} ({})".format(original_name, addonVersion)
+            versioned_name = "{} ({})".format(original_name, addon_version)
             block.name = versioned_name
     
     for original_name, block in already_appended_nodes.items():
