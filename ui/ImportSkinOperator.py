@@ -11,124 +11,185 @@ from ..importer import ImportEntity
 from ..readers import PathUtil
 from ..readers.PathUtil import joinPath
 
-heroLabels = {"D.Va":"D.Va cheat sheet:|Gameplay3P: Pilot, Pistol|Showcase: Meka, Pilot Torso, Pilot, Pistol (Left)|HighlightIntro: Meka, Pilot Torso, Pilot, Pistol (Right)|Hero Gallery: Meka, Pilot Torso, Pilot"}
-heroDefaults = {"D.Va": "Showcase"}
+HERO_LABELS = {
+    "D.Va": 
+        "D.Va cheat sheet:|"
+        "Gameplay3P: Pilot, Pistol|"
+        "Showcase: Meka, Pilot Torso, Pilot, Pistol (Left)|"
+        "HighlightIntro: Meka, Pilot Torso, Pilot, Pistol (Right)|"
+        "Hero Gallery: Meka, Pilot Torso, Pilot"
+}
+HERO_DEFAULT_ENTITIES = {
+    "D.Va": "Showcase"
+}
 
+class SkinWizardCache:
+    HEROES = []
+    SKINS = []
+    ENTITIES = []
 
-ICONS = {"loaded":{}}
-HEROES = []
-SKINS = []
-VARIANTS = []
-ENTITIES = []
-VARIANTCACHE = {}
+    VARIANTS = []
+    LAST_VARIANTS_SKIN = ""
 
+    VARIANT_ICONS = None
 
-class ImportOWSkin(bpy.types.Operator):
+    _GENERIC_PLACEHOLDER = ("Select", "Select", "", 0)
+    _ENTITY_PLACEHOLDER = ("Gameplay3P", "", "", 0)
+
+    @classmethod
+    def list_heroes(cls):
+        cls.HEROES.clear()
+        cls.HEROES.append(cls._GENERIC_PLACEHOLDER)
+
+        for hero_tuple in DatatoolLibUtil.categoryList("Heroes"):
+            if not DatatoolLibUtil.categoryExists(joinPath("Heroes", hero_tuple[0], "Skin")):
+                continue
+            cls.HEROES.append(hero_tuple)
+        
+        return cls.HEROES
+    
+    @classmethod
+    def list_skins(cls, hero):
+        cls.SKINS.clear()
+        cls.SKINS.append(cls._GENERIC_PLACEHOLDER)
+
+        if hero == "Select":
+            return cls.SKINS
+        
+        skins_path = joinPath(hero, "Skin")
+        index = 1
+        for category in DatatoolLibUtil.subCategoryList("Heroes", skins_path):
+            category_subfolder = DatatoolLibUtil.subCategoryList("Heroes", joinPath(skins_path, category))
+
+            if "Common" not in category_subfolder and "Epic" not in category_subfolder and "Rare" not in category_subfolder and "Legendary" not in category_subfolder:
+                for skin in category_subfolder:
+                    cls.SKINS.append((joinPath(skins_path, category, skin), "{} ({})".format(skin, category), "{}".format(category), index))
+                    index += 1
+                continue
+            
+            for rarity in category_subfolder:
+                skins = DatatoolLibUtil.subCategoryList("Heroes", joinPath(skins_path, category, rarity))
+                for skin in skins:
+                    cls.SKINS.append((joinPath(skins_path, category, rarity, skin), "{} ({})".format(skin, category), "{}, {} Quality".format(category,rarity), index))
+                    index += 1
+        return cls.SKINS
+    
+    @classmethod
+    def list_mythic_variants(cls, skin, is_mythic):
+        cls.VARIANTS.clear()
+
+        if skin == "Select" or not is_mythic:
+            return cls.VARIANTS
+
+        # skin is actually a path.. to the skin from heroes root dir
+        if skin == cls.LAST_VARIANTS_SKIN:
+            # calculating this is very expensive
+            return cls.VARIANTS
+
+        variant_idx=0
+        for variant in DatatoolLibUtil.subCategoryList("Heroes", skin):
+            if variant == "Models" or variant == "Effects" or variant == "GUI" or variant == "Sound":
+                continue
+
+            icon_path = joinPath(DatatoolLibUtil.getRoot(), "Heroes", skin, variant, "Info.png")
+            if icon_path not in cls.VARIANT_ICONS:
+                cls.VARIANT_ICONS.load(icon_path, icon_path, 'IMAGE')
+
+            cls.VARIANTS.append((variant, variant, variant, cls.VARIANT_ICONS[icon_path].icon_id, variant_idx))
+            variant_idx+=1
+
+        return cls.VARIANTS
+    
+    @classmethod
+    def list_entities(cls, skin, variant, is_mythic):
+        cls.ENTITIES.clear()
+
+        if skin == "Select":
+            cls.ENTITIES.append(cls._ENTITY_PLACEHOLDER)
+            return cls.ENTITIES
+        
+        variant = variant if is_mythic else ""
+        entities_path = joinPath(skin, variant, "Entities")
+
+        named_entities = []
+        unnamed_entities = []
+        for entity_folder in DatatoolLibUtil.subCategoryList("Heroes", entities_path):
+            if entity_folder.startswith("0"):
+                unnamed_entities.append((entity_folder, entity_folder, ""))
+            else:
+                named_entities.append((entity_folder, entity_folder, ""))
+        
+        cls.ENTITIES.extend(named_entities)
+        cls.ENTITIES.extend(unnamed_entities)
+        return cls.ENTITIES
+    
+    @classmethod
+    def clear(cls):
+        cls.HEROES.clear()
+        cls.SKINS.clear()
+        cls.ENTITIES.clear()
+        cls.LAST_VARIANTS_SKIN = ""
+        cls.VARIANT_ICONS.clear()
+
+    @classmethod
+    def register(cls):
+        cls.VARIANT_ICONS = bpy.utils.previews.new()
+
+    @classmethod
+    def unregister(cls):
+        if cls.VARIANT_ICONS is not None:
+            bpy.utils.previews.remove(cls.VARIANT_ICONS)
+
+class ImportOWSkinWizard(bpy.types.Operator):
     bl_idname = 'import_mesh.overtools2_skin'
     bl_label = 'Import Hero Skin'
     __doc__ = bl_label
     bl_options = {'UNDO'}
 
-    def listHeroes(self, context):
-        global HEROES
-        HEROES = [hero for hero in DatatoolLibUtil.categoryList("Heroes") if DatatoolLibUtil.categoryExists(joinPath("Heroes",hero[0], "Skin")) or hero[0] == "Select"]
-        return HEROES
+    def list_heroes(self, context):
+        return SkinWizardCache.list_heroes()
 
-    def listSkins(self, context):
-        global SKINS
-        enum = [("Select", "Select", "", 0)]
-        if self.hero == "Select":
-            return enum
-        path = joinPath(self.hero, "Skin")
-        skinCategories = DatatoolLibUtil.subCategoryList("Heroes", path)
-        i = 1
-        for category in skinCategories:
-            skinQualities = DatatoolLibUtil.subCategoryList("Heroes", joinPath(path, category))
-            if "Common" not in skinQualities and "Epic" not in skinQualities and "Rare" not in skinQualities and "Legendary" not in skinQualities:
-                for skin in skinQualities:
-                    enum.append((joinPath(path, category, skin), "{} ({})".format(skin, category), "{}".format(category), i))
-                    i+=1
-            else:
-                for quality in skinQualities:
-                    skins = DatatoolLibUtil.subCategoryList("Heroes", joinPath(path, category, quality))
-                    for skin in skins:
-                        enum.append((joinPath(path, category, quality, skin), "{} ({})".format(skin, category), "{}, {} Quality".format(category,quality), i))
-                        i+=1
-        SKINS = enum
-        return enum
-
-    def listEntities(self, context):
-        global ENTITIES
-        placeholder = [("Gameplay3P", "place holder so blender doesn't go insane", "")]
-        if self.skin == "Select":
-            return placeholder
-        path = joinPath(self.skin, self.variant if self.mythic else "", "Entities")
-        known = []
-        unknown = []
-        try:
-            entities = DatatoolLibUtil.subCategoryList("Heroes", path)
-            for entity in entities:
-                if entity.startswith("0"):
-                    unknown.append((entity,entity,""))
-                else:
-                    known.append((entity,entity,""))
-        except:
-            self.mythic = True
-            return placeholder
-        ENTITIES = known+unknown
-        return ENTITIES
-
-    def listMythicVariants(self, context):
-        global VARIANTS,VARIANTCACHE,ICONS
-        if self.skin not in ICONS:
-            ICONS[self.skin] = bpy.utils.previews.new()
-            ICONS["loaded"][self.skin] = {}
-            
-        VARIANTCACHE.setdefault(self.skin, DatatoolLibUtil.subCategoryList("Heroes", self.skin))
-        enum = []
-        i=0
-        for variant in VARIANTCACHE[self.skin]:
-            if variant == "Models" or variant == "Effects" or variant == "GUI" or variant == "Sound":
-                continue
-            if variant not in ICONS["loaded"]:
-                iconPath = joinPath(DatatoolLibUtil.getRoot(), "Heroes", self.skin, variant, "Info.png")
-                icon = ICONS[self.skin].load(variant, iconPath, 'IMAGE')
-                ICONS["loaded"][variant] = int(icon.icon_id)
-
-            enum.append((variant, variant, variant, ICONS["loaded"][variant], i))
-            i+=1
-        VARIANTS = enum
-        return VARIANTS
-
-    def resetSkin(self, context):
-        if self.hero != "Select":
-            self.mythic = False
-            self.skin = "Select"
+    def list_skins(self, context):
+        return SkinWizardCache.list_skins(self.hero)
     
-    def resetEntity(self, context):
-        if self.skin != "Select":
-            defaultEntity = heroDefaults.get(self.hero, "Gameplay3P")
-            self.entity = defaultEntity
-            # setting a second time helps mythics.. (first doesn't stick)
-            self.entity = defaultEntity
+    def list_mythic_variants(self, context):
+        return SkinWizardCache.list_mythic_variants(self.skin, self.is_mythic)
 
+    def list_entities(self, context):
+        return SkinWizardCache.list_entities(self.skin, self.mythic_variant, self.is_mythic)
+    
+    def on_hero_changed(self, context):
+        if self.hero == "Select":
+            return
+        
+        self.is_mythic = False
+        self.skin = "Select"
+    
+    def on_skin_changed(self, context):
+        if self.skin == "Select":
+            return
+        
+        # needs to be before we touch self.entity
+        # it triggers eval
+        non_mythic_entities_path = joinPath("Heroes", self.skin, "Entities")
+        self.is_mythic = not DatatoolLibUtil.categoryExists(non_mythic_entities_path)
 
+        default_entity = HERO_DEFAULT_ENTITIES.get(self.hero, "Gameplay3P")
+        self.entity = default_entity
+
+    # importer settings
     modelSettings: bpy.props.PointerProperty(type=SettingTypes.OWModelSettings)
-
     entitySettings: bpy.props.PointerProperty(type=SettingTypes.OWEntitySettings)
 
-    hero: bpy.props.EnumProperty(items=listHeroes, name="Hero", update=resetSkin)
+    # selectors
+    hero: bpy.props.EnumProperty(items=list_heroes, name="Hero", update=on_hero_changed)
+    skin: bpy.props.EnumProperty(items=list_skins, name="Skin", update=on_skin_changed)
+    mythic_variant: bpy.props.EnumProperty(items=list_mythic_variants, name="Mythic Variant")
+    entity: bpy.props.EnumProperty(items=list_entities, name="Entity")
 
-    skin: bpy.props.EnumProperty(items=listSkins, name="Skin", update=resetEntity)
-    
-    entity: bpy.props.EnumProperty(items=listEntities, name="Entity")
-
-    mythic: bpy.props.BoolProperty(default=False)
-
-    variant: bpy.props.EnumProperty(items=listMythicVariants, name="Mythic Variant")
-
+    # internal
+    is_mythic: bpy.props.BoolProperty(default=False)
     mouse:  bpy.props.BoolProperty(default=False)
-
     mousePos: bpy.props.IntVectorProperty(size=2, default=(0,0))
 
     @classmethod
@@ -144,22 +205,26 @@ class ImportOWSkin(bpy.types.Operator):
             return False
 
     def execute(self, context):
-        self.modelSettings.importMatless = not self.mythic
         if self.hero == "Select":
             self.report({'ERROR'}, "No Hero selected.")
-            bpy.ops.import_mesh.overtools2_skin('INVOKE_DEFAULT')
+            return {'FINISHED'}
         elif self.skin == "Select":
             self.report({'ERROR'}, "No Skin selected.")
-            bpy.ops.import_mesh.overtools2_skin('INVOKE_DEFAULT')
-        else:
-            t = datetime.now()
-            skinName = PathUtil.nameFromPath(self.skin)
-            name = "{} {} ({})".format(self.hero, skinName, self.entity)
-            entityPath = joinPath(DatatoolLibUtil.getRoot(), "Heroes", self.skin,
-                self.variant if self.mythic else "", "Entities",
-                self.entity, self.entity+".owentity")
-            ImportEntity.init(entityPath, self.modelSettings, self.entitySettings, name)
-            UIUtil.log('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
+            return {'FINISHED'}
+
+        entity_path = joinPath(DatatoolLibUtil.getRoot(), "Heroes", self.skin,
+            self.mythic_variant if self.is_mythic else "", "Entities",
+            self.entity, self.entity+".owentity")
+        
+        skin_name = PathUtil.nameFromPath(self.skin)
+        full_name = "{} {} ({})".format(self.hero, skin_name, self.entity)
+
+        self.modelSettings.importMatless = not self.is_mythic
+
+        start_time = datetime.now()
+        ImportEntity.init(entity_path, self.modelSettings, self.entitySettings, full_name)
+        UIUtil.log('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - start_time)))
+
         return {'FINISHED'}
 
     def invoke(self, context, event):
@@ -184,12 +249,12 @@ class ImportOWSkin(bpy.types.Operator):
         if self.hero != "Select":
             col.prop(self, 'skin')
             if self.skin != "Select":
-                if self.mythic:
+                if self.is_mythic:
                     topRow.ui_units_y = 10.5
                     split = col.split(factor=.235)
                     split.label(text="Mythic Variant")
-                    split.template_icon_view(self, 'variant', show_labels=True, scale=2, scale_popup=5)
-                    if self.variant != "0":
+                    split.template_icon_view(self, 'mythic_variant', show_labels=True, scale=2, scale_popup=5)
+                    if self.mythic_variant != "0":
                         drawEnt = True
                 else:
                     drawEnt = True
@@ -213,9 +278,14 @@ class ImportOWSkin(bpy.types.Operator):
         col = bottomRow.column()
         col.ui_units_x = .6
         if drawEnt:
-            if self.hero in heroLabels:
-                for line in heroLabels[self.hero].split("|"):
+            if self.hero in HERO_LABELS:
+                for line in HERO_LABELS[self.hero].split("|"):
                     col.label(text=line)
 
-        
-        
+    @staticmethod
+    def register():
+        SkinWizardCache.register()
+
+    @staticmethod
+    def unregister():
+        SkinWizardCache.unregister()

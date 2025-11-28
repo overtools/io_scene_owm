@@ -1,4 +1,3 @@
-import cProfile as Profile
 from datetime import datetime
 
 import bpy

@@ -1,8 +1,4 @@
 import bpy
-from bpy.app.handlers import persistent
-
-
-
 from . import ImportModelOperator
 from . import ImportMaterialOperator
 from . import ImportEntityOperator
@@ -22,7 +18,7 @@ class OvertoolsMenu(bpy.types.Menu):
     bl_label = "Select"
 
     def draw(self, context):
-        self.layout.operator(ImportSkinOperator.ImportOWSkin.bl_idname, text='Skin (wizard)')
+        self.layout.operator(ImportSkinOperator.ImportOWSkinWizard.bl_idname, text='Skin (wizard)')
         self.layout.operator(ImportMapWizard.ImportOWMapWizard.bl_idname, text='Map (wizard)')
         self.layout.operator(ImportModelOperator.ImportOWMDL.bl_idname, text='Model (.owmdl)')
         self.layout.operator(ImportEntityOperator.ImportOWENTITY.bl_idname, text='Entity (.owentity)')
@@ -63,7 +59,7 @@ classes_importers = (
     ImportMapOperator.ImportOWMAP,
     ImportAnimationOperator.ImportOWANIMCLIP,
     ImportMapWizard.ImportOWMapWizard,
-    ImportSkinOperator.ImportOWSkin,
+    ImportSkinOperator.ImportOWSkinWizard,
     filehandler_operators.IO_FH_owmdl,
     filehandler_operators.IO_FH_owmat,
     filehandler_operators.IO_FH_owentity,

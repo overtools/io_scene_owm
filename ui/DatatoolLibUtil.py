@@ -23,7 +23,7 @@ def subCategoryList(category, sub, enum=False, file=False, fileFilter=None):
     return enumDir(dir, file, fileFilter) if enum else [item.name for item in PathUtil.scan(dir) if item.is_dir()]
 
 def enumDir(dir, file=False, fileFilter=None):
-    enum = [("Select", "Select", "", 0)]
+    enum = []
     i = 1
     with PathUtil.scan(dir) as items:
         for item in items:
