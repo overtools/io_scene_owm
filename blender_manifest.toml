@@ -26,6 +26,7 @@ paths_exclude_pattern = [
   "/.git/",
   ".gitignore",
   ".gitattributes",
+  "README.md",
   "build.bat",
   "/*.zip", # build outputs
 ]
