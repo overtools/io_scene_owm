@@ -48,7 +48,6 @@ classes = (
     #Operators
     LibraryHandler.OWMLoadOp,
     LibraryHandler.OWMSaveOp,
-    LibraryHandler.OWMLoadJSONOp,
     LibraryHandler.OWMConnectAOOp,
     LibraryHandler.OWMDisconnectAOOp,
     UtilityOperators.OWMCleanupOp,

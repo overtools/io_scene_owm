@@ -26,8 +26,6 @@ class OWMUtilityPanel(bpy.types.Panel):
         row.operator(LibraryHandler.OWMLoadOp.bl_idname, text="Import OWM Library", icon="LINK_BLEND")
         if Preferences.getPreferences().devMode:
             row.operator(LibraryHandler.OWMSaveOp.bl_idname, text="Export OWM Library", icon="APPEND_BLEND")
-            row = layout.row()
-            row.operator(LibraryHandler.OWMLoadJSONOp.bl_idname, text="Import OWM Library from JSON", icon="LINK_BLEND")
         #row = layout.row()
         #row.prop(bpy.context.scene.owm3_internal_settings, "b_logsalot", text="Log Map Progress")
 
