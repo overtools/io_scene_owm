@@ -5,7 +5,7 @@ from . import DatatoolLibHandler
 from . import DatatoolLibUtil
 from ..importer.blender.BLMaterial import BlenderMaterialTree
 from .. import shader_metadata
-from shader_library_operators import OWMShaderLoadOp, OWMShaderSaveOp
+from .shader_library_operators import OWMShaderLoadOp, OWMShaderSaveOp
 
 class OWMUtilityPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_owm_panel2"

@@ -15,6 +15,7 @@ from . import Preferences
 from . import SettingTypes
 from . import DatatoolLibHandler
 from . import shader_library_operators
+from . import filehandler_operators
 
 class OvertoolsMenu(bpy.types.Menu):
     bl_idname = 'OWM_MT_overtools_menu'
@@ -62,7 +63,12 @@ classes_importers = (
     ImportMapOperator.ImportOWMAP,
     ImportAnimationOperator.ImportOWANIMCLIP,
     ImportMapWizard.ImportOWMapWizard,
-    ImportSkinOperator.ImportOWSkin
+    ImportSkinOperator.ImportOWSkin,
+    filehandler_operators.IO_FH_owmdl,
+    filehandler_operators.IO_FH_owmat,
+    filehandler_operators.IO_FH_owentity,
+    filehandler_operators.IO_FH_owanimclip,
+    filehandler_operators.IO_FH_owmap
 )
 
 def register():
