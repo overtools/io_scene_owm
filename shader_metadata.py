@@ -1,9 +1,14 @@
+from . import ui
+
+_shader_metadata_initialized = False
+_shader_metadata = {}
+
 class Mapping:
     def __init__(self, item):
         self.colorSockets = item[0]
         self.sRGB = False
         for socket in self.colorSockets:
-            if socket in TextureTypes["Color"]:
+            if socket in _shader_metadata["Color"]:
                 self.sRGB = True
         self.alphaSockets = item[1]
         self.readableName = item[2]
@@ -14,7 +19,8 @@ class StaticInput:
         self.hash = item[0]
         self.format = item[1]
         self.type = item[2]
-        StaticInputsByType[self.type].add(self.hash)
+        _shader_metadata["StaticInputsByType"][self.type].add(self.hash)
+
         if self.type == "UVLayer":
             self.uvName = item[3]
             self.uvTargets = item[4]
@@ -23,12 +29,28 @@ class StaticInput:
         else:
             self.field = item[3]
             if self.type == "UVScale":
-                ScalesByName[self.field] = self.hash
+                _shader_metadata["ScalesByName"][self.field] = self.hash
 
-StaticInputsByType = {"UVLayer":set(),"UVScale":set(),"ShaderParm":set(),"Array":set(),"Dummy":set()}
-ScalesByName = {}
-TextureTypes = {
-    "Mapping": {
+def init():
+    global _shader_metadata_initialized
+    if _shader_metadata_initialized:
+        return
+    _shader_metadata_initialized = True
+
+    ui.UIUtil.log("initializing shader metadata classes")
+
+    # populated by StaticInput.__init__
+    _shader_metadata["ScalesByName"] = {}
+    _shader_metadata["StaticInputsByType"] = {
+        
+        "UVLayer":set(),
+        "UVScale":set(),
+        "ShaderParm":set(),
+        "Array":set(),
+        "Dummy":set()
+    }
+
+    _shader_metadata["Mapping"] = {
         # "Hash": [["Color Nodes"], ["Alpha Nodes"], "Readable Name"]
         # Basic
         3166598269: [['Emission'], [], 'Emission'],
@@ -101,12 +123,15 @@ TextureTypes = {
         2762290483: [['Normal'], [], 'Eye Normal'],
         2454590718: [[], [], 'Eye Normal 2'],
         861945942: [[], [], 'Eye Mask'],
-    },
+    }
+
     # List of names to import as sRGB
-    "Color": ["Color", "Dirt Color", "Subsurface", "Subsurf2", "Color B", "Color C", "Emission Color"],
+    _shader_metadata["Color"] = ["Color", "Dirt Color", "Subsurface", "Subsurf2", "Color B", "Color C", "Emission Color"]
+
     # Active texture to display in the viewport
-    "Active": ["Color", "Color2", "Color3"],
-    "DetailTextures": {
+    _shader_metadata["Active"] = ["Color", "Color2", "Color3"]
+
+    _shader_metadata["DetailTextures"] = {
         1268722198: 0,  # not sure if right
         1016601216: 1,
         2777762618: 2,
@@ -114,8 +139,10 @@ TextureTypes = {
         1290989071: 4,
         1005969049: 5,
         2734460707: 6,
-        3590045621: 7}, 
-    "StaticInputs": {
+        3590045621: 7
+    }
+
+    _shader_metadata["StaticInputs"] = {
         3344068240:StaticInput((3344068240, "I", "UVLayer", "Emission", (3166598269,))),  # emission uv
         2241837981:StaticInput((2241837981, "I", "UVLayer", "Blend 2", (682378068,571210053,3120512190))),
         -300:StaticInput((-300, "I", "UVLayer", "Blend 1", (2637552222,1724830523,824205512))),
@@ -134,10 +161,27 @@ TextureTypes = {
         2135242209:StaticInput((2135242209, "II", "Dummy", "Scaling Mode")),
         #2241837981:StaticInput((2241837981, "I", "Dummy", "Blend2")),  # blend2 uv
         # 62081fbd overlay normal fac
-    },
-    "CollisionMaterials": set(["0000000034A0","000000002DD4","000000002D77","0000000034A2","000000002D77","000000000796", "000000000005", "000000000794", "0000000048EF", "0000000034A3","000000000797","0000000007A2","0000000007A0","0000000007C0","0000000007A1"]),
-    # OWM Shader remaps for shader ids
-    "NodeGroups": {
+    }
+
+    _shader_metadata["CollisionMaterials"] = set([
+        "0000000034A0",
+        "000000002DD4",
+        "000000002D77",
+        "0000000034A2",
+        "000000002D77",
+        "000000000796", 
+        "000000000005", 
+        "000000000794", 
+        "0000000048EF", 
+        "0000000034A3",
+        "000000000797",
+        "0000000007A2",
+        "0000000007A0",
+        "0000000007C0",
+        "0000000007A1"
+    ])
+
+    _shader_metadata["NodeGroups"] = {
         "Default": "OWM: Basic",
         "34": "OWM: Decal",
         "36": "OWM: Blend",
@@ -159,10 +203,10 @@ TextureTypes = {
         "217": "OWM: OW2 Detail",
         "221": "OWM: OW2 Eye",
     }
-}
 
-from . import ui
-ui.UIUtil.log("initializing texture map classes")
-for mappingID, mappingData in TextureTypes["Mapping"].items():
-    TextureTypes["Mapping"][mappingID] = Mapping(mappingData)
+    for mappingID, mappingData in _shader_metadata["Mapping"].items():
+        _shader_metadata["Mapping"][mappingID] = Mapping(mappingData)
 
+def get_shader_metadata(name):
+    init()
+    return _shader_metadata[name]

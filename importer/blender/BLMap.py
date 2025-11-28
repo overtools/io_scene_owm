@@ -10,8 +10,8 @@ from . import BLEntity
 from . import BLModel
 from .BLMaterial import BlenderMaterialTree
 from ...readers import PathUtil
-from ...TextureMap import TextureTypes
 
+from ... import shader_metadata
 
 class QueueItem:
     def __init__(self, parent, rec):
@@ -200,9 +200,6 @@ class BlenderTree:
         if queueLink:
             self.queueLinkRecursive(obj, col)
 
-
-collisionMats = TextureTypes["CollisionMaterials"]
-
 def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettings, lightSettings):
     blenderTree = BlenderTree(mapSettings.joinMeshes)
     
@@ -289,6 +286,8 @@ def init(mapTree, mapName, mapRootPath, mapSettings, modelSettings, entitySettin
         UIUtil.log("cleaning up...")
         UIUtil.setStatus("Cleaning up")
         matTree.removeSkeletonNodeTrees()
+
+        collisionMats = shader_metadata.get_shader_metadata("CollisionMaterials")
         if mapSettings.removeCollision:
             for parent, children in blenderTree.parentChildren.items():
                 remove = set()

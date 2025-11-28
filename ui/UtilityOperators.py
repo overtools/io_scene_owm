@@ -5,7 +5,7 @@ from . import DatatoolLibHandler
 from . import DatatoolLibUtil
 from ..importer.blender import shader_library_handler
 from ..importer.blender.BLMaterial import BlenderMaterialTree
-from .. import TextureMap
+from .. import shader_metadata
 
 class OWMUtilityPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_owm_panel2"
@@ -184,8 +184,9 @@ class OWMChangeModelLookOp(bpy.types.Operator):
 
 
 def getAOTextures():
+    mappings = shader_metadata.get_shader_metadata("Mapping")
     ao = {}
-    for tex, mapping in TextureMap.TextureTypes["Mapping"].items():
+    for tex, mapping in mappings.items():
         if tex == 3761386704: 
             continue
         if "AO" in mapping.colorSockets or "AO" in mapping.alphaSockets or "Blend AO" in mapping.colorSockets:

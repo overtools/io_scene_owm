@@ -1,5 +1,5 @@
 import bpy
-from importer.blender.blender_helper import log # forwarding, as it used to live here
+from ..importer.blender.blender_helper import log # forwarding, as it used to live here
 
 mute = False
 filesErrored = 0

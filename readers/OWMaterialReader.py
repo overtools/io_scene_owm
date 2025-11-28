@@ -2,8 +2,8 @@ from enum import IntEnum
 from . import BinaryUtil
 from . import PathUtil
 from ..datatypes import MaterialTypes
-from .. import TextureMap
 from ..ui import UIUtil
+from ..shader_metadata import get_shader_metadata
 
 class OWMatType(IntEnum):
     Material = 0
@@ -26,11 +26,12 @@ def readMaterial(filename, stream):
 
     material.textures = stream.readClassArray(OWMATFormat.texture, MaterialTypes.OWMATMaterialTexture, material.textureCount, absPath=True)
 
+    all_static_inputs = get_shader_metadata("StaticInputs")
     for i in range(material.staticInputCount):
         inputHash, inputDataLength = stream.readFmt(OWMATFormat.staticInput)
     
-        if inputHash in TextureMap.TextureTypes["StaticInputs"]:
-            input = TextureMap.TextureTypes["StaticInputs"][inputHash]
+        if inputHash in all_static_inputs:
+            input = all_static_inputs[inputHash]
             if input.type == "Array":
                 data = stream.readFmtArray(input.format, int(inputDataLength/16))
             else:

@@ -2,12 +2,15 @@ import bpy
 import json
 
 from ...readers import OWMaterialReader, PathUtil
-from ...TextureMap import TextureTypes as TextureMap
-from ...TextureMap import StaticInputsByType, ScalesByName
 from ...datatypes import MaterialTypes
 
-from blender_helper import log
+from .blender_helper import log
 from . import shader_library_handler
+from ... import shader_metadata
+
+# used for layout
+tile_x = 400
+tile_y = 50
 
 class BlenderMaterialTree:
     def __init__(self, modelLooks, dedup=False):
@@ -21,35 +24,53 @@ class BlenderMaterialTree:
         self.texPaths = {}
         self.dedup = dedup
         self.unusedMaterials = set()
+
         self.blendNodeGroups = shader_library_handler.load_data()
+
+        self.all_static_inputs = shader_metadata.get_shader_metadata("StaticInputs")
+        self.static_inputs_by_type = shader_metadata.get_shader_metadata("StaticInputsByType")
+        self.scales_by_name = shader_metadata.get_shader_metadata("ScalesByName")
+        self.texture_mapping = shader_metadata.get_shader_metadata("Mapping")
+        self.all_detail_textures = shader_metadata.get_shader_metadata("DetailTextures")
+
         log("Reading material looks")
         self.batchLoadMaterials(modelLooks)
+
         log("Creating {} materials".format(len(self.materials)))
         self.createMaterials()
 
     def batchLoadMaterials(self, modelLooks):
-        read = set()
         for modelLookGUID, modelLookPath in modelLooks.items():
-            if modelLookGUID is None: continue
-            if modelLookGUID not in read:
-                modelLookData = OWMaterialReader.read(modelLookPath)
-                if not modelLookData:
+            if modelLookGUID is None: 
+                continue
+            if modelLookGUID in self.materialLooks:
+                continue
+
+            look = OWMaterialReader.read(modelLookPath)
+            if not look:
+                # failed to load
+                continue
+
+            if type(look) == MaterialTypes.OWMATMaterial:
+                # oops, we actually loaded a single material
+                # create a fake look
+                # (is this code path ever hit..)
+                mats = {"virtual": look}
+                look = MaterialTypes.OWMATModelLook("virtual")
+                look.materials = mats
+
+            for key, material in look.materials.items():
+                if not material:
                     continue
-                if type(modelLookData) == MaterialTypes.OWMATMaterial:
-                    mats= {"virtual": modelLookData}
-                    modelLookData = MaterialTypes.OWMATModelLook("virtual")
-                    modelLookData.materials = mats
 
-                for key, material in modelLookData.materials.items():
-                    if not material:
-                        continue
-                    self.materials.setdefault(material.GUID, material)
-                    for texture in material.textures:
-                        self.texPaths.setdefault(texture.GUID, texture.filepath)
+                self.materials.setdefault(material.GUID, material)
+                for texture in material.textures:
+                    self.texPaths.setdefault(texture.GUID, texture.filepath)
 
-                    modelLookData.materials[key] = material.GUID
+                look.materials[key] = material.GUID # gross
 
-                self.materialLooks.setdefault(modelLookGUID, modelLookData)
+            self.materialLooks.setdefault(modelLookGUID, look)
+
         self.materialLooks[None] = None
 
     def createMaterials(self):
@@ -63,31 +84,35 @@ class BlenderMaterialTree:
                 self.blendMaterials[material] = blendMaterial
                 self.unusedMaterials.add(blendMaterial)
 
-    def bindModelLook(self, model, modelLookID):
+    def bindModelLook(self, overwatch_model, modelLookID):
         if modelLookID not in self.materialLooks:
             return
+        
         modelLook = self.materialLooks[modelLookID]
         if modelLook is None:
             return
-        for meshI, blendObj in enumerate(model.meshes):
-            blendMesh = blendObj.data
-            meshData = model.meshData.meshes[meshI]
+        
+        for index, blender_mesh in enumerate(overwatch_model.meshes):
+            blender_mesh_data = blender_mesh.data
+            overwatch_mesh_data = overwatch_model.meshData.meshes[index]
 
-            if meshData.materialKey in modelLook.materials:
-                materialGUID = modelLook.materials[meshData.materialKey]
-                if not materialGUID:
-                    blendMesh.materials.clear()
-                    blendObj["owm.material"] = materialGUID
-                    continue
-                blendMaterial = self.blendMaterials[materialGUID]
-                blendMesh.materials.clear()
-                blendMesh.materials.append(blendMaterial)
-                blendObj.material_slots[0].link = 'OBJECT'
-                blendObj.material_slots[0].material = blendMaterial
-                self.markUsed(blendMaterial)
-                blendObj["owm.material"] = materialGUID
-            else:
-                log("Unable to find material {:016X} in provided material set (BLMaterial)".format(meshData.materialKey))
+            if overwatch_mesh_data.materialKey not in modelLook.materials:
+                log("Unable to find material {:016X} in provided material set (BLMaterial)".format(overwatch_mesh_data.materialKey))
+                continue
+
+            materialGUID = modelLook.materials[overwatch_mesh_data.materialKey]
+            if not materialGUID:
+                blender_mesh_data.materials.clear()
+                blender_mesh["owm.material"] = materialGUID
+                continue
+
+            blendMaterial = self.blendMaterials[materialGUID]
+            blender_mesh_data.materials.clear()
+            blender_mesh_data.materials.append(blendMaterial)
+            blender_mesh.material_slots[0].link = 'OBJECT'
+            blender_mesh.material_slots[0].material = blendMaterial
+            blender_mesh["owm.material"] = materialGUID
+            self.markUsed(blendMaterial)
 
     def bindEntityLook(self, entity, modelLookID):
         if entity.baseModel:
@@ -114,67 +139,83 @@ class BlenderMaterialTree:
         nodes = blendMaterial.node_tree.nodes
         # parms
         shaderGroup = nodes["OverwatchShader"]
-        for input in StaticInputsByType["ShaderParm"]:
-            if input in material.staticInputs:
-                if TextureMap["StaticInputs"][input].field in shaderGroup.inputs.keys(): #TODO might need opt
-                    shaderGroup.inputs[TextureMap["StaticInputs"][input].field].default_value = material.staticInputs[input]
+        for input in self.static_inputs_by_type["ShaderParm"]:
+            if not input in material.staticInputs:
+                continue
+
+            shader_group_input = shaderGroup.inputs.get(self.all_static_inputs[input].field, None)
+            if shader_group_input is None:
+                continue
+
+            shader_group_input.default_value = material.staticInputs[input]
 
         # uvs
         layerCount = 2
         curLayer = 1
-        for input in StaticInputsByType["UVLayer"]: #this might not scale well for maps so up to changes
-            if input in material.staticInputs or input < -100: # -100 and .gets are hacks for basic textures
+        for input in self.static_inputs_by_type["UVLayer"]: #this might not scale well for maps so up to changes
+            if input not in material.staticInputs or not input < -100:
+                 # -100 and .gets are hacks for basic textures
+                continue
 
-                UVNode = None
-                mappingNode = None
-                scalingNode = None
+            UVNode = None
+            mappingNode = None
+            scalingNode = None
+
+            def createUVLayer():
+                UVNode = createUVNode(nodes, material.staticInputs.get(input, 1), (2,layerCount))
+                UVNode.label = uvName + " UV"
+                return UVNode, layerCount, layerCount+2.5
+            
+            for target in self.all_static_inputs[input].uvTargets:
+                if str(target) not in nodes:
+                    continue
                 
-                for target in TextureMap["StaticInputs"][input].uvTargets:
-                    if str(target) in nodes:
-                        def createUVLayer():
-                            UVNode = createUVNode(nodes, material.staticInputs.get(input, 1), (2,layerCount))
-                            UVNode.label = uvName+" UV"
-                            return UVNode, layerCount, layerCount+2.5
-                        texNode = nodes[str(target)]
-                        uvName = TextureMap["StaticInputs"][input].uvName
+                texNode = nodes[str(target)]
+                uvName = self.all_static_inputs[input].uvName
+                uv_static_input = self.scales_by_name.get(uvName, None)
 
-                        # Check if this UV Layer has tied scaling
-                        if uvName in ScalesByName:
-                            if ScalesByName[uvName] in material.staticInputs: # check if it's in inputs
-                                mode = material.staticInputs.get(2135242209, [0, 0])
-                                if UVNode is None:
-                                    UVNode, curLayer, layerCount = createUVLayer()
+                # Check if this UV Layer has tied scaling
+                # (?)
+                if uv_static_input is None:
+                    if material.staticInputs.get(input, 1) != 1:
+                        if UVNode is None:
+                            UVNode, curLayer, layerCount = createUVLayer()
+                        blendMaterial.node_tree.links.new(UVNode.outputs[0], texNode.inputs[0])
+                    continue
 
-                                if mode == [0, 0]: #mapping node is good enough 
-                                    if mappingNode is None:
-                                        mappingNode = createMappingNode(nodes, str(uvName)+" Scale", (1.5, curLayer))
-                                        blendMaterial.node_tree.links.new(UVNode.outputs[0], mappingNode.inputs[0])
-                                        setMappingScale(mappingNode, material.staticInputs[ScalesByName[uvName]])
-                                    
-                                    blendMaterial.node_tree.links.new(mappingNode.outputs[0], texNode.inputs[0])
-                                else:
-                                    if scalingNode is None and "OWM: Scale UV" in bpy.data.node_groups:
-                                        scalingNode = nodes.new("ShaderNodeGroup")
-                                        scalingNode.location = getLocation(1.5,curLayer)
-                                        scalingNode.label = uvName+" Scaling"
-                                        scalingNode.node_tree = bpy.data.node_groups["OWM: Scale UV"]
-                                        scalingNode.color = [.245, .245, .575]
-                                        scalingNode.use_custom_color = True
-                                        scalingNode.hide = True
-                                        
-                                        blendMaterial.node_tree.links.new(UVNode.outputs[0], scalingNode.inputs[0])
-                                        scalingNode.inputs[1].default_value = material.staticInputs[ScalesByName[uvName]][0]
-                                        scalingNode.inputs[2].default_value = material.staticInputs[ScalesByName[uvName]][1]
+                if uv_static_input not in material.staticInputs:
+                    continue
 
-                                        scalingNode.inputs[3].default_value = getScaleVector(mode[0])
-                                        scalingNode.inputs[4].default_value = getScaleVector(mode[1])
+                mode = material.staticInputs.get(2135242209, [0, 0])
+                if UVNode is None:
+                    UVNode, curLayer, layerCount = createUVLayer()
 
-                                    if scalingNode:
-                                        blendMaterial.node_tree.links.new(scalingNode.outputs[0], texNode.inputs[0])
-                        elif material.staticInputs.get(input, 1) != 1:
-                            if UVNode is None:
-                                UVNode, curLayer, layerCount = createUVLayer()
-                            blendMaterial.node_tree.links.new(UVNode.outputs[0], texNode.inputs[0])
+                if mode == [0, 0]: #mapping node is good enough 
+                    if mappingNode is None:
+                        mappingNode = createMappingNode(nodes, str(uvName)+" Scale", (1.5, curLayer))
+                        blendMaterial.node_tree.links.new(UVNode.outputs[0], mappingNode.inputs[0])
+                        setMappingScale(mappingNode, material.staticInputs[self.scales_by_name[uvName]])
+                    
+                    blendMaterial.node_tree.links.new(mappingNode.outputs[0], texNode.inputs[0])
+                else:
+                    if scalingNode is None and "OWM: Scale UV" in bpy.data.node_groups:
+                        scalingNode = nodes.new("ShaderNodeGroup")
+                        scalingNode.location = getLocation(1.5,curLayer)
+                        scalingNode.label = uvName+" Scaling"
+                        scalingNode.node_tree = bpy.data.node_groups["OWM: Scale UV"]
+                        scalingNode.color = [.245, .245, .575]
+                        scalingNode.use_custom_color = True
+                        scalingNode.hide = True
+                        
+                        blendMaterial.node_tree.links.new(UVNode.outputs[0], scalingNode.inputs[0])
+                        scalingNode.inputs[1].default_value = material.staticInputs[self.scales_by_name[uvName]][0]
+                        scalingNode.inputs[2].default_value = material.staticInputs[self.scales_by_name[uvName]][1]
+
+                        scalingNode.inputs[3].default_value = getScaleVector(mode[0])
+                        scalingNode.inputs[4].default_value = getScaleVector(mode[1])
+
+                    if scalingNode:
+                        blendMaterial.node_tree.links.new(scalingNode.outputs[0], texNode.inputs[0])
                 
         for texture in material.textures:
             blendTex = self.loadTexture(texture)
@@ -191,8 +232,8 @@ class BlenderMaterialTree:
             
             # shader specific
             if material.shader == 217 or material.shader == 43: # detail
-                if texture.key in TextureMap["DetailTextures"].keys() and 4081294361 in material.staticInputs:
-                    index = TextureMap["DetailTextures"][texture.key]
+                if texture.key in self.all_detail_textures.keys() and 4081294361 in material.staticInputs:
+                    index = self.all_detail_textures[texture.key]
                     if material.shader == 43:
                         index-=1
                     scale = material.staticInputs[4081294361][index]
@@ -204,7 +245,7 @@ class BlenderMaterialTree:
                     scaleNode.inputs[4].default_value = scale[2]
 
                     if 3249912104 in material.staticInputs:
-                        shaderInput = "Detail {} Multipliers".format(TextureMapping[texture.key].readableName.replace("Detail Region ",""))
+                        shaderInput = "Detail {} Multipliers".format(self.texture_mapping[texture.key].readableName.replace("Detail Region ",""))
                         shaderGroup.inputs[shaderInput].default_value = material.staticInputs[3249912104][index][:3]
         
         # shader specific fixes
@@ -283,7 +324,7 @@ class BlenderMaterialTree:
             }
             
             for texture in material.textures:
-                mapping = TextureMapping[texture.key] if texture.key in TextureMapping else None
+                mapping = self.texture_mapping[texture.key] if texture.key in self.texture_mapping else None
                 materials[materialGUID]["textures"].append({"GUID": texture.GUID, "mapping": texture.key})
                 if mapping and texture.key not in mappings:
                     mappings[texture.key] = mapping.__dict__
@@ -293,12 +334,6 @@ class BlenderMaterialTree:
                 materials[object["owm.material"]]["users"].append(object.name)
 
         json.dump(database, open(PathUtil.joinPath(filepath,"..", "materials.json"), "w"))
-            
-
-
-tile_x = 400
-tile_y = 50
-TextureMapping = TextureMap["Mapping"]
 
 def buildNodeTree(textureInputs, shaderKey, blendNodeGroups):
     shaderGroup = shaderKey[-2]
@@ -333,11 +368,15 @@ def buildNodeTree(textureInputs, shaderKey, blendNodeGroups):
     renameNode(shaderNode, "OverwatchShader", "OWM Shader {}".format(shaderGroup))
     shaderNode["owm.shaderkey"] = shaderKeyStr
 
-    if str(shaderKeyStr) in TextureMap['NodeGroups'] and TextureMap['NodeGroups'][str(shaderKeyStr)] in blendNodeGroups:
-        shaderNode.node_tree = blendNodeGroups[TextureMap['NodeGroups'][str(shaderKeyStr)]]
+    node_groups = shader_metadata.get_shader_metadata("NodeGroups")
+    texture_mapping = shader_metadata.get_shader_metadata("Mapping")
+    detail_textures = shader_metadata.get_shader_metadata("DetailTextures")
+
+    if str(shaderKeyStr) in node_groups and node_groups[str(shaderKeyStr)] in blendNodeGroups:
+        shaderNode.node_tree = blendNodeGroups[node_groups[str(shaderKeyStr)]]
     else:
-        if TextureMap['NodeGroups']['Default'] in blendNodeGroups:
-            shaderNode.node_tree = blendNodeGroups[TextureMap['NodeGroups']['Default']]
+        if node_groups['Default'] in blendNodeGroups:
+            shaderNode.node_tree = blendNodeGroups[node_groups['Default']]
 
     shaderNode.location = (0, 0)
     shaderNode.width = 300
@@ -347,7 +386,7 @@ def buildNodeTree(textureInputs, shaderKey, blendNodeGroups):
     # sort texture inputs so that the nodes are created and placed in the same order as the node group takes in
     shaderInputs = []
     for input in shaderNode.inputs:
-        for mappingID, mapping in TextureMapping.items():
+        for mappingID, mapping in texture_mapping.items():
             if input.name in mapping.colorSockets and mappingID in textureInputs and mappingID not in shaderInputs:
                 shaderInputs.append(mappingID)
 
@@ -359,7 +398,7 @@ def buildNodeTree(textureInputs, shaderKey, blendNodeGroups):
         UVNode = createUVNode(nodes, 1, (2,8))
 
     for i, texture in enumerate(shaderInputs):
-        mapping = TextureMapping[texture] if texture in TextureMapping else None
+        mapping = texture_mapping[texture] if texture in texture_mapping else None
         label = mapping.readableName if mapping else f'{texture:x}'.upper()
 
         texNode = createTexNode(nodes, texture, label, (1,i+2))
@@ -380,7 +419,7 @@ def buildNodeTree(textureInputs, shaderKey, blendNodeGroups):
             links.new(UVNodeAO.outputs[0], texNode.inputs[0])
         if (shaderGroup == 217 or shaderGroup == 44) and texture == 2903569922: # hero ao
             links.new(texNode.outputs[1], shaderNode.inputs["AO"])
-        if (shaderGroup == 217 or shaderGroup == 43) and texture in TextureMap["DetailTextures"].keys(): #detail
+        if (shaderGroup == 217 or shaderGroup == 43) and texture in detail_textures.keys(): #detail
             #mappingNode = createMappingNode(nodes, str(texture)+" Detail Mapping", (1.5, i+2))
             scalingNode = nodes.new("ShaderNodeGroup")
             scalingNode.name = str(texture)+" Detail Scale"
