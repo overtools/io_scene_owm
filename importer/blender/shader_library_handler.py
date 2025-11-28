@@ -1,20 +1,19 @@
 import os
 import bpy
-from . import UIUtil
-from .. import TextureMap
-from ..importer.blender.version_helper import get_addon_version
+from .blender_helper import log
+from .addon_helper import get_addon_version
 
 def get_library_path():
-    return os.path.join(os.path.dirname(__file__), "..\\library.blend")
+    return os.path.join(os.path.dirname(__file__), "..", "..", "library.blend")
 
 def load_data():
     try:
         return import_overwatch_shaders()
     except BaseException as e:
-        UIUtil.log("failed to load node groups: {}".format(e))
+        log("failed to load node groups: {}".format(e))
 
 def import_overwatch_shaders():
-    UIUtil.log("attempting to import shaders")
+    log("attempting to import shaders")
     path = get_library_path()
     addon_version = get_addon_version()
 
@@ -65,9 +64,9 @@ def import_overwatch_shaders():
             data_to.texts.append(text_name)
             original_text_names.append(text_name)
         
-        UIUtil.log("newly loaded node groups: %s" % (", ".join(data_to.node_groups)))
-        UIUtil.log("newly loaded shader scripts: %s" % (", ".join(data_to.texts)))
-        UIUtil.log("existing node groups: %s" % (", ".join(already_appended_nodes.keys())))
+        log("newly loaded node groups: %s" % (", ".join(data_to.node_groups)))
+        log("newly loaded shader scripts: %s" % (", ".join(data_to.texts)))
+        log("existing node groups: %s" % (", ".join(already_appended_nodes.keys())))
 
     blNodeGroups = dict(zip(original_node_names, data_to.node_groups))
     for original_name, block in blNodeGroups.items():
@@ -90,7 +89,7 @@ def import_overwatch_shaders():
     return blNodeGroups
 
 def export_overwatch_shaders():
-    UIUtil.log("attempting to export shaders")
+    log("attempting to export shaders")
     path = get_library_path()
     
     blocks_node = list([node for node in bpy.data.node_groups if node.name.startswith("OWM: ") ])
@@ -102,9 +101,9 @@ def export_overwatch_shaders():
         bpy.data.texts[block_text.name].use_fake_user = True
     blocks = set(blocks_node + blocks_text)
     if len(blocks) > 0:
-        UIUtil.log("exported: %s" % (", ".join(map(lambda x: x.name, blocks))))
+        log("exported: %s" % (", ".join(map(lambda x: x.name, blocks))))
     bpy.data.libraries.write(path, blocks, fake_user=True, path_remap="RELATIVE_ALL", compress=False)
-    UIUtil.log("saved %s" % (path))
+    log("saved %s" % (path))
 
 class OWMLoadOp(bpy.types.Operator):
     """Load OWM Material Library"""
@@ -129,6 +128,8 @@ class OWMSaveOp(bpy.types.Operator):
 
     def invoke(self, context, event):
         return self.execute(context)
+
+
 
 def getAOTextures():
     ao = {}

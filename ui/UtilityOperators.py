@@ -1,10 +1,11 @@
 import bpy
 from ..readers import PathUtil
-from . import LibraryHandler
 from . import Preferences
 from . import DatatoolLibHandler
 from . import DatatoolLibUtil
+from ..importer.blender import shader_library_handler
 from ..importer.blender.BLMaterial import BlenderMaterialTree
+from .. import TextureMap
 
 class OWMUtilityPanel(bpy.types.Panel):
     bl_idname = "OBJECT_PT_owm_panel2"
@@ -23,9 +24,9 @@ class OWMUtilityPanel(bpy.types.Panel):
         layout = self.layout
 
         row = layout.row()
-        row.operator(LibraryHandler.OWMLoadOp.bl_idname, text="Import OWM Library", icon="LINK_BLEND")
+        row.operator(shader_library_handler.OWMLoadOp.bl_idname, text="Import OWM Library", icon="LINK_BLEND")
         if Preferences.getPreferences().devMode:
-            row.operator(LibraryHandler.OWMSaveOp.bl_idname, text="Export OWM Library", icon="APPEND_BLEND")
+            row.operator(shader_library_handler.OWMSaveOp.bl_idname, text="Export OWM Library", icon="APPEND_BLEND")
         #row = layout.row()
         #row.prop(bpy.context.scene.owm3_internal_settings, "b_logsalot", text="Log Map Progress")
 
@@ -40,8 +41,8 @@ class OWMUtilityPanel(bpy.types.Panel):
         box = layout.box()
         box.label(text="Material Operators")
         row = box.row()
-        row.operator(LibraryHandler.OWMConnectAOOp.bl_idname, text="Connect AO Textures", icon="OBJECT_DATA")
-        row.operator(LibraryHandler.OWMDisconnectAOOp.bl_idname, text="Disconnect AO Textures", icon="OBJECT_DATA")
+        row.operator(OWMConnectAOOp.bl_idname, text="Connect AO Textures", icon="OBJECT_DATA")
+        row.operator(OWMDisconnectAOOp.bl_idname, text="Disconnect AO Textures", icon="OBJECT_DATA")
         if DatatoolLibUtil.isPathSet():
             row = box.row()
             row.operator(DatatoolLibHandler.OWMBuildTextureDB.bl_idname, text="Scan Texture Directories (CAN TAKE LONG)", icon="VIEWZOOM")
@@ -179,4 +180,81 @@ class OWMChangeModelLookOp(bpy.types.Operator):
         return {"FINISHED"}
 
     def invoke(self, context, event): # uh idk
+        return self.execute(context)
+
+
+def getAOTextures():
+    ao = {}
+    for tex, mapping in TextureMap.TextureTypes["Mapping"].items():
+        if tex == 3761386704: 
+            continue
+        if "AO" in mapping.colorSockets or "AO" in mapping.alphaSockets or "Blend AO" in mapping.colorSockets:
+            ao[str(tex)] = mapping
+    return ao
+
+class OWMConnectAOOp(bpy.types.Operator):
+    """Connects all AO textures"""
+    bl_idname = "owm3.enable_ao"
+    bl_label = "Enable AO"
+
+    def execute(self, context):
+        aoTexs = getAOTextures()
+        connectCount = 0
+        for mat in bpy.data.materials:
+            if not mat.use_nodes:
+                continue
+            if "OverwatchShader" in mat.node_tree.nodes:
+                shaderNode = mat.node_tree.nodes["OverwatchShader"]
+                aoNodes = [node for node in mat.node_tree.nodes if node.name in aoTexs]
+                for node in aoNodes:
+                    mapping = aoTexs[node.name]
+                    for colorSocket in mapping.colorSockets:
+                        if colorSocket in shaderNode.inputs:
+                            mat.node_tree.links.new(node.outputs[0], shaderNode.inputs[colorSocket])
+                            connectCount+=1
+                    for alphaSocket in mapping.alphaSockets:
+                        if alphaSocket in shaderNode.inputs:
+                            mat.node_tree.links.new(node.outputs[1], shaderNode.inputs[alphaSocket])
+                            connectCount+=1
+                if "2903569922" in mat.node_tree.nodes and ("43" in shaderNode.label or "217" in shaderNode.label): # hero ao
+                    mat.node_tree.links.new(mat.node_tree.nodes["2903569922"].outputs[1], shaderNode.inputs["AO"])
+                    connectCount+=1
+        self.report({'INFO'}, 'Connected {} AO Textures.'.format(connectCount))                   
+        return {"FINISHED"}
+
+    def invoke(self, context, event):
+        return self.execute(context)
+
+class OWMDisconnectAOOp(bpy.types.Operator):
+    """Disconnects all AO textures"""
+    bl_idname = "owm3.disable_ao"
+    bl_label = "Disable AO"
+
+    def execute(self, context):
+        aoTexs = getAOTextures()
+        disconnectCount = 0
+        for mat in bpy.data.materials:
+            if not mat.use_nodes:
+                continue
+            if "OverwatchShader" in mat.node_tree.nodes:
+                aoNodes = [node for node in mat.node_tree.nodes if node.name in aoTexs]
+                for node in aoNodes:
+                    for link in node.outputs[0].links:
+                        if "AO" in link.to_socket.name:
+                            mat.node_tree.links.remove(link)
+                        disconnectCount+=1
+                    for link in node.outputs[1].links:
+                        if "AO" in link.to_socket.name:
+                            mat.node_tree.links.remove(link)
+                            disconnectCount+=1
+                
+                shaderNode = mat.node_tree.nodes["OverwatchShader"]
+                if "2903569922" in mat.node_tree.nodes and ("43" in shaderNode.label or "217" in shaderNode.label): # hero ao
+                    for link in mat.node_tree.nodes["2903569922"].outputs[1].links:
+                        mat.node_tree.links.remove(link)
+                        disconnectCount+=1
+        self.report({'INFO'}, 'Disonnected {} AO Textures.'.format(disconnectCount))                   
+        return {"FINISHED"}
+
+    def invoke(self, context, event):
         return self.execute(context)

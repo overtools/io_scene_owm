@@ -1,5 +1,6 @@
 import bpy
-import inspect
+from importer.blender.blender_helper import log # forwarding, as it used to live here
+
 mute = False
 filesErrored = 0
 
@@ -50,10 +51,6 @@ def updateProgressbar(i, total):
 def setStatus(text):
     if bpy.app.version[0] >= 4:
         bpy.context.workspace.status_text_set(text)
-
-def log(text):
-    caller = inspect.stack()[1].filename.split("\\")[-1].replace(".py", "")
-    print("[owm]", caller+":", text)
 
 def consoleProgressBar(op, current, total, bar_length=20, caller=""):
     updateProgressbar(current, total)

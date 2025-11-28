@@ -5,7 +5,9 @@ from ...readers import OWMaterialReader, PathUtil
 from ...TextureMap import TextureTypes as TextureMap
 from ...TextureMap import StaticInputsByType, ScalesByName
 from ...datatypes import MaterialTypes
-from ...ui import LibraryHandler, UIUtil
+
+from blender_helper import log
+from . import shader_library_handler
 
 class BlenderMaterialTree:
     def __init__(self, modelLooks, dedup=False):
@@ -19,10 +21,10 @@ class BlenderMaterialTree:
         self.texPaths = {}
         self.dedup = dedup
         self.unusedMaterials = set()
-        self.blendNodeGroups = LibraryHandler.load_data()
-        UIUtil.log("Reading material looks")
+        self.blendNodeGroups = shader_library_handler.load_data()
+        log("Reading material looks")
         self.batchLoadMaterials(modelLooks)
-        UIUtil.log("Creating {} materials".format(len(self.materials)))
+        log("Creating {} materials".format(len(self.materials)))
         self.createMaterials()
 
     def batchLoadMaterials(self, modelLooks):
@@ -85,7 +87,7 @@ class BlenderMaterialTree:
                 self.markUsed(blendMaterial)
                 blendObj["owm.material"] = materialGUID
             else:
-                UIUtil.log("Unable to find material {:016X} in provided material set (BLMaterial)".format(meshData.materialKey))
+                log("Unable to find material {:016X} in provided material set (BLMaterial)".format(meshData.materialKey))
 
     def bindEntityLook(self, entity, modelLookID):
         if entity.baseModel:

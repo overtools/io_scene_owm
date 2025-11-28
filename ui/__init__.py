@@ -1,4 +1,3 @@
-from . import LibraryHandler
 from . import SettingTypes
 from . import BlenderManager
 from . import UIUtil
