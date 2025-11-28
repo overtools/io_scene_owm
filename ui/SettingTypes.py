@@ -163,19 +163,3 @@ class OWLightSettings(bpy.types.PropertyGroup):
         layout.prop(me, 'shadowSoftBias')
         # layout.prop(me, 'adjustLightValue')
         layout.prop(me, 'adjustLightStrength')
-
-
-class OWEffectSettings:
-    def __init__(self, settings, force_fps, target_fps, import_DMCE, import_CECE, import_NECE,
-                 import_SVCE, svce_line_seed, svce_sound_seed, create_camera, cleanup_hardpoints):
-        self.settings = settings
-        self.force_fps = force_fps
-        self.target_fps = target_fps
-        self.import_DMCE = import_DMCE
-        self.import_CECE = import_CECE
-        self.import_NECE = import_NECE
-        self.import_SVCE = import_SVCE
-        self.svce_line_seed = svce_line_seed
-        self.svce_sound_seed = svce_sound_seed
-        self.create_camera = create_camera
-        self.cleanup_hardpoints = cleanup_hardpoints

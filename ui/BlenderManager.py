@@ -2,16 +2,17 @@ import bpy
 from bpy.app.handlers import persistent
 
 
+
+from . import ImportModelOperator
 from . import ImportMaterialOperator
 from . import ImportEntityOperator
+from . import ImportAnimationOperator
 from . import ImportMapOperator
-from . import ImportModelOperator
+from . import ImportMapWizard
 from . import ImportSkinOperator
+from . import UtilityOperators
 from . import Preferences
 from . import SettingTypes
-from . import UtilityOperators
-from . import ImportMapWizard
-from . import ImportAnimationOperator
 from . import DatatoolLibHandler
 from . import shader_library_operators
 
@@ -39,7 +40,6 @@ classes = (
     SettingTypes.OWEntitySettings,
     SettingTypes.OWLightSettings,
     SettingTypes.OWMapSettings,
-    #OWEffectSettings,
     #Panel
     UtilityOperators.OWMUtilityPanel,
     UtilityOperators.OWMModelLookPanel,
