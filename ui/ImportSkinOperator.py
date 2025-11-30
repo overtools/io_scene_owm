@@ -207,10 +207,10 @@ class ImportOWSkinWizard(bpy.types.Operator):
     def execute(self, context):
         if self.hero == "Select":
             self.report({'ERROR'}, "No Hero selected.")
-            return {'FINISHED'}
+            return {'CANCELLED'}
         elif self.skin == "Select":
             self.report({'ERROR'}, "No Skin selected.")
-            return {'FINISHED'}
+            return {'CANCELLED'}
 
         entity_path = joinPath(DatatoolLibUtil.getRoot(), "Heroes", self.skin,
             self.mythic_variant if self.is_mythic else "", "Entities",

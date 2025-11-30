@@ -26,28 +26,28 @@ class ImportOWMapWizard(bpy.types.Operator):
         return MAPS
 
     def listIDs(self, context):
-        if self.map == "Select":
-            return DatatoolLibUtil.DUMMY
+        if self.map == "":
+            return []
         enum = DatatoolLibUtil.subCategoryList("Maps", self.map, True)
         IDS = enum
         return IDS
 
     def listVariants(self, context):
-        if self.id == "Select":
-            return DatatoolLibUtil.DUMMY
+        if self.id == "":
+            return []
         global VARIANTS
         VARIANTS = DatatoolLibUtil.subCategoryList("Maps", joinPath(self.map, self.id), True, True, ".owmap")
         return VARIANTS
 
     def resetValues(self, context=None):
         ImportOWMapWizard.listIDs(self, None)
-        self.id = "Select" if len(IDS) != 2 else IDS[1][0]
-        self.variation = "Select"
+        self.id = "" if len(IDS) != 2 else IDS[1][0]
+        self.variation = ""
         ImportOWMapWizard.resetVariation(self, None)
     
     def resetVariation(self, context=None):
         ImportOWMapWizard.listVariants(self, None)
-        self.variation = "Select" if len(VARIANTS) != 2 else VARIANTS[1][0]
+        self.variation = "" if len(VARIANTS) != 2 else VARIANTS[1][0]
 
     modelSettings: bpy.props.PointerProperty(type=SettingTypes.OWModelSettings)
 
@@ -80,13 +80,13 @@ class ImportOWMapWizard(bpy.types.Operator):
             return False
 
     def execute(self, context):
-        if self.map == "Select":
+        if self.map == "":
             self.report({'ERROR'}, "No Map selected.")
             bpy.ops.import_mesh.overtools2_mapwiz('INVOKE_DEFAULT')
-        elif self.id == "Select":
+        elif self.id == "":
             self.report({'ERROR'}, "No ID selected.")
             bpy.ops.import_mesh.overtools2_mapwiz('INVOKE_DEFAULT')
-        elif self.variation == "Select":
+        elif self.variation == "":
             self.report({'ERROR'}, "No Variation selected.")
             bpy.ops.import_mesh.overtools2_mapwiz('INVOKE_DEFAULT')
         else:
@@ -114,9 +114,9 @@ class ImportOWMapWizard(bpy.types.Operator):
         topCol.scale_y = 1.5
         topCol.ui_units_y = 5
         topCol.prop(self, 'map')
-        if self.map != "Select":
+        if self.map != "":
             topCol.prop(self, 'id')
-            if self.id != "Select":
+            if self.id != "":
                 topCol.prop(self, 'variation')
 
         rootCol.label(text="Import Options")

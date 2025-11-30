@@ -64,4 +64,4 @@ class OWMFixTextures(bpy.types.Operator):
             return self.execute(context)
         else:
             self.report({'ERROR'}, 'Texture database not found. Run the "Scan Texture Directories" Operator first.')  
-            return {'FINISHED'}
+            return {'CANCELLED'}
