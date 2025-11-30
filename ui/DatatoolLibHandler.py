@@ -32,6 +32,7 @@ class OWMFixTextures(bpy.types.Operator):
     """Looks through all missing materials and checks against the indexed textures"""
     bl_idname = "owm3.fix_tex"
     bl_label = "Fix Missing Textures"
+    bl_options = {'UNDO'}
 
     def execute(self, context):
         db = json.load(open(PathUtil.joinPath(DatatoolLibUtil.getRoot(),"texture_db.json"), "r"))

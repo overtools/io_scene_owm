@@ -132,8 +132,7 @@ class OWMChangeModelLookOp(bpy.types.Operator):
     bl_idname = "owm3.change_modellook"
     bl_label = "Change ModelLook"
     __doc__ = bl_label
-    bl_options = {'INTERNAL'}
-
+    bl_options = {'INTERNAL', 'UNDO'}
     
     def getModelLooks(self, context):
         folder = getModelFolder(context.object)
@@ -197,6 +196,7 @@ class OWMConnectAOOp(bpy.types.Operator):
     """Connects all AO textures"""
     bl_idname = "owm3.enable_ao"
     bl_label = "Enable AO"
+    bl_options = {'UNDO'}
 
     def execute(self, context):
         aoTexs = getAOTextures()
@@ -230,6 +230,7 @@ class OWMDisconnectAOOp(bpy.types.Operator):
     """Disconnects all AO textures"""
     bl_idname = "owm3.disable_ao"
     bl_label = "Disable AO"
+    bl_options = {'UNDO'}
 
     def execute(self, context):
         aoTexs = getAOTextures()
