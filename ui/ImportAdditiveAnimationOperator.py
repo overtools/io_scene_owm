@@ -10,9 +10,10 @@ from ..importer import ImportAnimation
 from ..readers import PathUtil
 
 
-class ImportOWANIMCLIP(bpy.types.Operator, ImportHelper):
-    bl_idname = 'import_mesh.overtools2_animmclip'
-    bl_label = 'Import Overtools Animation Clip'
+class ImportOWADDITIVEANIMCLIP(bpy.types.Operator, ImportHelper):
+    bl_idname = 'import_mesh.overtools2_animmclip_additive'
+    bl_label = 'Import Overtools Animation Clip (Additive)'
+    bl_description = 'An alternate version of the animation importer which works exclusively for additive animations'
     __doc__ = bl_label
     bl_options = {'UNDO'}
 
@@ -46,7 +47,7 @@ class ImportOWANIMCLIP(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         t = datetime.now()
         files = [PathUtil.joinPath(self.directory, file.name) for file in self.files]
-        ImportAnimation.init(files, context, False)
+        ImportAnimation.init(files, context, True)
 
         UIUtil.log('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
