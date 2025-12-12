@@ -3,7 +3,6 @@ from . import ImportModelOperator
 from . import ImportMaterialOperator
 from . import ImportEntityOperator
 from . import ImportAnimationOperator
-from . import ImportAdditiveAnimationOperator
 from . import ImportMapOperator
 from . import ImportMapWizard
 from . import ImportSkinOperator
@@ -26,7 +25,6 @@ class OvertoolsMenu(bpy.types.Menu):
         self.layout.operator(ImportMapOperator.ImportOWMAP.bl_idname, text='Map (.owmap)')
         self.layout.operator(ImportMaterialOperator.ImportOWMAT.bl_idname, text='Material (.owmat)')
         self.layout.operator(ImportAnimationOperator.ImportOWANIMCLIP.bl_idname, text='Animation (.owanimclip)')
-        self.layout.operator(ImportAdditiveAnimationOperator.ImportOWADDITIVEANIMCLIP.bl_idname, text='Additive Animation (.owanimclip)')
 
 def overtoolsMenuDraw(self, context):
     self.layout.menu("OWM_MT_overtools_menu", text="Overtools")
@@ -60,7 +58,6 @@ classes_importers = (
     ImportEntityOperator.ImportOWENTITY,
     ImportMapOperator.ImportOWMAP,
     ImportAnimationOperator.ImportOWANIMCLIP,
-    ImportAdditiveAnimationOperator.ImportOWADDITIVEANIMCLIP,
     ImportMapWizard.ImportOWMapWizard,
     ImportSkinOperator.ImportOWSkinWizard,
     filehandler_operators.IO_FH_owmdl,

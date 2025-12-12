@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import bpy
-from bpy.props import StringProperty, CollectionProperty
+from bpy.props import StringProperty, CollectionProperty, BoolProperty
 from bpy.utils import smpte_from_seconds
 from bpy_extras.io_utils import ImportHelper
 
@@ -30,6 +30,12 @@ class ImportOWANIMCLIP(bpy.types.Operator, ImportHelper):
         type=bpy.types.OperatorFileListElement,
         options={'HIDDEN', 'SKIP_SAVE'},
     )
+
+    additive: BoolProperty(
+        name='Import as additive',
+        description='Import as an additive animation on top of the current pose',
+        default=False
+    )
     
     @classmethod
     def poll(self, context):
@@ -46,11 +52,13 @@ class ImportOWANIMCLIP(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         t = datetime.now()
         files = [PathUtil.joinPath(self.directory, file.name) for file in self.files]
-        ImportAnimation.init(files, context, False)
+        ImportAnimation.init(files, context, self.additive)
 
         UIUtil.log('Done. SMPTE: %s' % (smpte_from_seconds(datetime.now() - t)))
         return {'FINISHED'}
 
     def draw(self, context):
-        pass
+        col = self.layout.column()
+        row = col.row()
+        row.prop(self, "additive")
         
