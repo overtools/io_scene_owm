@@ -2,7 +2,7 @@ from .blender import BLAnimation
 from ..readers import OWAnimReader
 import bpy
 
-def init(filenames, context):
+def init(filenames, context, importAsAdditive):
     armature = context.active_object
 
     if not getattr(armature, "animation_data", False):
@@ -12,7 +12,7 @@ def init(filenames, context):
         animData = OWAnimReader.read(filenames[0])
         if animData is None: return
         
-        armature.animation_data.action = BLAnimation.importAction(animData, armature)
+        armature.animation_data.action = BLAnimation.importAction(animData, armature, importAsAdditive)
         context.scene.frame_end = animData.header.duration
     else:
         track = armature.animation_data.nla_tracks.new()
@@ -24,7 +24,7 @@ def init(filenames, context):
             animData = OWAnimReader.read(filename)
             if animData is None: continue
         
-            action = BLAnimation.importAction(animData, armature)
+            action = BLAnimation.importAction(animData, armature, importAsAdditive)
             track.strips.new(action.name, frameOffset, action)
             frameOffset+=animData.header.duration
         
